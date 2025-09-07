@@ -1,6 +1,6 @@
 from typing import List
-from ..solver.solver import Solver
-from ..indi.indi import Individual
+from solver import Solver
+from indi import Individual
 
 
 class SubPopulation:
@@ -8,4 +8,5 @@ class SubPopulation:
         self.solver = solver
         self.lst_indis = lst_indis
 
-    
+    def evolve(self):
+        pass   
