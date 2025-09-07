@@ -11,4 +11,4 @@ class Individual:
         self.fitness = np.inf
 
     def __str__(self):
-        return f'{self.gene}'
+        return f'{self.gene}\nFitness: {self.fitness}'
