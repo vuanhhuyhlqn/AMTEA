@@ -30,14 +30,16 @@ class TaskPopulation:
             dict_subpopulations[solver.id] = SubPopulation(self.task, solver)
             lst_p_values.append(get_p_value(self.task.task_name, solver.id))
 
-        solver_ids = [solver.id for solver in self.lst_solvers]
+        solver_ids : List[str] = [solver.id for solver in self.lst_solvers]
 
         for indi in self.lst_indis:
             chosen_solver_id = random.choices(solver_ids, weights=lst_p_values, k=1)[0]
 
             dict_subpopulations[chosen_solver_id].add_individual(indi)
         
-        
+        for solver_id in solver_ids:
+            dict_subpopulations[solver_id].evolve()
+            #TODO: update success/failure memory
 
 
     def get_median_fitness(self) -> float:
