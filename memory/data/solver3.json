@@ -1,5 +1,14 @@
 {
-    "task1": 0.1,
-    "task2": 0.5,
-    "task3": 0.4
+    "task1": {
+        "success": 10,
+        "failure": 5
+    },
+    "task2": {
+        "success": 10,
+        "failure": 5
+    },
+    "task3": {
+        "success": 10,
+        "failure": 5
+    }
 }
