@@ -1,4 +1,4 @@
-from abstract import AbstractModel
+from .abstract import AbstractModel
 from openai import OpenAI
 
 class GPTModel(AbstractModel):
