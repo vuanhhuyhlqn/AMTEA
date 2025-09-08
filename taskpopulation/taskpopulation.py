@@ -1,4 +1,5 @@
 from typing import List, Dict
+import random
 from task import AbstractTask
 from subpopulation import SubPopulation
 from indi import Individual
@@ -23,11 +24,20 @@ class TaskPopulation:
         # current_median_fitness : float = self.get_median_fitness()
 
         dict_subpopulations : Dict[str, SubPopulation] = {}
-        dict_p_values : Dict[str, float] = {}
+        lst_p_values : List[float] = []
 
         for solver in self.lst_solvers:
             dict_subpopulations[solver.id] = SubPopulation(self.task, solver)
-            # lst_p_values
+            lst_p_values.append(get_p_value(self.task.task_name, solver.id))
+
+        solver_ids = [solver.id for solver in self.lst_solvers]
+
+        for indi in self.lst_indis:
+            chosen_solver_id = random.choices(solver_ids, weights=lst_p_values, k=1)[0]
+
+            dict_subpopulations[chosen_solver_id].add_individual(indi)
+        
+        
 
 
     def get_median_fitness(self) -> float:
