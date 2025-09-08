@@ -1,7 +1,7 @@
 import numpy as np
 
 class Individual:
-    def __init__(self, dim, gene=None):
+    def __init__(self, dim, gene:np.ndarray=None):
         self.dim = dim
         if gene is None:
             self.gene = np.random.uniform(size=(self.dim))
