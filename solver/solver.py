@@ -6,7 +6,7 @@ import subprocess
 import json
 
 class Solver:
-    def __init__(self, id):
+    def __init__(self, id: str):
         self.id = id
         self.num_operands = 2  
 
@@ -26,7 +26,7 @@ class Solver:
         
         try:
             subprocess.run(
-                [sys.executable, run_file, str(self.id)],
+                [sys.executable, run_file, self.id],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 check=True
