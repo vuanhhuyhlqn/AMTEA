@@ -1,7 +1,6 @@
 import os
 import hydra
 from omegaconf import DictConfig
-from population import Population
 
 @hydra.main(version_base=None, config_path='cfg', config_name='config')
 def main(cfg: DictConfig):
