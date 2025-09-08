@@ -3,6 +3,8 @@ from task import AbstractTask
 from subpopulation import SubPopulation
 from indi import Individual
 from solver import Solver
+from memory import get_p_value
+import numpy as np
 
 class TaskPopulation:
     def __init__(self, task : AbstractTask, size : int, lst_solvers: List[Solver]):
@@ -17,10 +19,19 @@ class TaskPopulation:
             self.lst_indis.append(Individual(self.task.dim))
 
     def evolve(self):
-        pass
+        #divide lst_indis into subpopulation
+        # current_median_fitness : float = self.get_median_fitness()
+
+        lst_subpopulations : List[SubPopulation] = []
+
+        for solver in self.lst_solvers:
+            lst_subpopulations.append(SubPopulation(self.task, solver, ))
+
 
     def get_median_fitness(self) -> float:
-        pass
+        #TODO code this function
+        return 100
+    
 
     def remove_solvers(self, solver_ids):
         pass
