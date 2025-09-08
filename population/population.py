@@ -21,8 +21,6 @@ class Population:
         for i in range(len(self.lst_tasks)):
             self.lst_taskpopulations.append(TaskPopulation(self.lst_tasks[i], int(self / len(self.lst_tasks))))
         
-
-        
     def load_pop(self, path:str):
         pass
 
