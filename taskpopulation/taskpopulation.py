@@ -16,7 +16,11 @@ class TaskPopulation:
         while len(self.lst_indis) < self.size:
             self.lst_indis.append(Individual(self.task.dim))
 
-        
+    def evolve(self):
+        pass
+
+    def get_median_fitness(self) -> float:
+        pass
 
     def remove_solvers(self, solver_ids):
         pass
