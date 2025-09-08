@@ -1,2 +1,3 @@
 cfg/llm_client/openai.yaml
 outputs/
+**/__pycache__/
