@@ -1,5 +1,6 @@
 from typing import List, Dict
 import random
+import statistics
 from task import AbstractTask
 from subpopulation import SubPopulation
 from indi import Individual
@@ -13,15 +14,14 @@ class TaskPopulation:
         self.size = size
         self.lst_solvers = lst_solvers
         self.num_solvers = len(self.lst_solvers)
-        
 
         self.lst_indis : List[Individual] = []
         while len(self.lst_indis) < self.size:
             self.lst_indis.append(Individual(self.task.dim))
 
-    def evolve(self):
-        #divide lst_indis into subpopulation
-        # current_median_fitness : float = self.get_median_fitness()
+    def evolve(self, gen : int):
+        # divide lst_indis into subpopulation
+        cur_median_fitness : float = self.get_median_fitness()
 
         dict_subpopulations : Dict[str, SubPopulation] = {}
         lst_p_values : List[float] = []
@@ -34,7 +34,6 @@ class TaskPopulation:
 
         for indi in self.lst_indis:
             chosen_solver_id = random.choices(solver_ids, weights=lst_p_values, k=1)[0]
-
             dict_subpopulations[chosen_solver_id].add_individual(indi)
         
         for solver_id in solver_ids:
@@ -43,9 +42,8 @@ class TaskPopulation:
 
 
     def get_median_fitness(self) -> float:
-        #TODO code this function
-        return 100
-    
+        fitness_values = [indi.fitness for indi in self.lst_indis]
+        return statistics.median(fitness_values)
 
     def remove_solvers(self, solver_ids):
         pass

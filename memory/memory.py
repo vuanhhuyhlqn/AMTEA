@@ -2,10 +2,46 @@ from typing import List, Dict
 import pandas as pd
 
 class Memory():
-	def __init__(self, memory_size: int = 5):
+	def __init__(self, lst_task_names: List[str], initial_solver_ids: List[str], memory_size: int = 5):
 		self.memory_size = memory_size
+
+		# Num success and num failure of each generation
 		self.data = pd.DataFrame(columns=["task_name", "solver_id", "generation", "num_success", "num_failure"])
-	
+		
+		# Probability of success
+		self.p_data = pd.DataFrame(columns=["task_name", "solver_id", "p"])
+
+		self.lst_task_names = lst_task_names
+		self.lst_sover_ids = initial_solver_ids # Initial solver_ids of the algorithm
+
+		self.restart(self.lst_sover_ids)
+
+	def restart(self, lst_solver_ids: List[str]):
+		self.data = pd.DataFrame(columns=self.data.columns)
+		self.p_data = pd.DataFrame(columns=self.p_data.columns)
+
+		self.lst_sover_ids = lst_solver_ids
+
+		for task_name in self.lst_task_names:
+			for solver_id in lst_solver_ids:
+				self.set_value(task_name, solver_id, 0, 0, 0)
+				self.set_p_value(task_name, solver_id, 1.0 / len(self.lst_sover_ids)) # Every solver get an equal chance at the beginning
+
+	def set_p_value(self, task_name: str, solver_id: str, p: float):
+		mask = (
+			(self.p_data["task_name"] == task_name) &
+			(self.p_data["solver_id"] == solver_id)
+		)
+		if mask.any():
+			self.data.loc[mask, "p"] = p
+		else:
+			new_row = {
+				"task_name": task_name,
+				"solver_id": solver_id,
+				"p": p
+			}
+			self.p_data = pd.concat([self.p_data, pd.DataFrame([new_row])], ignore_index=True)
+
 	def set_value(self, task_name: str, solver_id: str, generation: int, num_success: int, num_failure: int) :
 		mask = (
 			(self.data["task_name"] == task_name) &
@@ -23,7 +59,17 @@ class Memory():
 				"num_failure": num_failure
 			}
 			self.data = pd.concat([self.data, pd.DataFrame([new_row])], ignore_index=True)
-	
+
+	def get_p_value(self, task_name, solver_id):
+		row = self.p_data[
+			(self.p_data["task_name"] == task_name) &
+			(self.p_data["solver_id"] == solver_id)
+		]
+		if row.empty:
+			print(f'[ERROR] Task {task_name}, solver {solver_id}\'s p value does not exist.')
+			return 0
+		return row["p"].iloc[0]
+
 	def get_value(self, task_name, solver_id, generation):
 		row = self.data[
 			(self.data["task_name"] == task_name) &
@@ -64,4 +110,10 @@ class Memory():
 
 		return success_cnt / (success_cnt + failure_cnt) + eps 
 		
-		
+	def update_p_value(self, task_name, solver_id, generation, sigma=0.5):
+		upper = self.get_success_rate(task_name, solver_id, generation) + sigma * self.get_p_value(task_name, solver_id)
+		lower = 0
+		for _solver_id in self.lst_sover_ids:
+			lower += self.get_success_rate(task_name, _solver_id, generation) + sigma * self.get_p_value(task_name, _solver_id)
+		new_p_value = upper / lower
+		self.set_p_value(task_name, solver_id, new_p_value)

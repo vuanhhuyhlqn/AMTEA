@@ -14,11 +14,11 @@ class SubPopulation:
     def add_individual(self, indi : Individual):
         self.lst_indis.append(indi)
 
-    def get_random_indi(self):
+    def get_random_indi(self) -> Individual:
         random_idx = np.random.randint(low=0, high=self.size)
         return self.lst_indis[random_idx]
 
-    def evolve(self):
+    def evolve(self) -> List[Individual]:
         lst_offs: List[Individual] = []
         while len(lst_offs) < self.size:
             p1 = self.get_random_indi()
@@ -28,9 +28,7 @@ class SubPopulation:
 
             lst_offs.append(off)
         
-        self.lst_indis += lst_offs
-
-        self.lst_indis = sorted(self.lst_indis)
+        return lst_offs
         
 
         

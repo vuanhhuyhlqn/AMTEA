@@ -16,7 +16,7 @@ class Solver:
             print('Number of operands doesn\'t match')
             return None
         
-        print(f'Running solver {self.id} with operands: {operands}')
+        print(f'Running solver {self.id}')
         temp_dir = path.join(path.dirname(__file__), 'temp')
         temp_file = path.join(temp_dir, 'temp_parents.npy')
         np.save(temp_file, operands, allow_pickle=True)
