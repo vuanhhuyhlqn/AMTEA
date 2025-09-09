@@ -5,10 +5,10 @@ class Memory():
 	def __init__(self, lst_task_names: List[str], lst_solver_ids: List[str], memory_size: int = 5):
 		self.memory_size = memory_size
 
-		#Num success and num failure of each generation
+		# Num success and num failure of each generation
 		self.data = pd.DataFrame(columns=["task_name", "solver_id", "generation", "num_success", "num_failure"])
 		
-		#Probability of success
+		# Probability of success
 		self.p_data = pd.DataFrame(columns=["task_name", "solver_id", "p"])
 
 		self.lst_task_names = lst_task_names
@@ -117,4 +117,3 @@ class Memory():
 			lower += self.get_success_rate(task_name, _solver_id, generation) + sigma * self.get_p_value(task_name, _solver_id)
 		new_p_value = upper / lower
 		self.set_p_value(task_name, solver_id, new_p_value)
-		
