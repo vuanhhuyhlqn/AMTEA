@@ -11,7 +11,7 @@ def get_success_memory(task_name: str, solver_id: str) -> int:
             data = json.load(f)
             return data[task_name]["success"]
     else:
-        print('[ERROR] Solver\'s id does not exist')
+        print(f'[ERROR] Task {task_name}: Solver\'s id does not exist')
         return 0
     
 def get_failure_memory(task_name: str, solver_id: str) -> int:
@@ -23,7 +23,7 @@ def get_failure_memory(task_name: str, solver_id: str) -> int:
             data = json.load(f)
             return data[task_name]["failure"]
     else:
-        print('[ERROR] Solver\'s id does not exist')
+        print(f'[ERROR] Task {task_name}: Solver\'s id does not exist')
         return 0
 
 def get_p_value(task_name: str, solver_id: str) -> float:
