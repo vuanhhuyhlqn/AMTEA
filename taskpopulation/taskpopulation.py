@@ -5,15 +5,16 @@ from task import AbstractTask
 from subpopulation import SubPopulation
 from indi import Individual
 from solver import Solver
-from memory import get_p_value
+from memory import Memory
 import numpy as np
 
 class TaskPopulation:
-    def __init__(self, task : AbstractTask, size : int, lst_solvers: List[Solver]):
+    def __init__(self, task : AbstractTask, size : int, lst_solvers: List[Solver], mem : Memory):
         self.task = task
         self.size = size
         self.lst_solvers = lst_solvers
         self.num_solvers = len(self.lst_solvers)
+        self.mem = mem
 
         self.lst_indis : List[Individual] = []
         while len(self.lst_indis) < self.size:
@@ -37,8 +38,21 @@ class TaskPopulation:
             dict_subpopulations[chosen_solver_id].add_individual(indi)
         
         for solver_id in solver_ids:
-            dict_subpopulations[solver_id].evolve()
-            #TODO: update success/failure memory
+            lst_offs = dict_subpopulations[solver_id].evolve() # Offsprings from subpopulation's evolution
+
+            success, failure = 0, 0
+            for off in lst_offs:
+                if off.fitness < cur_median_fitness:
+                    success += 1
+                else:
+                    failure += 1
+            
+            self.mem.set_value(task_name=self.task.task_name, 
+                               solver_id=solver_id, 
+                               generation=gen, 
+                               num_success=success, 
+                               num_failure=failure)
+            
 
 
     def get_median_fitness(self) -> float:
