@@ -110,5 +110,11 @@ class Memory():
 
 		return success_cnt / (success_cnt + failure_cnt) + eps 
 		
-	def calculate_p_value()
+	def update_p_value(self, task_name, solver_id, generation, sigma=0.5):
+		upper = self.get_success_rate(task_name, solver_id, generation) + sigma * self.get_p_value(task_name, solver_id)
+		lower = 0
+		for _solver_id in self.lst_sover_ids:
+			lower += self.get_success_rate(task_name, _solver_id, generation) + sigma * self.get_p_value(task_name, _solver_id)
+		new_p_value = upper / lower
+		self.set_p_value(task_name, solver_id, new_p_value)
 		
