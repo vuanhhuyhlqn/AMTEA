@@ -54,6 +54,14 @@ class Memory():
 		else:
 			print(f'[ERROR] Task {task_name}, solver {solver_id}, generation {generation} does not exists')
 	
-	def get_success_rate(self, task_name, solver_id):
-		#TODO: implement this
-		pass
+	def get_success_rate(self, task_name, solver_id, generation, eps=1e-3):
+		success_cnt = 0
+		failure_cnt = 0
+
+		for i in range(generation - self.memory_size + 1, generation + 1):
+			success_cnt += self.get_num_success(task_name, solver_id, i)
+			failure_cnt += self.get_num_failure(task_name, solver_id, i)
+
+		return success_cnt / (success_cnt + failure_cnt) + eps 
+		
+		
