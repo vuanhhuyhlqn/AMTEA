@@ -34,3 +34,8 @@ class Memory():
             return None
         return row[["num_success", "num_failure"]].iloc[0].to_dict()
 
+    def get_num_success(self, task_name, solver_id, generation):
+        return self.get_value(task_name, solver_id, generation)['num_success']
+
+    def get_num_failure(self, task_name, solver_id, generation):
+        return self.get_value(task_name, solver_id, generation)['num_failure']
