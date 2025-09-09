@@ -6,7 +6,7 @@ from LLM.model import GPTModel
 
 @hydra.main(version_base=None, config_path='cfg', config_name='config')
 def main(cfg: DictConfig):
-    print(f'Algorithm: {cfg.algorithm}')
+    print(f'Memory size: {cfg.algorithm.memory_size}')
     print(f'LLM Model: {cfg.llm_client.model}')
     
 
