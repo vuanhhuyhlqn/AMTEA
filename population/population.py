@@ -12,17 +12,20 @@ class Population:
                  lst_tasks: List[AbstractTask], 
                  size,
                  num_solvers,
-                 lst_solvers: List[Solver],
+                 initial_lst_solvers: List[Solver],
                  mem: Memory):
         self.lst_tasks: List[AbstractTask] = lst_tasks
         self.lst_taskpopulations: List[TaskPopulation] = []
         self.size = size
         self.num_solvers = num_solvers
-        self.lst_solvers = lst_solvers
+        self.lst_solvers = initial_lst_solvers
         self.mem = mem
 
         for i in range(len(self.lst_tasks)):
-            self.lst_taskpopulations.append(TaskPopulation(task=self.lst_tasks[i], size=int(self / len(self.lst_tasks))))
+            self.lst_taskpopulations.append(TaskPopulation(task=self.lst_tasks[i], 
+                                                           lst_solvers=self.lst_solvers,
+                                                           size=int(self / len(self.lst_tasks)),
+                                                           mem=self.mem))
         
     def load_pop(self, path:str):
         # TODO implement this if have time
@@ -32,3 +35,4 @@ class Population:
         # TODO implement this if have time
         pass
 
+    
