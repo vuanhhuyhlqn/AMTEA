@@ -2,7 +2,7 @@ from typing import List, Dict
 import pandas as pd
 
 class Memory():
-	def __init__(self, lst_task_names: List[str], lst_solver_ids: List[str], memory_size: int = 5):
+	def __init__(self, lst_task_names: List[str], initial_solver_ids: List[str], memory_size: int = 5):
 		self.memory_size = memory_size
 
 		# Num success and num failure of each generation
@@ -12,7 +12,7 @@ class Memory():
 		self.p_data = pd.DataFrame(columns=["task_name", "solver_id", "p"])
 
 		self.lst_task_names = lst_task_names
-		self.lst_sover_ids = lst_solver_ids # Initial solver_ids of the algorithm
+		self.lst_sover_ids = initial_solver_ids # Initial solver_ids of the algorithm
 
 		self.restart(self.lst_sover_ids)
 
