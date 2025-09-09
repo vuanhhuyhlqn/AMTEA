@@ -22,11 +22,13 @@ class Population:
         self.mem = mem
 
         for i in range(len(self.lst_tasks)):
-            self.lst_taskpopulations.append(TaskPopulation(self.lst_tasks[i], int(self / len(self.lst_tasks))))
+            self.lst_taskpopulations.append(TaskPopulation(task=self.lst_tasks[i], size=int(self / len(self.lst_tasks))))
         
     def load_pop(self, path:str):
+        # TODO implement this if have time
         pass
 
     def save_pop(self, path:str):
+        # TODO implement this if have time
         pass
 
