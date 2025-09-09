@@ -22,14 +22,12 @@ class TaskPopulation:
 
     def evolve(self, gen : int):
         # divide lst_indis into subpopulation
-        cur_median_fitness : float = self.get_median_fitness()
-
         dict_subpopulations : Dict[str, SubPopulation] = {}
         lst_p_values : List[float] = []
 
         for solver in self.lst_solvers:
             dict_subpopulations[solver.id] = SubPopulation(self.task, solver)
-            lst_p_values.append(get_p_value(self.task.task_name, solver.id))
+            lst_p_values.append(self.mem.get_p_value(task_name=self.task.task_name, solver_id=solver.id))
 
         solver_ids : List[str] = [solver.id for solver in self.lst_solvers]
 
@@ -37,11 +35,16 @@ class TaskPopulation:
             chosen_solver_id = random.choices(solver_ids, weights=lst_p_values, k=1)[0]
             dict_subpopulations[chosen_solver_id].add_individual(indi)
         
+        cur_median_fitness : float = self.get_median_fitness()
+
+        lst_offs : List[Individual] = []
+
         for solver_id in solver_ids:
-            lst_offs = dict_subpopulations[solver_id].evolve() # Offsprings from subpopulation's evolution
+            lst_offs_subpop = dict_subpopulations[solver_id].evolve() # Offsprings from subpopulation's evolution
+            lst_offs.extend(lst_offs_subpop)
 
             success, failure = 0, 0
-            for off in lst_offs:
+            for off in lst_offs_subpop:
                 if off.fitness < cur_median_fitness:
                     success += 1
                 else:
@@ -52,8 +55,12 @@ class TaskPopulation:
                                generation=gen, 
                                num_success=success, 
                                num_failure=failure)
-            
 
+        # Selection
+        self.lst_indis.extend(lst_offs)
+        self.lst_indis = sorted(self.lst_indis)
+        self.lst_indis = self.lst_indis[:self.size]
+        random.shuffle(self.lst_indis)
 
     def get_median_fitness(self) -> float:
         fitness_values = [indi.fitness for indi in self.lst_indis]
