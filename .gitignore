@@ -3,3 +3,5 @@ outputs/
 **/__pycache__/
 main.ipynb
 .vscode/
+solver/temp/output.npy
+solver/temp/temp_parents.npy
