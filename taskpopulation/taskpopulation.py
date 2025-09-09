@@ -16,9 +16,10 @@ class TaskPopulation:
         self.num_solvers = len(self.lst_solvers)
         self.mem = mem
         self.dim = dim # Individual dimension
-
         self.lst_indis : List[Individual] = []
         while len(self.lst_indis) < self.size:
+            i = Individual(self.dim)
+            i.fitness = self.task.eval(i.gene)
             self.lst_indis.append(Individual(self.dim))
 
     def evolve(self, gen : int):

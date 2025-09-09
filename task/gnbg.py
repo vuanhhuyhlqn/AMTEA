@@ -9,4 +9,5 @@ class GNBGTask(AbstractTask):
         self.bound = bound
 
     def eval(self, gene):
-        return self.gnbg.fitness(np.array([self.decode(gene)]))[0]
+        decoded_gene = self.decode(gene=gene)
+        return self.gnbg.fitness(decoded_gene)[0]

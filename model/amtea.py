@@ -22,9 +22,8 @@ class AMTEA(AbstractModel):
                                      size=pop_size,
                                      initial_lst_solvers=self.initial_lst_solvers,
                                      mem=self.mem)
-        print('[*] Initiate successfully')    
 
-    def run(self, num_gen=100, monitor=True, monitor_rate=1):
+    def run(self, num_gen=1, monitor=True, monitor_rate=1):
         for gen in range(1, num_gen + 1):
             self.population.evolve(gen)
             if monitor == True and gen % monitor_rate == 0:

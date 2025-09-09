@@ -28,10 +28,11 @@ class Population:
             task_name = self.lst_tasks[i].task_name
             self.dict_taskpopulations[task_name] = TaskPopulation(task=self.lst_tasks[i], 
                                                                  lst_solvers=self.lst_solvers,
-                                                                 size=int(self / len(self.lst_tasks)),
+                                                                 size=int(self.size / len(self.lst_tasks)),
                                                                  mem=self.mem,
                                                                  dim = self.indi_dim)
         
+    
     def evolve(self, gen : int):
         for task_name in self.lst_task_names:
             self.dict_taskpopulations[task_name].evolve(gen=gen)
