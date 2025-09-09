@@ -4,6 +4,8 @@ import logging
 import re
 import inspect
 import hydra
+import random
+import string
 
 def init_client(cfg):
     global client
@@ -105,3 +107,20 @@ def filter_code(code_string):
             filtered_lines.append(line)
     code_string = '\n'.join(filtered_lines)
     return code_string
+
+def get_prompt(opt: str):
+	parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+	file_path = os.path.join(parent_dir, f"LLM\\prompts\\{opt}.txt")
+	prompt_file = open(file_path)
+	prompt = prompt_file.read()
+	prompt_file.close()
+	return prompt
+
+def save_code_to_solver_folder(code_str, folder='cache/solvers'):
+    rand_id = ''.join(random.choices(string.digits, k=6))
+    filename = f"{rand_id}.py"
+    file_path = os.path.join(folder, filename)
+    os.makedirs(folder, exist_ok=True)
+    with open(file_path, 'w', encoding='utf-8') as f:
+        f.write(code_str)
+    return rand_id
