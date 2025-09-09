@@ -9,16 +9,17 @@ from memory import Memory
 import numpy as np
 
 class TaskPopulation:
-    def __init__(self, task : AbstractTask, size : int, lst_solvers: List[Solver], mem : Memory):
+    def __init__(self, task : AbstractTask, size : int, lst_solvers: List[Solver], mem : Memory, dim : int):
         self.task = task
         self.size = size
         self.lst_solvers = lst_solvers
         self.num_solvers = len(self.lst_solvers)
         self.mem = mem
+        self.dim = dim # Individual dimension
 
         self.lst_indis : List[Individual] = []
         while len(self.lst_indis) < self.size:
-            self.lst_indis.append(Individual(self.task.dim))
+            self.lst_indis.append(Individual(self.dim))
 
     def evolve(self, gen : int):
         # divide lst_indis into subpopulation
@@ -66,12 +67,20 @@ class TaskPopulation:
         fitness_values = [indi.fitness for indi in self.lst_indis]
         return statistics.median(fitness_values)
 
+    def get_best_fitness(self) -> float:
+        best_fitness = np.inf
+        for indi in self.lst_indis:
+            if indi.fitness < best_fitness:
+                best_fitness = indi.fitness
+        return best_fitness
+
     def remove_solvers(self, solver_ids):
         pass
 
     def add_solvers(self, solver_ids):
         pass
 
+    
 
         
 
