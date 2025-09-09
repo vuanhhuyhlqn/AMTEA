@@ -20,7 +20,7 @@ class TaskPopulation:
             self.lst_indis.append(Individual(self.task.dim))
 
     def evolve(self):
-        #divide lst_indis into subpopulation
+        # divide lst_indis into subpopulation
         # current_median_fitness : float = self.get_median_fitness()
 
         dict_subpopulations : Dict[str, SubPopulation] = {}
