@@ -15,8 +15,7 @@ def main():
     solver_module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(solver_module)
     
-    # Thay tên hàm 'solve' ở dưới thành tên hàm muốn sử dụng 
-    solve_func = getattr(solver_module, 'solve')
+    solve_func = getattr(solver_module, 'crossover')
     
     temp_file = os.path.join(os.path.dirname(__file__), 'temp', 'temp_parents.npy')
     operands = np.load(temp_file, allow_pickle=True)
