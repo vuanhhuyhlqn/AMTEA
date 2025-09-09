@@ -2,21 +2,30 @@ from typing import List, Dict
 import pandas as pd
 
 class Memory():
-	def __init__(self, memory_size: int = 5):
+	def __init__(self, lst_task_names: List[str], lst_solver_ids: List[str], memory_size: int = 5):
 		self.memory_size = memory_size
+
+		#Num success and num failure of each generation
 		self.data = pd.DataFrame(columns=["task_name", "solver_id", "generation", "num_success", "num_failure"])
 		
 		#Probability of success
 		self.p_data = pd.DataFrame(columns=["task_name", "solver_id", "p"])
 
-	def restart(self, lst_task_names: List[str], lst_solver_ids: List[str]):
+		self.lst_task_names = lst_task_names
+		self.lst_sover_ids = lst_solver_ids # Initial solver_ids of the algorithm
+
+		self.restart(self.lst_sover_ids)
+
+	def restart(self, lst_solver_ids: List[str]):
 		self.data = pd.DataFrame(columns=self.data.columns)
 		self.p_data = pd.DataFrame(columns=self.p_data.columns)
 
-		for task_name in lst_task_names:
+		self.lst_sover_ids = lst_solver_ids
+
+		for task_name in self.lst_task_names:
 			for solver_id in lst_solver_ids:
 				self.set_value(task_name, solver_id, 0, 0, 0)
-				self.set_p_value(task_name, solver_id, 1.0 / len(lst_task_names))
+				self.set_p_value(task_name, solver_id, 1.0 / len(self.lst_sover_ids)) # Every solver get an equal chance at the beginning
 
 	def set_p_value(self, task_name: str, solver_id: str, p: float):
 		mask = (
@@ -101,5 +110,5 @@ class Memory():
 
 		return success_cnt / (success_cnt + failure_cnt) + eps 
 		
-
+	def calculate_p_value()
 		
