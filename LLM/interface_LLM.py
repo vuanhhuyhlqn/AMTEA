@@ -6,7 +6,6 @@ class InterfaceAPI:
         self.client = model_LLM
 
     def get_response(self, prompt_content, temp=1.):
-
         response = self.client.chat_completion(1, [{"role": "user", "content": prompt_content}], temperature=temp)
         ret = response[0].message.content
         return ret
