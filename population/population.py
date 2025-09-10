@@ -42,8 +42,17 @@ class Population:
                 for solver in self.lst_solvers:
                     self.mem.update_p_value(task_name=task_name, solver_id=solver.id, generation=gen)
 
-    def knowledge_transfer(self):
+    def knowledge_transfer(self, k):
+        """
+        Parameters
+        ----------
+        k : Number of individuals from each task's population to be added to the transfer pool
+        """
+
         transfer_pool : Dict[str, List[Individual]] = {}
+        for task_name in self.lst_task_names:
+            transfer_pool[task_name] = self.dict_taskpopulations[task_name].remove_individuals(k=k)
+        
         
         
     def load_pop(self, path:str):

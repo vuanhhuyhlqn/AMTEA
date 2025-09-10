@@ -83,7 +83,10 @@ class TaskPopulation:
         random.shuffle(self.lst_indis)
         assert(k < len(self.lst_indis))
 
-        lst_indis_to_remove = self.lst_indis[-k:]
+        ret = self.lst_indis[-k:]
+        self.lst_indis = self.lst_indis[:-k]
+        
+        return ret
 
     def remove_solvers(self, solver_ids):
         pass
