@@ -33,9 +33,8 @@ class TaskPopulation:
             dict_subpopulations[solver.id] = SubPopulation(self.task, solver)
             lst_p_values.append(self.mem.get_p_value(task_name=self.task.task_name, solver_id=solver.id))
 
-        print(self.task.task_name)
-        print(lst_p_values)
-
+        print(f'[*] Task {self.task.task_name}')
+        print(f'[*] lst_p_values: {lst_p_values}')
 
         for indi in self.lst_indis:
             chosen_solver_id = random.choices(solver_ids, weights=lst_p_values, k=1)[0]
@@ -68,6 +67,9 @@ class TaskPopulation:
         self.lst_indis = self.lst_indis[:self.size]
         random.shuffle(self.lst_indis)
 
+    def update_solvers(self, lst_solvers: List[Solver]):
+        self.lst_solvers = lst_solvers
+
     def get_median_fitness(self) -> float:
         fitness_values = [indi.fitness for indi in self.lst_indis]
         return statistics.median(fitness_values)
@@ -89,16 +91,16 @@ class TaskPopulation:
 
         ret = self.lst_indis[-k:]
         self.lst_indis = self.lst_indis[:-k]
-        print(f'Len indis : {len(self.lst_indis)}')
-        print(f'Size : {self.size}')
-        print(f'Is full : {self.is_full()}')
+        # print(f'Len indis : {len(self.lst_indis)}')
+        # print(f'Size : {self.size}')
+        # print(f'Is full : {self.is_full()}')
 
         return ret
 
     def is_full(self) -> bool:
         return len(self.lst_indis) == self.size
 
-    
+
     
 
         

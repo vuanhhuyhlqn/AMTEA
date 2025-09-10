@@ -70,6 +70,13 @@ class Memory():
 			return 0
 		return row["p"].iloc[0]
 
+	def get_avg_p_value(self, solver_id : str) -> float:
+		"""
+		Get the average p value of solver across all tasks
+		"""
+		avg_p = self.p_data.loc[self.p_data["solver_id"] == solver_id, "p"].mean()
+		return avg_p
+
 	def get_value(self, task_name, solver_id, generation):
 		row = self.data[
 			(self.data["task_name"] == task_name) &
@@ -107,7 +114,7 @@ class Memory():
 			success_cnt += self.get_num_success(task_name, solver_id, i)
 			failure_cnt += self.get_num_failure(task_name, solver_id, i)
 
-		print(f'Task {task_name}, solver {solver_id}, success_cnt: {success_cnt}, failure_cnt: {failure_cnt}')
+		# print(f'Task {task_name}, solver {solver_id}, success_cnt: {success_cnt}, failure_cnt: {failure_cnt}')
 		success_rate = success_cnt / (success_cnt + failure_cnt) + eps 
 		return success_rate
 		

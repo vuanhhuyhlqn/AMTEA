@@ -9,5 +9,7 @@ class GNBGTask(AbstractTask):
         self.bound = bound
 
     def eval(self, gene):
+        self.eval_cnt += 1 # ! Every task eval's function must have this line
+
         decoded_gene = self.decode(gene=gene)
         return self.gnbg.fitness(decoded_gene)[0]
