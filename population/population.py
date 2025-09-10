@@ -37,6 +37,10 @@ class Population:
         for task_name in self.lst_task_names:
             self.dict_taskpopulations[task_name].evolve(gen=gen)
             self.dict_best_fitness[task_name] = self.dict_taskpopulations[task_name].get_best_fitness()
+
+            if gen % self.mem.memory_size == 0:
+                for solver in self.lst_solvers:
+                    self.mem.update_p_value(task_name=task_name, solver_id=solver.id, generation=gen)
         
     def load_pop(self, path:str):
         # TODO implement this if have time

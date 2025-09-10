@@ -26,12 +26,16 @@ class TaskPopulation:
         # divide lst_indis into subpopulation
         dict_subpopulations : Dict[str, SubPopulation] = {}
         lst_p_values : List[float] = []
+        solver_ids : List[str] = [solver.id for solver in self.lst_solvers]
+
 
         for solver in self.lst_solvers:
             dict_subpopulations[solver.id] = SubPopulation(self.task, solver)
             lst_p_values.append(self.mem.get_p_value(task_name=self.task.task_name, solver_id=solver.id))
 
-        solver_ids : List[str] = [solver.id for solver in self.lst_solvers]
+        print(self.task.task_name)
+        print(lst_p_values)
+
 
         for indi in self.lst_indis:
             chosen_solver_id = random.choices(solver_ids, weights=lst_p_values, k=1)[0]

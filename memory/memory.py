@@ -2,7 +2,7 @@ from typing import List, Dict
 import pandas as pd
 
 class Memory():
-	def __init__(self, lst_task_names: List[str], initial_solver_ids: List[str], memory_size: int = 5):
+	def __init__(self, lst_task_names: List[str], initial_solver_ids: List[str], memory_size: int = 2):
 		self.memory_size = memory_size
 
 		# Num success and num failure of each generation
@@ -33,7 +33,7 @@ class Memory():
 			(self.p_data["solver_id"] == solver_id)
 		)
 		if mask.any():
-			self.data.loc[mask, "p"] = p
+			self.p_data.loc[mask, "p"] = p
 		else:
 			new_row = {
 				"task_name": task_name,
@@ -103,12 +103,13 @@ class Memory():
 	def get_success_rate(self, task_name, solver_id, generation, eps=1e-3):
 		success_cnt = 0
 		failure_cnt = 0
-
 		for i in range(generation - self.memory_size + 1, generation + 1):
 			success_cnt += self.get_num_success(task_name, solver_id, i)
 			failure_cnt += self.get_num_failure(task_name, solver_id, i)
 
-		return success_cnt / (success_cnt + failure_cnt) + eps 
+		print(f'Task {task_name}, solver {solver_id}, success_cnt: {success_cnt}, failure_cnt: {failure_cnt}')
+		success_rate = success_cnt / (success_cnt + failure_cnt) + eps 
+		return success_rate
 		
 	def update_p_value(self, task_name, solver_id, generation, sigma=0.5):
 		upper = self.get_success_rate(task_name, solver_id, generation) + sigma * self.get_p_value(task_name, solver_id)
