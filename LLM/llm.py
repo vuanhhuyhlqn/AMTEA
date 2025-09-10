@@ -21,7 +21,6 @@ class LLM():
     def _get_alg(self, prompt_content):
 
         response = self.interface_llm.get_response(prompt_content)
-        print("\n >>> check LLM response: \n", response)
 
         algorithm = re.search(r"\{(.*?)\}", response, re.DOTALL).group(1)
         if len(algorithm) == 0:
@@ -65,12 +64,11 @@ class LLM():
         return [code_all, algorithm]
     
     def init(self):
-
+        print('Initializing solver ... ')
         prompt_content = self.get_prompt_init()
 
         [code_all, algorithm] = self._get_alg(prompt_content)
-
-        print("\n >>> check designed algorithm: \n", algorithm)
-        print("\n >>> check designed code: \n", code_all)
-
-        return [code_all, algorithm]
+        
+        id = save_code(code_all)
+        print(f'Solver initialized with id: {id}')
+        return [id, algorithm]

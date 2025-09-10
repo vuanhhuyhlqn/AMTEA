@@ -116,7 +116,7 @@ def get_prompt(opt: str):
 	prompt_file.close()
 	return prompt
 
-def save_code_to_solver_folder(code_str, folder='cache/solvers'):
+def save_code(code_str, folder='cache/solvers'):
     rand_id = ''.join(random.choices(string.digits, k=6))
     filename = f"{rand_id}.py"
     file_path = os.path.join(folder, filename)
@@ -124,3 +124,14 @@ def save_code_to_solver_folder(code_str, folder='cache/solvers'):
     with open(file_path, 'w', encoding='utf-8') as f:
         f.write(code_str)
     return rand_id
+
+def delete_solver_file(solver_id, folder_path='cache/solvers'):
+    file_path = os.path.join(folder_path, f"{solver_id}.py")
+    if os.path.exists(file_path):
+        try:
+            os.remove(file_path)
+            print(f"Deleted file: {file_path}")
+        except Exception as e:
+            print(f"Error deleting file {file_path}: {e}")
+    else:
+        print(f"No file found: {file_path}")

@@ -3,13 +3,13 @@ from os import path
 from typing import List
 import numpy as np
 import subprocess
-# import json
 
 class Solver:
-    def __init__(self, id: str):
+    def __init__(self, id: str, algorithm: str):
         self.id = id
         self.num_operands = 2  
-        self.algorithm = "" # ? No need
+        self.algorithm = algorithm
+        self.eval_score = -np.inf
 
     def __call__(self, operands: List[np.ndarray]) -> np.ndarray:
         if len(operands) != self.num_operands:
@@ -42,6 +42,35 @@ class Solver:
         except Exception as e:
             print(f'Error loading result from output.npy: {e}')
             return None
+    
+    def evaluate(self, parent_pairs):
+        scores = []
+        for (indi1, indi2) in parent_pairs:
+            if indi1.fitness <= indi2.fitness:
+                pbest, pworst = indi1.gene, indi2.gene
+            else:
+                pbest, pworst = indi2.gene, indi1.gene
+
+            offspring = self([indi1.gene, indi2.gene])
+            
+            # Feasibility
+            FR = 1.0 if np.all((offspring >= 0) & (offspring <= 1)) else 0.0
+            
+            # Relative Proximity to Best Parent
+            dist_pb_pw = np.linalg.norm(pworst - pbest) + 1e-12
+            RPB = 1 - np.linalg.norm(offspring - pbest) / dist_pb_pw   
+            
+            # Diversity Score
+            dist_par = np.linalg.norm(indi1.gene - indi2.gene) + 1e-12
+            DS = ((np.linalg.norm(offspring - indi1.gene) + np.linalg.norm(offspring - indi2.gene))
+              / (2 * dist_par))
+
+            # Weighted Score
+            score = 0.4 * FR + 0.4 * RPB + 0.2 * DS
+            scores.append(score)
         
+        scores = np.array(scores)
+        self.eval_score = scores.mean()
+            
         
         
