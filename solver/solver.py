@@ -3,13 +3,13 @@ from os import path
 from typing import List
 import numpy as np
 import subprocess
-import json
+# import json
 
 class Solver:
     def __init__(self, id: str):
         self.id = id
         self.num_operands = 2  
-        self.algorithm = ""
+        self.algorithm = "" # ? No need
 
     def __call__(self, operands: List[np.ndarray]) -> np.ndarray:
         if len(operands) != self.num_operands:
