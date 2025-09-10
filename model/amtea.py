@@ -34,7 +34,7 @@ class AMTEA(AbstractModel):
         self.llm = LLM("chat.openai.com", GPT_API_KEY, client)
         
         # Số lượng solvers khởi tạo để chọn lọc solvers tốt
-        num_llm_solvers = 5
+        num_llm_solvers = 10
         lst_solvers = []
         for i in range(num_llm_solvers):
             [id, alg] = self.llm.init()
@@ -45,8 +45,8 @@ class AMTEA(AbstractModel):
         lst_solvers = sorted(lst_solvers, key=lambda s: s.eval_score, reverse=True)
         good_solvers = lst_solvers[:num_solvers]
         bad_solvers = lst_solvers[num_solvers:]
-        for solver in bad_solvers:
-            delete_solver_file(solver.id)  
+        # for solver in bad_solvers:
+        #     delete_solver_file(solver.id)  
         self.lst_solvers = good_solvers
         
         self.population.num_solvers = num_solvers
@@ -117,12 +117,12 @@ class AMTEA(AbstractModel):
         lst_solvers = sorted(lst_solvers, key=lambda s: s.eval_score, reverse=True)
         new_solver = lst_solvers[0]
         bad_solvers = lst_solvers[1:]
-        for solver in bad_solvers:
-            delete_solver_file(solver.id)  
+        # for solver in bad_solvers:
+        #     delete_solver_file(solver.id)  
         self.lst_solvers.append(new_solver)
         self.population.update_solvers(self.lst_solvers)
         print(f'New solver added: {new_solver.id}')
-        delete_solver_file(worst_solver.id)
+        # delete_solver_file(worst_solver.id)
     
     def check_terminate_condition(self) -> bool:
         eval_cnt = 0

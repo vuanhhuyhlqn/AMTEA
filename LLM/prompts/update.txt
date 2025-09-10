@@ -7,26 +7,88 @@ I have a list of well-performing solvers with their descriptions and Python code
 
 No.1 solver’s description and its code:
 # Its Description
-{Hybrid Crossover: This operator combines the features of Simulated Binary Crossover and Arithmetic Crossover to exploit the advantages of both methods, producing offspring that retain the smooth blending of traits while simulating the genetic variability.}
+{This innovative crossover operator combines the principles of Simulated Binary Crossover (SBX) and a novel Clipping Mean Crossover (CMC), where it first generates a candidate solution using SBX and then refines it by taking the mean of the parents while ensuring the offspring remains within specified bounds through a clipping mechanism.}
 # Its Python Code Implementation of a Function
 import numpy as np
 
 def crossover(parent1, parent2, eta=20):
     dim = len(parent1)
     offspring = np.zeros(dim)
+    
     for i in range(dim):
         u = np.random.rand()
+        # Simulated Binary Crossover (SBX) for gene blending
         if u <= 0.5:
             beta = (2 * u) ** (1 / (eta + 1))
         else:
             beta = (1 / (2 * (1 - u))) ** (1 / (eta + 1))
-        sbx_part = 0.5 * ((1 + beta) * parent1[i] + (1 - beta) * parent2[i])
+        sbx_value = 0.5 * ((1 + beta) * parent1[i] + (1 - beta) * parent2[i])
+
+        # Clipping Mean Crossover for refinement
+        mean_value = (parent1[i] + parent2[i]) / 2
+        offspring[i] = np.clip((sbx_value + mean_value) / 2, 0.0, 1.0)  # Combine and clip
+
+    return offspring
+
+No.2 solver’s description and its code:
+# Its Description
+{This new crossover operator, called Adaptive Mean Blend Crossover (AMBC), generates an offspring by first creating a candidate solution through a hybrid approach that combines the weighted mean of the parents with a dynamic sampling from a modified range that adapts based on the distance between parent values, ensuring diversity while maintaining bounds.}
+# Its Python Code Implementation of a Function
+import numpy as np
+
+def crossover(parent1, parent2):
+    dim = len(parent1)
+    offspring = np.zeros(dim)
+    
+    for i in range(dim):
+        # Calculate mean and distance between parents
+        mean_value = (parent1[i] + parent2[i]) / 2
+        distance = abs(parent1[i] - parent2[i])
         
+        # Define a dynamically adjusted range
+        lower = max(0.0, mean_value - 0.5 * distance)
+        upper = min(1.0, mean_value + 0.5 * distance)
+        
+        # Randomly sample within the adjusted range and combine with a weighted mean
+        random_value = np.random.uniform(lower, upper)
         alpha = np.random.rand()
-        arith_part = alpha * parent1[i] + (1 - alpha) * parent2[i]
+        offspring[i] = alpha * random_value + (1 - alpha) * mean_value
         
-        offspring[i] = np.clip((sbx_part + arith_part) / 2, 0.0, 1.0)
+        # Ensure the offspring stays within bounds
+        offspring[i] = np.clip(offspring[i], 0.0, 1.0)
+
+    return offspring
+
+No.3 solver’s description and its code:
+# Its Description
+{This novel crossover operator, called Harmonized Mean Crossover (HMC), generates offspring by dynamically weighting the contributions of the parents based on gene distances, utilizing a combination of a weighted mean and stochastic adjustments to ensure exploration while maintaining bounds.}
+# Its Python Code Implementation of a Function
+import numpy as np
+
+def crossover(parent1, parent2):
+    dim = len(parent1)
+    offspring = np.zeros(dim)
+    
+    for i in range(dim):
+        mean_value = (parent1[i] + parent2[i]) / 2
+        distance = abs(parent1[i] - parent2[i])
         
+        # Dynamically adjust the blending factor based on distance
+        if distance > 0:
+            alpha = max(0.5, np.random.rand() * (1 - (distance / 2)))  # Ensure more weight given to the mean
+        else:
+            alpha = 1.0  # If both parents are the same, use full mean
+        
+        # Sample within an adjusted range around the mean
+        lower = max(0.0, mean_value - distance * 0.5)
+        upper = min(1.0, mean_value + distance * 0.5)
+        
+        random_value = np.random.uniform(lower, upper)
+        offspring[i] = alpha * random_value + (1 - alpha) * mean_value
+        
+        # Ensure the offspring stays within bounds
+        offspring[i] = np.clip(offspring[i], 0.0, 1.0)
+
     return offspring
 
 
@@ -34,9 +96,65 @@ def crossover(parent1, parent2, eta=20):
 
 No.1 poor solver’s description and its code:
 # Its Description
-{Polynomial Crossover: This operator combines the strengths of two parents by randomly selecting crossover points and replacing segments of the parents with segments from each other, while ensuring the offspring remains within the specified bounds.}
+{Hybrid Crossover (Hyb-CX): This operator combines aspects of Differential Evolution and Blend Crossover, where each gene of the offspring is either a hybrid of a weighted sum of the parents or a randomly sampled value from an extended range, depending on a stochastic binary decision.}
 # Its Python Code Implementation of a Function
 None
+
+No.2 poor solver’s description and its code:
+# Its Description
+{This adaptive crossover operator merges the principles of Simulated Binary Crossover (SBX) and a novel Stochastic Uniform Crossover (SUC) to dynamically adjust the exploration of the solution space by sampling between the parents with varied blending strengths and individual gene decisions, enhancing diversity in offspring generation while maintaining boundary adherence.}
+# Its Python Code Implementation of a Function
+None
+
+No.3 poor solver’s description and its code:
+# Its Description
+{This hybrid crossover operator combines elements of Simulated Binary Crossover (SBX) and Blend Crossover (BLX-α) by first applying SBX to create a candidate solution and then refining it using the bounds extended by BLX-α, allowing for adaptive searching within an adjusted range.}
+# Its Python Code Implementation of a Function
+None
+
+No.4 poor solver’s description and its code:
+# Its Description
+{This new crossover operator, called Dynamic Blend Crossover (DBC), combines concepts from both Blend Crossover and Arithmetic Crossover by first sampling a range around the parents with a dynamic blending factor based on randomly selected weights, followed by blending their traits using a weighted average.}
+# Its Python Code Implementation of a Function
+None
+
+No.5 poor solver’s description and its code:
+# Its Description
+{Inspired by well-performing crossover techniques, this new operator, named Enhanced Adaptive Crossover (EAC), combines a dynamic sampling approach from both parents with the weighted mean, while ensuring diversity through a stochastic adjustment of blending factors based on gene distance, thus maintaining bounds and promoting exploration.}
+# Its Python Code Implementation of a Function
+None
+
+No.6 poor solver’s description and its code:
+# Its Description
+{This novel crossover operator, called Harmonized Mean Crossover (HMC), generates offspring by dynamically weighting the contributions of the parents based on gene distances, utilizing a combination of a weighted mean and stochastic adjustments to ensure exploration while maintaining bounds.}
+# Its Python Code Implementation of a Function
+import numpy as np
+
+def crossover(parent1, parent2):
+    dim = len(parent1)
+    offspring = np.zeros(dim)
+    
+    for i in range(dim):
+        mean_value = (parent1[i] + parent2[i]) / 2
+        distance = abs(parent1[i] - parent2[i])
+        
+        # Dynamically adjust the blending factor based on distance
+        if distance > 0:
+            alpha = max(0.5, np.random.rand() * (1 - (distance / 2)))  # Ensure more weight given to the mean
+        else:
+            alpha = 1.0  # If both parents are the same, use full mean
+        
+        # Sample within an adjusted range around the mean
+        lower = max(0.0, mean_value - distance * 0.5)
+        upper = min(1.0, mean_value + distance * 0.5)
+        
+        random_value = np.random.uniform(lower, upper)
+        offspring[i] = alpha * random_value + (1 - alpha) * mean_value
+        
+        # Ensure the offspring stays within bounds
+        offspring[i] = np.clip(offspring[i], 0.0, 1.0)
+
+    return offspring
 
 
 Please create a new crossover solver that takes inspiration from the well-performing solvers but avoids the weaknesses and design patterns of the poor-performing solvers.
