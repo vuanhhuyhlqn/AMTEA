@@ -17,7 +17,7 @@ class TaskPopulation:
         self.mem = mem
         self.dim = dim # Individual dimension
         self.lst_indis : List[Individual] = []
-        while len(self.lst_indis) < self.size:
+        while not self.is_full():
             i = Individual(self.dim)
             i.fitness = self.task.eval(i.gene)
             self.lst_indis.append(Individual(self.dim))
@@ -79,14 +79,24 @@ class TaskPopulation:
                 best_fitness = indi.fitness
         return best_fitness
 
+    def add_individual(self, indi : Individual):
+        assert(self.is_full() == False)
+        self.lst_indis.append(indi)
+
     def remove_individuals(self, k : int) -> List[Individual]:
         random.shuffle(self.lst_indis)
         assert(k < len(self.lst_indis))
 
         ret = self.lst_indis[-k:]
         self.lst_indis = self.lst_indis[:-k]
-        
+        print(f'Len indis : {len(self.lst_indis)}')
+        print(f'Size : {self.size}')
+        print(f'Is full : {self.is_full()}')
+
         return ret
+
+    def is_full(self) -> bool:
+        return len(self.lst_indis) == self.size
 
     def remove_solvers(self, solver_ids):
         pass
