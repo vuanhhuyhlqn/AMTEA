@@ -77,10 +77,11 @@ def crossover(parent1, parent2, alpha=0.5):
         offspring[i] = np.clip(offspring[i], 0.0, 1.0)
     return offspring
 
-Please create a new solver that has a totally different form from the given solvers. 
-Try generating code with different structures, flows, or operators. 
-The new solver should aim for strong performance on optimization tasks.
+Important requirement: The new solver you generate must not replicate or trivially modify any of the above implementations. Instead, you should:
+combine, hybridize, or extend ideas from the existing solvers in novel ways, or invent a completely new crossover strategy inspired by them, but with a different mechanism, structure, or flow.
+You can use stochastic elements, adapt parameters from parents, multi-point operations, self-adaptive weights, or hierarchical procedures.
 
+The new solver should aim for strong performance on optimization tasks.
 First, describe the design idea and main steps of your solver in one sentence. 
 The description must be inside a brace outside the code implementation. 
 Next, implement it in Python as a function named `crossover`.

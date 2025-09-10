@@ -116,12 +116,28 @@ def get_prompt(opt: str):
 	prompt_file.close()
 	return prompt
 
+def get_code(solver_id, folder='cache/solvers'):
+    file_path = os.path.join(folder, f"{solver_id}.py")
+    if os.path.exists(file_path):
+        with open(file_path, 'r', encoding='utf-8') as f:
+            return f.read()
+    else:
+        print(f"No file found: {file_path}")
+        return None
+
 def save_code(code_str, folder='cache/solvers'):
     rand_id = ''.join(random.choices(string.digits, k=6))
     filename = f"{rand_id}.py"
     file_path = os.path.join(folder, filename)
     os.makedirs(folder, exist_ok=True)
     with open(file_path, 'w', encoding='utf-8') as f:
+        f.write(code_str)
+    
+    # Also save a copy in solver/storage
+    storage_folder = 'solver/storage'
+    os.makedirs(storage_folder, exist_ok=True)
+    storage_file_path = os.path.join(storage_folder, filename)
+    with open(storage_file_path, 'w', encoding='utf-8') as f:
         f.write(code_str)
     return rand_id
 
@@ -135,3 +151,13 @@ def delete_solver_file(solver_id, folder_path='cache/solvers'):
             print(f"Error deleting file {file_path}: {e}")
     else:
         print(f"No file found: {file_path}")
+        
+def delete_all(folder_path='cache/solvers'):
+    for filename in os.listdir(folder_path):
+        if filename.endswith('.py'):
+            file_path = os.path.join(folder_path, filename)
+            try:
+                os.remove(file_path)
+                print(f"Deleted file: {file_path}")
+            except Exception as e:
+                print(f"Error deleting file {file_path}: {e}")

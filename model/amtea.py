@@ -19,6 +19,8 @@ class AMTEA(AbstractModel):
         self.pop_size = pop_size
         self.lst_tasks = lst_tasks
         self.memory_size = memory_size
+        self.good_solver_history = []
+        self.bad_solver_history = []
 
         lst_task_names = [task.task_name for task in self.lst_tasks]
         self.mem = Memory(lst_task_names=lst_task_names, memory_size=memory_size)
@@ -32,13 +34,13 @@ class AMTEA(AbstractModel):
         self.llm = LLM("chat.openai.com", GPT_API_KEY, client)
         
         # Số lượng solvers khởi tạo để chọn lọc solvers tốt
-        num_llm_solvers = 10
+        num_llm_solvers = 5
         lst_solvers = []
         for i in range(num_llm_solvers):
             [id, alg] = self.llm.init()
             solver = Solver(id, alg)
             solver.evaluate(parent_pairs)
-            print(f'Solver {solver.id}, eval score: {solver.eval_score}')
+            print(f'Solver {solver.id}, eval_score: {solver.eval_score}')
             lst_solvers.append(solver)
         lst_solvers = sorted(lst_solvers, key=lambda s: s.eval_score, reverse=True)
         good_solvers = lst_solvers[:num_solvers]
@@ -86,18 +88,41 @@ class AMTEA(AbstractModel):
             if gen % up == 0:
                 self.update_solvers()
                 gen = 0
+                
+        delete_all()
                     
-    def update_solvers(self, new_solver: Solver):
-        dict_avg_p_values : Dict[str, float] = {}
+    def update_solvers(self):
+        print(f'[*] Update solvers')
+        self.good_solver_history = [solver for solver in self.lst_solvers if solver.id in self.mem.lst_best_solver_ids]
+        dict_avg_p_values : Dict[Solver, float] = {}
         for solver in self.lst_solvers:
-            dict_avg_p_values[solver.id] = self.mem.get_avg_p_value(solver_id=solver.id)
+            dict_avg_p_values[solver] = self.mem.get_avg_p_value(solver_id=solver.id)
         
-        worst_solver_id = min(dict_avg_p_values, key=dict_avg_p_values.get)
-        print(f'Worst_solver_id: {worst_solver_id}')
-
-        self.lst_solvers = [solver for solver in self.lst_solvers if solver.id != worst_solver_id]
+        worst_solver = min(dict_avg_p_values, key=dict_avg_p_values.get)
+        if worst_solver not in self.bad_solver_history:
+            self.bad_solver_history.append(worst_solver)
+        print(f'Worst_solver_id: {worst_solver.id}')
+        self.lst_solvers = [solver for solver in self.lst_solvers if solver.id != worst_solver.id]
+        
+        # Create new solver
+        parent_pairs = self.get_parent_pairs()
+        num_llm_solvers = 5
+        lst_solvers = []
+        for i in range(num_llm_solvers):
+            [id, alg] = self.llm.update(self.good_solver_history, self.bad_solver_history)
+            solver = Solver(id, alg)
+            solver.evaluate(parent_pairs)
+            print(f'Solver update {solver.id}, eval_score: {solver.eval_score}')
+            lst_solvers.append(solver)
+        lst_solvers = sorted(lst_solvers, key=lambda s: s.eval_score, reverse=True)
+        new_solver = lst_solvers[0]
+        bad_solvers = lst_solvers[1:]
+        for solver in bad_solvers:
+            delete_solver_file(solver.id)  
         self.lst_solvers.append(new_solver)
         self.population.update_solvers(self.lst_solvers)
+        print(f'New solver added: {new_solver.id}')
+        delete_solver_file(worst_solver.id)
     
     def check_terminate_condition(self) -> bool:
         eval_cnt = 0

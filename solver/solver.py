@@ -52,21 +52,23 @@ class Solver:
                 pbest, pworst = indi2.gene, indi1.gene
 
             offspring = self([indi1.gene, indi2.gene])
-            
-            # Feasibility
-            FR = 1.0 if np.all((offspring >= 0) & (offspring <= 1)) else 0.0
-            
-            # Relative Proximity to Best Parent
-            dist_pb_pw = np.linalg.norm(pworst - pbest) + 1e-12
-            RPB = 1 - np.linalg.norm(offspring - pbest) / dist_pb_pw   
-            
-            # Diversity Score
-            dist_par = np.linalg.norm(indi1.gene - indi2.gene) + 1e-12
-            DS = ((np.linalg.norm(offspring - indi1.gene) + np.linalg.norm(offspring - indi2.gene))
-              / (2 * dist_par))
+            if offspring is None:
+                score = 0.0
+            else:   
+                # Feasibility
+                FR = 1.0 if np.all((offspring >= 0) & (offspring <= 1)) else 0.0
+                
+                # Relative Proximity to Best Parent
+                dist_pb_pw = np.linalg.norm(pworst - pbest) + 1e-12
+                RPB = 1 - np.linalg.norm(offspring - pbest) / dist_pb_pw   
+                
+                # Diversity Score
+                dist_par = np.linalg.norm(indi1.gene - indi2.gene) + 1e-12
+                DS = ((np.linalg.norm(offspring - indi1.gene) + np.linalg.norm(offspring - indi2.gene))
+                / (2 * dist_par))
 
-            # Weighted Score
-            score = 0.4 * FR + 0.4 * RPB + 0.2 * DS
+                # Weighted Score
+                score = 0.4 * FR + 0.4 * RPB + 0.2 * DS
             scores.append(score)
         
         scores = np.array(scores)

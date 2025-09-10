@@ -1,0 +1,55 @@
+I am solving optimization problems using evolutionary algorithms.
+The goal is to design crossover solvers that take two parent solutions and produce one offspring solution.
+
+I have a list of well-performing solvers with their descriptions and Python code implementations as follows:
+
+**Good solvers:**
+
+No.1 solver’s description and its code:
+# Its Description
+{Hybrid Crossover: This operator combines the features of Simulated Binary Crossover and Arithmetic Crossover to exploit the advantages of both methods, producing offspring that retain the smooth blending of traits while simulating the genetic variability.}
+# Its Python Code Implementation of a Function
+import numpy as np
+
+def crossover(parent1, parent2, eta=20):
+    dim = len(parent1)
+    offspring = np.zeros(dim)
+    for i in range(dim):
+        u = np.random.rand()
+        if u <= 0.5:
+            beta = (2 * u) ** (1 / (eta + 1))
+        else:
+            beta = (1 / (2 * (1 - u))) ** (1 / (eta + 1))
+        sbx_part = 0.5 * ((1 + beta) * parent1[i] + (1 - beta) * parent2[i])
+        
+        alpha = np.random.rand()
+        arith_part = alpha * parent1[i] + (1 - alpha) * parent2[i]
+        
+        offspring[i] = np.clip((sbx_part + arith_part) / 2, 0.0, 1.0)
+        
+    return offspring
+
+
+**Poor solvers to avoid:**
+
+No.1 poor solver’s description and its code:
+# Its Description
+{Polynomial Crossover: This operator combines the strengths of two parents by randomly selecting crossover points and replacing segments of the parents with segments from each other, while ensuring the offspring remains within the specified bounds.}
+# Its Python Code Implementation of a Function
+None
+
+
+Please create a new crossover solver that takes inspiration from the well-performing solvers but avoids the weaknesses and design patterns of the poor-performing solvers.
+The new solver should aim for strong performance on optimization tasks.
+
+First, describe the design idea and main steps of your solver in one sentence. The description must be inside a brace outside the code implementation.
+
+Next, implement it in Python as a function named `crossover`.
+
+This function should accept 2 inputs: `parent1` and `parent2`, both real-valued vectors.
+
+The function should return 1 output: `offspring`, a real-valued vector.
+
+The offspring must stay within the bounds [0, 1] for each variable.
+
+Do not give additional explanations.

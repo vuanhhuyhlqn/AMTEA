@@ -44,6 +44,11 @@ class Population:
 			if gen % self.mem.memory_size == 0:
 				for solver in self.lst_solvers:
 					self.mem.update_p_value(task_name=task_name, solver_id=solver.id, generation=gen)
+				
+    			# Update the best solver list
+				best_solver_id = self.mem.get_best_solver_id()
+				if best_solver_id not in self.mem.lst_best_solver_ids:
+					self.mem.lst_best_solver_ids.append(best_solver_id)
 
 	def knowledge_transfer(self, k : int):
 		# Construct the transfer pool

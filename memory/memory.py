@@ -13,6 +13,7 @@ class Memory():
 
 		self.lst_task_names = lst_task_names
 		self.lst_solver_ids = []
+		self.lst_best_solver_ids = []
 
 		# self.restart(self.lst_solver_ids)
 
@@ -132,7 +133,7 @@ class Memory():
 	def update_p_value(self, task_name, solver_id, generation, sigma=0.5):
 		upper = self.get_success_rate(task_name, solver_id, generation) + sigma * self.get_p_value(task_name, solver_id)
 		lower = 0
-		for _solver_id in self.lst_sover_ids:
+		for _solver_id in self.lst_solver_ids:
 			lower += self.get_success_rate(task_name, _solver_id, generation) + sigma * self.get_p_value(task_name, _solver_id)
 		new_p_value = upper / lower
 		self.set_p_value(task_name, solver_id, new_p_value)
