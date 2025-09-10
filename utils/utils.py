@@ -139,7 +139,7 @@ def save_code(code_str, folder='cache/solvers'):
     # storage_file_path = os.path.join(storage_folder, filename)
     # with open(storage_file_path, 'w', encoding='utf-8') as f:
     #     f.write(code_str)
-    # return rand_id
+    return rand_id
 
 def delete_solver_file(solver_id, folder_path='cache/solvers'):
     file_path = os.path.join(folder_path, f"{solver_id}.py")

@@ -1,6 +1,7 @@
 from typing import List, Dict
 import pandas as pd
 
+# TODO: Optimize these functions
 class Memory():
 	def __init__(self, lst_task_names: List[str], memory_size: int = 2):
 		self.memory_size = memory_size

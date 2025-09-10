@@ -7,4 +7,5 @@ solver/temp/output.npy
 solver/temp/temp_parents.npy
 test_llm.ipynb
 test.ipynb
+cache/solvers/*
 .env
