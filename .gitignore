@@ -5,8 +5,5 @@ main.ipynb
 .vscode/
 solver/temp/output.npy
 solver/temp/temp_parents.npy
-<<<<<<< HEAD
 test_llm.ipynb
-=======
 test.ipynb
->>>>>>> aef18cdc0f595257e3da2799f0c247c756e2059e
