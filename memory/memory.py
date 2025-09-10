@@ -107,6 +107,17 @@ class Memory():
 		else:
 			print(f'[ERROR] Task {task_name}, solver {solver_id}, generation {generation} does not exists')
 	
+	def get_best_solver_id(self) -> str:
+		best_solver_id = self.lst_solver_ids[0]
+		best_avg_p_value = self.get_avg_p_value(best_solver_id)
+
+		for solver_id in self.lst_solver_ids:
+			avg_p_value = self.get_avg_p_value(solver_id)
+			if avg_p_value > best_avg_p_value:
+				best_solver_id, best_avg_p_value = solver_id, avg_p_value
+		
+		return best_solver_id
+
 	def get_success_rate(self, task_name, solver_id, generation, eps=1e-3):
 		success_cnt = 0
 		failure_cnt = 0
