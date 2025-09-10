@@ -6,4 +6,3 @@ main.ipynb
 solver/temp/output.npy
 solver/temp/temp_parents.npy
 test.ipynb
-test_llm.ipynb
