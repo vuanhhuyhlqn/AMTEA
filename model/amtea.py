@@ -87,7 +87,7 @@ class AMTEA(AbstractModel):
                 self.update_solvers()
                 gen = 0
                     
-    def update_solvers(self, new_solver = Solver(id='659723', algorithm='')):
+    def update_solvers(self, new_solver: Solver):
         dict_avg_p_values : Dict[str, float] = {}
         for solver in self.lst_solvers:
             dict_avg_p_values[solver.id] = self.mem.get_avg_p_value(solver_id=solver.id)
