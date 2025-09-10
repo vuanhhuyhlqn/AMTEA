@@ -98,12 +98,7 @@ class TaskPopulation:
     def is_full(self) -> bool:
         return len(self.lst_indis) == self.size
 
-    def remove_solvers(self, solver_ids):
-        pass
-
-    def add_solvers(self, solver_ids):
-        pass
-
+    
     
 
         

@@ -68,6 +68,9 @@ class Population:
 																							src_task=self.dict_tasks[task_name], 
 																							target_task=self.dict_tasks[target_task_name]))
 					break
+	
+	def update_solvers(self, lst_solvers: List[Solver]):
+		pass
 
 	def load_pop(self, path:str):
 		# TODO implement this if have time
