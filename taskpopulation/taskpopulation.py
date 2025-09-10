@@ -9,11 +9,11 @@ from memory import Memory
 import numpy as np
 
 class TaskPopulation:
-    def __init__(self, task : AbstractTask, size : int, lst_solvers: List[Solver], mem : Memory, dim : int):
+    def __init__(self, task : AbstractTask, size : int, mem : Memory, dim : int):
         self.task = task
         self.size = size
-        self.lst_solvers = lst_solvers
-        self.num_solvers = len(self.lst_solvers)
+        self.lst_solvers = []
+        self.num_solvers = None
         self.mem = mem
         self.dim = dim # Individual dimension
         self.lst_indis : List[Individual] = []
