@@ -41,6 +41,10 @@ class Population:
             if gen % self.mem.memory_size == 0:
                 for solver in self.lst_solvers:
                     self.mem.update_p_value(task_name=task_name, solver_id=solver.id, generation=gen)
+
+    def knowledge_transfer(self):
+        transfer_pool : Dict[str, List[Individual]] = {}
+        
         
     def load_pop(self, path:str):
         # TODO implement this if have time

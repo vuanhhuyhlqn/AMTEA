@@ -11,8 +11,10 @@ class AbstractTask:
         decoded_gene = (gene * (self.upper_bound - self.lower_bound) + self.lower_bound)[:self.dim]
         return decoded_gene
     
-    def eval(self, gene):
+    def eval(self, gene : np.ndarray) -> float:
         pass
+
+    
 
     def __str__(self):
         return f'Task name: {self.task_name}, dimension: {self.dim}'

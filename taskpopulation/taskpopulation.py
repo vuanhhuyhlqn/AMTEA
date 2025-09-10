@@ -79,6 +79,12 @@ class TaskPopulation:
                 best_fitness = indi.fitness
         return best_fitness
 
+    def remove_individuals(self, k : int) -> List[Individual]:
+        random.shuffle(self.lst_indis)
+        assert(k < len(self.lst_indis))
+
+        lst_indis_to_remove = self.lst_indis[-k:]
+
     def remove_solvers(self, solver_ids):
         pass
 
