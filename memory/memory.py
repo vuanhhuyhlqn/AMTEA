@@ -129,9 +129,6 @@ class Memory():
 		success_cnt = self.data.loc[mask, "num_success"].sum()
 		failure_cnt = self.data.loc[mask, "num_failure"].sum()
 
-		# for i in range(generation - self.memory_size + 1, generation + 1):
-		# 	success_cnt += self.get_num_success(task_name, solver_id, i)
-		# 	failure_cnt += self.get_num_failure(task_name, solver_id, i)
 		success_rate = success_cnt / (success_cnt + failure_cnt) + eps 
 		return success_rate
 		

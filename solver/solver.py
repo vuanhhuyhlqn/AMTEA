@@ -14,11 +14,6 @@ class Solver:
 
     def __call__(self, operands: List[np.ndarray]) -> np.ndarray:
         start = time.time()
-        # if len(operands) != self.num_operands:
-        #     print('Number of operands doesn\'t match')
-        #     return None
-
-        # print(f'Running solver {self.id}')
         temp_dir = path.join(path.dirname(__file__), 'temp')
         temp_file = path.join(temp_dir, 'temp_parents.npy')
         np.save(temp_file, operands, allow_pickle=True)
@@ -48,7 +43,6 @@ class Solver:
             return None
     
     def evaluate(self, population):
-
         all_genes = np.vstack([np.asarray(ind.gene) for ind in population])
         all_fitness = np.array([ind.fitness for ind in population])
 
