@@ -5,6 +5,7 @@ import numpy as np
 import subprocess
 import time
 
+# TODO: implement batch crossover
 class Solver:
     def __init__(self, id: str, algorithm: str):
         self.id = id
