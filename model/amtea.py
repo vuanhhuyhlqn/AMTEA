@@ -29,27 +29,21 @@ class AMTEA(AbstractModel):
         client = OpenAIClient(model='gpt-4o-mini',temperature=1.0, api_key=GPT_API_KEY)
         self.llm = LLM("chat.openai.com", GPT_API_KEY, client)
         
-<<<<<<< HEAD
-        num_llm_solvers = 10
-=======
-        # Số lượng solvers khởi tạo để chọn lọc solvers tốt
         num_llm_solvers = 6
->>>>>>> 49430114dc38bd02e6c16c8b628323685487ed82
-        lst_solvers = []
+        self.lst_solvers = []
+        self.lst_solvers.append(Solver('ga', 'Simulated Binary Crossover (SBX) combined with Polynomial Mutation: This operator generates an offspring population by pairing parents from the given population, performing SBX crossover on each pair, and then applying polynomial mutation to introduce additional diversity.'))
+        self.lst_solvers.append(Solver('de', 'Differential Evolution (DE) Crossover: This operator generates an offspring population by applying DE/rand/1 mutation and binomial crossover to each individual in the given population.'))
         parent_pairs = self.get_parent_pairs()
 
+        lst_solvers = []
         for i in range(num_llm_solvers):
             [id, alg] = self.llm.init()
             solver = Solver(id, alg)
             solver.evaluate(parent_pairs)
             print(f'Solver {solver.id}, eval_score: {solver.eval_score}')
             lst_solvers.append(solver)
-        lst_solvers = sorted(lst_solvers, key=lambda s: s.eval_score, reverse=True)
-        good_solvers = lst_solvers[:num_solvers]
-        bad_solvers = lst_solvers[num_solvers:]
-        # for solver in bad_solvers:
-        #     delete_solver_file(solver.id)  
-        self.lst_solvers = good_solvers
+        lst_solvers = sorted(lst_solvers, key=lambda s: s.eval_score, reverse=True)[:num_solvers]
+        self.lst_solvers.extend(lst_solvers)
         
         self.population.num_solvers = num_solvers
         self.population.lst_solvers = self.lst_solvers

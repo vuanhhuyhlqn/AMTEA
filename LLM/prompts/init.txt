@@ -1,80 +1,63 @@
 I am solving optimization problems using evolutionary algorithms. 
-The goal is to design crossover solvers that take two parent solutions and produce one offspring solution. 
+The goal is to design generation solvers that take a population of parent solutions and produce an offspring population. 
 
-I have 5 existing solvers with their codes as follows:
+I have 2 existing solvers with their codes as follows:
 No.1 solver’s description, its corresponding code are:
 # Its Description
-{Simulated Binary Crossover (SBX): This operator generates offspring by simulating the effect of single-point crossover on real-coded variables, controlled by a distribution index parameter.}
+{Simulated Binary Crossover (SBX) combined with Polynomial Mutation: This operator generates an offspring population by pairing parents from the given population, performing SBX crossover on each pair, and then applying polynomial mutation to introduce additional diversity.}
 # Its Python Code Implementation of a Function
 import numpy as np
-def crossover(parent1, parent2, eta=20):
-    dim = len(parent1)
-    offspring = np.zeros(dim)
-    for i in range(dim):
-        u = np.random.rand()
-        if u <= 0.5:
-            beta = (2*u)**(1/(eta+1))
-        else:
-            beta = (1/(2*(1-u)))**(1/(eta+1))
-        offspring[i] = 0.5*((1+beta)*parent1[i] + (1-beta)*parent2[i])
-        offspring[i] = np.clip(offspring[i], 0.0, 1.0)
+def generation(population, eta_c=20, eta_m=15, pm=0.1):
+    N, d = population.shape
+    offspring = np.zeros_like(population)
+    indices = np.random.permutation(N)
+    half = N // 2
+
+    for i in range(half):
+        p1 = population[indices[i]]
+        p2 = population[indices[i + half]]
+        child = np.empty(d)
+        # SBX crossover
+        for j in range(d):
+            u = np.random.rand()
+            if u <= 0.5:
+                beta = (2 * u) ** (1 / (eta_c + 1))
+            else:
+                beta = (1 / (2 * (1 - u))) ** (1 / (eta_c + 1))
+            child[j] = 0.5 * ((1 + beta) * p1[j] + (1 - beta) * p2[j])
+        # polynomial mutation
+        for j in range(d):
+            if np.random.rand() < pm:
+                u = np.random.rand()
+                if u < 0.5:
+                    delta = (2 * u) ** (1 / (eta_m + 1)) - 1
+                else:
+                    delta = 1 - (2 * (1 - u)) ** (1 / (eta_m + 1))
+                child[j] += delta
+        offspring[i] = np.clip(child, 0.0, 1.0)
+
+    if N % 2 != 0:
+        offspring[-1] = population[indices[-1]]
     return offspring
 
 No.2 solver’s description, its corresponding code are:
 # Its Description
-{Arithmetic Crossover: This operator creates an offspring as a weighted average of two parents, ensuring smooth blending of their traits.}
+{Differential Evolution (DE) Crossover: This operator generates an offspring population by applying DE/rand/1 mutation and binomial crossover to each individual in the given population.}
 # Its Python Code Implementation of a Function
 import numpy as np
-def crossover(parent1, parent2, alpha=None):
-    if alpha is None:
-        alpha = np.random.rand()
-    offspring = alpha * parent1 + (1 - alpha) * parent2
-    offspring = np.clip(offspring, 0.0, 1.0)
-    return offspring
+def generation(population, F=0.5, CR=0.9):
+    N, d = population.shape
+    offspring = np.zeros_like(population)
 
-No.3 solver’s description, its corresponding code are:
-# Its Description
-{Differential Evolution (DE) Crossover: This operator generates an offspring by adding a weighted difference between two parents to one of them, followed by binomial crossover.}
-# Its Python Code Implementation of a Function
-import numpy as np
-def crossover(parent1, parent2, F=0.5, CR=0.9):
-    dim = len(parent1)
-    offspring = np.copy(parent1)
-    j_rand = np.random.randint(dim)
-    for j in range(dim):
-        if np.random.rand() < CR or j == j_rand:
-            offspring[j] = parent1[j] + F * (parent2[j] - parent1[j])
-        offspring[j] = np.clip(offspring[j], 0.0, 1.0)
-    return offspring
-
-No.4 solver’s description, its corresponding code are:
-# Its Description
-{Uniform Crossover: This operator generates an offspring by randomly choosing each gene from either parent with equal probability.}
-# Its Python Code Implementation of a Function
-import numpy as np
-def crossover(parent1, parent2):
-    dim = len(parent1)
-    mask = np.random.rand(dim) < 0.5
-    offspring = np.where(mask, parent1, parent2)
-    offspring = np.clip(offspring, 0.0, 1.0)
-    return offspring
-
-No.5 solver’s description, its corresponding code are:
-# Its Description
-{Blend Crossover (BLX-α): This operator generates an offspring by sampling each gene from a uniform interval extended beyond the range of the two parents, controlled by parameter α.}
-# Its Python Code Implementation of a Function
-import numpy as np
-def crossover(parent1, parent2, alpha=0.5):
-    dim = len(parent1)
-    offspring = np.zeros(dim)
-    for i in range(dim):
-        cmin = min(parent1[i], parent2[i])
-        cmax = max(parent1[i], parent2[i])
-        I = cmax - cmin
-        lower = cmin - alpha * I
-        upper = cmax + alpha * I
-        offspring[i] = np.random.uniform(lower, upper)
-        offspring[i] = np.clip(offspring[i], 0.0, 1.0)
+    for i in range(N):
+        idxs = np.random.choice([idx for idx in range(N) if idx != i], 3, replace=False)
+        x1, x2, x3 = population[idxs]
+        trial = population[i].copy()
+        j_rand = np.random.randint(d)
+        for j in range(d):
+            if np.random.rand() < CR or j == j_rand:
+                trial[j] = x1[j] + F * (x2[j] - x3[j])
+        offspring[i] = np.clip(trial, 0.0, 1.0)
     return offspring
 
 Important requirement: The new solver you generate must not replicate or trivially modify any of the above implementations. Instead, you should:
@@ -84,10 +67,10 @@ You can use stochastic elements, adapt parameters from parents, multi-point oper
 The new solver should aim for strong performance on optimization tasks.
 First, describe the design idea and main steps of your solver in one sentence. 
 The description must be inside a brace outside the code implementation. 
-Next, implement it in Python as a function named `crossover`.
+Next, implement it in Python as a function named `generation`.
 
-This function should accept 2 inputs: `parent1` and `parent2`, both real-valued vectors. 
-The function should return 1 output: `offspring`, a real-valued vector. 
+This function should accept 1 input: `population`, an array of shape (N, d) of real-valued vectors. 
+The function should return 1 output: `offspring`, an array of shape (N, d) of real-valued vectors. 
 The offspring must stay within the bounds [0, 1] for each variable. 
 
 Do not give additional explanations.

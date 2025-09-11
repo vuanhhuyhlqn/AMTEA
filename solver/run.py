@@ -15,7 +15,7 @@ def main():
     solver_module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(solver_module)
     
-    solve_func = getattr(solver_module, 'crossover')
+    solve_func = getattr(solver_module, 'generation')
     
     temp_file = os.path.join(os.path.dirname(__file__), 'temp', 'temp_parents.npy')
     operands = np.load(temp_file, allow_pickle=True)
