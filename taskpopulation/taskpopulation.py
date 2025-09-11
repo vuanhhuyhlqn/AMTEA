@@ -1,5 +1,6 @@
 from typing import List, Dict
 import random
+import time
 import statistics
 from task import AbstractTask
 from subpopulation import SubPopulation
@@ -23,6 +24,7 @@ class TaskPopulation:
             self.lst_indis.append(Individual(self.dim))
 
     def evolve(self, gen : int):
+        start = time.time()
         # divide lst_indis into subpopulation
         dict_subpopulations : Dict[str, SubPopulation] = {}
         lst_p_values : List[float] = []
@@ -66,6 +68,8 @@ class TaskPopulation:
         self.lst_indis = sorted(self.lst_indis)
         self.lst_indis = self.lst_indis[:self.size]
         random.shuffle(self.lst_indis)
+        end = time.time()
+        print(f"Task Subpopulation evolve time taken: {end - start}")
 
     def update_solvers(self, lst_solvers: List[Solver]):
         self.lst_solvers = lst_solvers
@@ -91,9 +95,6 @@ class TaskPopulation:
 
         ret = self.lst_indis[-k:]
         self.lst_indis = self.lst_indis[:-k]
-        # print(f'Len indis : {len(self.lst_indis)}')
-        # print(f'Size : {self.size}')
-        # print(f'Is full : {self.is_full()}')
 
         return ret
 

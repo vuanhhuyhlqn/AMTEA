@@ -3,7 +3,9 @@ from os import path
 from typing import List
 import numpy as np
 import subprocess
+import time
 
+# TODO: implement batch crossover
 class Solver:
     def __init__(self, id: str, algorithm: str):
         self.id = id
@@ -11,7 +13,12 @@ class Solver:
         self.eval_score = -np.inf
 
     def __call__(self, operands: List[np.ndarray]) -> np.ndarray:
-        
+        start = time.time()
+        if len(operands) != self.num_operands:
+            print('Number of operands doesn\'t match')
+            return None
+
+        # print(f'Running solver {self.id}')
         temp_dir = path.join(path.dirname(__file__), 'temp')
         temp_file = path.join(temp_dir, 'temp_parents.npy')
         np.save(temp_file, operands, allow_pickle=True)
@@ -33,6 +40,8 @@ class Solver:
 
         try:
             result_array = np.load(output_file, allow_pickle=True)
+            end = time.time()
+            print(f'Sovler {self.id} executed successfully, time taken: {end - start}')
             return result_array
         except Exception as e:
             print(f'Error loading result from output.npy: {e}')

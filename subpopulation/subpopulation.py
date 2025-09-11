@@ -1,4 +1,5 @@
 from typing import List
+import time
 from solver import Solver
 from indi import Individual
 from task import AbstractTask
@@ -18,6 +19,7 @@ class SubPopulation:
         return self.lst_indis[random_idx]
 
     def evolve(self) -> List[Individual]:
+        start = time.time()
         size = len(self.lst_indis)
         lst_offs: List[Individual] = []
         while len(lst_offs) < size:
@@ -26,7 +28,8 @@ class SubPopulation:
             off : Individual = Individual(dim=p1.dim, gene=self.solver([p1.gene, p2.gene]))
             off.fitness = self.task.eval(off.gene)
             lst_offs.append(off)
-        
+        end = time.time()
+        print(f"Subpopulation evolve time taken: {end - start}")
         return lst_offs
         
 

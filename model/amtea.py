@@ -29,7 +29,12 @@ class AMTEA(AbstractModel):
         client = OpenAIClient(model='gpt-4o-mini',temperature=1.0, api_key=GPT_API_KEY)
         self.llm = LLM("chat.openai.com", GPT_API_KEY, client)
         
+<<<<<<< HEAD
         num_llm_solvers = 10
+=======
+        # Số lượng solvers khởi tạo để chọn lọc solvers tốt
+        num_llm_solvers = 6
+>>>>>>> 49430114dc38bd02e6c16c8b628323685487ed82
         lst_solvers = []
         parent_pairs = self.get_parent_pairs()
 
