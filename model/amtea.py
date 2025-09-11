@@ -90,7 +90,7 @@ class AMTEA(AbstractModel):
                 self.update_solvers()
                 gen = 0
                 
-        delete_all()
+        # delete_all()
                     
     def update_solvers(self):
         print(f'[*] Update solvers')
@@ -109,20 +109,19 @@ class AMTEA(AbstractModel):
         num_llm_solvers = 5
         lst_solvers = []
         while len(lst_solvers) < num_llm_solvers:
-            [id, alg] = self.llm.update(self.good_solver_history, self.bad_solver_history)
-            solver = Solver(id, alg)
-            eval_scores = []
-            for task_name in self.population.lst_task_names:
-                lst_indis = self.population.dict_taskpopulations[task_name].lst_indis
-                eval_scores.append(solver.evaluate_task(lst_indis))  
             try:
-                eval_scores = np.array(eval_scores, dtype=float)
-                solver.eval_score = eval_scores.mean()
-                print(f'Solver update {solver.id}, eval_score: {solver.eval_score}')
-                lst_solvers.append(solver)
+                [id, alg] = self.llm.update(self.good_solver_history, self.bad_solver_history)
+                solver = Solver(id, alg)
+                eval_scores = []
+                for task_name in self.population.lst_task_names:
+                    lst_indis = self.population.dict_taskpopulations[task_name].lst_indis
+                    eval_scores.append(solver.evaluate_task(lst_indis))  
+                    eval_scores = np.array(eval_scores, dtype=float)
+                    solver.eval_score = eval_scores.mean()
+                    print(f'Solver update {solver.id}, eval_score: {solver.eval_score}')
+                    lst_solvers.append(solver)
             except:
-                print('[ERROR] Solver execution failed')
-
+                print('[ERROR] Create new solver failed!')
         lst_solvers = sorted(lst_solvers, key=lambda s: s.eval_score, reverse=True)
         new_solver = lst_solvers[0]
         self.lst_solvers.append(new_solver)
