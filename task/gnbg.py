@@ -11,6 +11,10 @@ class GNBGTask(AbstractTask):
 
     def eval(self, gene):
         self.eval_cnt += 1 # ! Every task eval's function must have this line
-
         decoded_gene = self.decode(gene=gene)
         return self.gnbg.fitness(decoded_gene)[0]
+    
+    def batch_eval(self, genes):
+        self.eval_cnt += len(genes)
+        decoded_genes = self.batch_decode(genes)
+        return self.gnbg.fitness(decoded_genes)
