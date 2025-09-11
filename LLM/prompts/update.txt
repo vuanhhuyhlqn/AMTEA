@@ -27,29 +27,28 @@ def generation(population, F=0.5, CR=0.9):
 
 No.2 solver’s description and its code:
 # Its Description
-{Adaptive Crossover with Random Weighted Average (RWAC): This operator generates offspring by blending features from two parents using a random weight while ensuring exploration of the search space by incorporating a shift based on the average of the parents.}
+{This solver combines features of the Differential Evolution (DE) Crossover with a stochastic uniform selection to enhance diversity while maintaining good convergence properties and avoiding the drawbacks of pairing from the population.}
 # Its Python Code Implementation of a Function
 import numpy as np
 
-def generation(population):
+def generation(population, F=0.5, CR=0.9):
     N, d = population.shape
     offspring = np.zeros_like(population)
 
     for i in range(N):
-        idxs = np.random.choice([idx for idx in range(N) if idx != i], 2, replace=False)
-        p1, p2 = population[idxs]
-        
-        # Random weight
-        w = np.random.rand()
+        idxs = np.random.choice([idx for idx in range(N) if idx != i], 3, replace=False)
+        x1, x2, x3 = population[idxs]
+        trial = population[i].copy()
+        j_rand = np.random.randint(d)
 
-        # Create offspring using weighted average
-        child = w * p1 + (1 - w) * p2
-        
-        # Introduce a shift based on the average of the parents
-        avg = (p1 + p2) / 2
-        child += np.random.uniform(-0.1, 0.1, size=d) * (child - avg)
-        
-        offspring[i] = np.clip(child, 0.0, 1.0)
+        for j in range(d):
+            if np.random.rand() < CR or j == j_rand:
+                trial[j] = x1[j] + F * (x2[j] - x3[j])
+                
+            # Ensure that the output stays within bounds
+            trial[j] = np.clip(trial[j], 0.0, 1.0)
+
+        offspring[i] = trial
 
     return offspring
 
@@ -96,9 +95,10 @@ def generation(population, eta_c=20, eta_m=15, pm=0.1):
 
 No.2 poor solver’s description and its code:
 # Its Description
-{Differential Evolution (DE) Crossover: This operator generates an offspring population by applying DE/rand/1 mutation and binomial crossover to each individual in the given population.}
+{This solver combines features of the Differential Evolution (DE) Crossover with a stochastic uniform selection to enhance diversity while maintaining good convergence properties and avoiding the drawbacks of pairing from the population.}
 # Its Python Code Implementation of a Function
 import numpy as np
+
 def generation(population, F=0.5, CR=0.9):
     N, d = population.shape
     offspring = np.zeros_like(population)
@@ -108,10 +108,16 @@ def generation(population, F=0.5, CR=0.9):
         x1, x2, x3 = population[idxs]
         trial = population[i].copy()
         j_rand = np.random.randint(d)
+
         for j in range(d):
             if np.random.rand() < CR or j == j_rand:
                 trial[j] = x1[j] + F * (x2[j] - x3[j])
-        offspring[i] = np.clip(trial, 0.0, 1.0)
+                
+            # Ensure that the output stays within bounds
+            trial[j] = np.clip(trial[j], 0.0, 1.0)
+
+        offspring[i] = trial
+
     return offspring
 
 

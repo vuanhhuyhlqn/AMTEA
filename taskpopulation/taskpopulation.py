@@ -64,7 +64,7 @@ class TaskPopulation:
 
         # Selection
         self.lst_indis.extend(lst_offs)
-        self.lst_indis = sorted(self.lst_indis)
+        self.lst_indis = sorted(self.lst_indis, key=lambda ind : ind.fitness)
         self.lst_indis = self.lst_indis[:self.size]
         random.shuffle(self.lst_indis)
         end = time.time()

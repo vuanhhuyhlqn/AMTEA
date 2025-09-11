@@ -14,6 +14,3 @@ class Individual:
 			self.fitness = fitness
 	def __str__(self):
 		return f'{self.gene}\nFitness: {self.fitness}'
-	
-	def __lt__(self, other):
-		return self.fitness < other.fitness
