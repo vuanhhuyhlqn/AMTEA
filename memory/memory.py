@@ -121,13 +121,17 @@ class Memory():
 		return best_solver_id
 
 	def get_success_rate(self, task_name, solver_id, generation, eps=1e-3):
-		success_cnt = 0
-		failure_cnt = 0
-		for i in range(generation - self.memory_size + 1, generation + 1):
-			success_cnt += self.get_num_success(task_name, solver_id, i)
-			failure_cnt += self.get_num_failure(task_name, solver_id, i)
+		mask = (
+			(self.data["task_name"] == task_name) &
+			(self.data["solver_id"] == solver_id) & 
+			(self.data["generation"].between(generation - self.memory_size + 1, generation))
+ 		)
+		success_cnt = self.data.loc[mask, "num_success"].sum()
+		failure_cnt = self.data.loc[mask, "num_failure"].sum()
 
-		# print(f'Task {task_name}, solver {solver_id}, success_cnt: {success_cnt}, failure_cnt: {failure_cnt}')
+		# for i in range(generation - self.memory_size + 1, generation + 1):
+		# 	success_cnt += self.get_num_success(task_name, solver_id, i)
+		# 	failure_cnt += self.get_num_failure(task_name, solver_id, i)
 		success_rate = success_cnt / (success_cnt + failure_cnt) + eps 
 		return success_rate
 		

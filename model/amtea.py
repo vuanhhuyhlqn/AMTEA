@@ -34,7 +34,7 @@ class AMTEA(AbstractModel):
         self.llm = LLM("chat.openai.com", GPT_API_KEY, client)
         
         # Số lượng solvers khởi tạo để chọn lọc solvers tốt
-        num_llm_solvers = 10
+        num_llm_solvers = 6
         lst_solvers = []
         for i in range(num_llm_solvers):
             [id, alg] = self.llm.init()
