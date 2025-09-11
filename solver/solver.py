@@ -47,32 +47,32 @@ class Solver:
             print(f'Error loading result from output.npy: {e}')
             return None
     
-    def evaluate(self, parent_pairs):
+    def evaluate(self, population):
+
+        all_genes = np.vstack([np.asarray(ind.gene) for ind in population])
+        all_fitness = np.array([ind.fitness for ind in population])
+
+        best_idx = np.argmin(all_fitness)
+        worst_idx = np.argmax(all_fitness)
+        pbest_global = all_genes[best_idx]
+        pworst_global = all_genes[worst_idx]
+
+        parent_genes = [np.asarray(ind.gene) for ind in population]
+        offspring_genes = self(parent_genes)  
+
+        center = np.mean(all_genes, axis=0)
         scores = []
-        for (indi1, indi2) in parent_pairs:
-            if indi1.fitness <= indi2.fitness:
-                pbest, pworst = indi1.gene, indi2.gene
-            else:
-                pbest, pworst = indi2.gene, indi1.gene
-
-            offspring = self([indi1.gene, indi2.gene])
-            if offspring is None:
-                score = 0.0
-            else:   
-                FR = 1.0 if np.all((offspring >= 0) & (offspring <= 1)) else 0.0
-                
-                dist_pb_pw = np.linalg.norm(pworst - pbest) + 1e-12
-                RPB = 1 - np.linalg.norm(offspring - pbest) / dist_pb_pw   
-                
-                dist_par = np.linalg.norm(indi1.gene - indi2.gene) + 1e-12
-                DS = ((np.linalg.norm(offspring - indi1.gene) + np.linalg.norm(offspring - indi2.gene))
-                / (2 * dist_par))
-
-                score = 0.4 * FR + 0.4 * RPB + 0.2 * DS
+        for off in offspring_genes:
+            FR = 1.0 if np.all((off >= 0.0) & (off <= 1.0)) else 0.0
+            dist_pb_pw = np.linalg.norm(pworst_global - pbest_global) + 1e-12
+            RPB = 1.0 - np.linalg.norm(off - pbest_global) / dist_pb_pw
+            dist_mean = np.linalg.norm(off - center) + 1e-12
+            DS = 1.0 / (1.0 + dist_mean) 
+            score = 0.4 * FR + 0.4 * RPB + 0.2 * DS
             scores.append(score)
-        
-        scores = np.array(scores)
-        self.eval_score = scores.mean()
+
+        scores = np.array(scores, dtype=float)
+        self.eval_score = float(scores.mean())
             
         
         
