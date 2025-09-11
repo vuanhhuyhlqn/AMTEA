@@ -5,14 +5,13 @@ import numpy as np
 import subprocess
 import time
 
-# TODO: implement batch crossover
 class Solver:
     def __init__(self, id: str, algorithm: str):
         self.id = id
         self.algorithm = algorithm
         self.eval_score = -np.inf
 
-    def __call__(self, operands: List[np.ndarray]) -> np.ndarray:
+    def __call__(self, operands: np.ndarray) -> np.ndarray:
         start = time.time()
         temp_dir = path.join(path.dirname(__file__), 'temp')
         temp_file = path.join(temp_dir, 'temp_parents.npy')
@@ -36,7 +35,7 @@ class Solver:
         try:
             result_array = np.load(output_file, allow_pickle=True)
             end = time.time()
-            print(f'Sovler {self.id} executed successfully, time taken: {end - start}')
+            print(f'Solver {self.id} executed successfully, time taken: {end - start}')
             return result_array
         except Exception as e:
             print(f'Error loading result from output.npy: {e}')
