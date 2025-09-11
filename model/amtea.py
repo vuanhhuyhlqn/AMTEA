@@ -10,7 +10,7 @@ from utils.utils import *
 from LLM.llm import LLM
 import os
 from dotenv import load_dotenv
-
+import numpy as np
 load_dotenv()
 GPT_API_KEY = os.getenv("GPT_API_KEY")
 
@@ -33,13 +33,17 @@ class AMTEA(AbstractModel):
         self.lst_solvers = []
         self.lst_solvers.append(Solver('ga', 'Simulated Binary Crossover (SBX) combined with Polynomial Mutation: This operator generates an offspring population by pairing parents from the given population, performing SBX crossover on each pair, and then applying polynomial mutation to introduce additional diversity.'))
         self.lst_solvers.append(Solver('de', 'Differential Evolution (DE) Crossover: This operator generates an offspring population by applying DE/rand/1 mutation and binomial crossover to each individual in the given population.'))
-        parent_pairs = self.get_parent_pairs()
 
         lst_solvers = []
         for i in range(num_llm_solvers):
             [id, alg] = self.llm.init()
             solver = Solver(id, alg)
-            solver.evaluate(parent_pairs)
+            eval_scores = []
+            for task_name in self.population.lst_task_names:
+                lst_indis = self.population.dict_taskpopulations[task_name].lst_indis
+                eval_scores.append(solver.evaluate_task(lst_indis))   
+            eval_scores = np.array(eval_scores, dtype=float)
+            solver.eval_score = eval_scores.mean()
             print(f'Solver {solver.id}, eval_score: {solver.eval_score}')
             lst_solvers.append(solver)
         lst_solvers = sorted(lst_solvers, key=lambda s: s.eval_score, reverse=True)[:num_solvers]
@@ -101,24 +105,24 @@ class AMTEA(AbstractModel):
         self.lst_solvers = [solver for solver in self.lst_solvers if solver.id != worst_solver.id]
         
         # Create new solver
-        parent_pairs = self.get_parent_pairs()
         num_llm_solvers = 5
         lst_solvers = []
         for i in range(num_llm_solvers):
             [id, alg] = self.llm.update(self.good_solver_history, self.bad_solver_history)
             solver = Solver(id, alg)
-            solver.evaluate(parent_pairs)
+            eval_scores = []
+            for task_name in self.population.lst_task_names:
+                lst_indis = self.population.dict_taskpopulations[task_name].lst_indis
+                eval_scores.append(solver.evaluate_task(lst_indis))   
+            eval_scores = np.array(eval_scores, dtype=float)
+            solver.eval_score = eval_scores.mean()
             print(f'Solver update {solver.id}, eval_score: {solver.eval_score}')
             lst_solvers.append(solver)
         lst_solvers = sorted(lst_solvers, key=lambda s: s.eval_score, reverse=True)
         new_solver = lst_solvers[0]
-        bad_solvers = lst_solvers[1:]
-        # for solver in bad_solvers:
-        #     delete_solver_file(solver.id)  
         self.lst_solvers.append(new_solver)
         self.population.update_solvers(self.lst_solvers)
         print(f'New solver added: {new_solver.id}')
-        # delete_solver_file(worst_solver.id)
     
     def check_terminate_condition(self) -> bool:
         eval_cnt = 0
@@ -127,12 +131,12 @@ class AMTEA(AbstractModel):
         print(f'Evaluation count: {eval_cnt}/{self.eval_budget}')
         return eval_cnt >= self.eval_budget
     
-    def get_parent_pairs(self) -> List:
-        parent_pairs = []
-        for task_name in self.population.lst_task_names:
-            lst_indis = self.population.dict_taskpopulations[task_name].lst_indis
-            for i in range(0, len(lst_indis) - 1, 2):
-                p1 = lst_indis[i]
-                p2 = lst_indis[i + 1]
-                parent_pairs.append((p1, p2))
-        return parent_pairs
+    # def get_parent_pairs(self) -> List:
+    #     parent_pairs = []
+    #     for task_name in self.population.lst_task_names:
+    #         lst_indis = self.population.dict_taskpopulations[task_name].lst_indis
+    #         for i in range(0, len(lst_indis) - 1, 2):
+    #             p1 = lst_indis[i]
+    #             p2 = lst_indis[i + 1]
+    #             parent_pairs.append((p1, p2))
+    #     return parent_pairs

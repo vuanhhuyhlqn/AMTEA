@@ -42,7 +42,7 @@ class Solver:
             print(f'Error loading result from output.npy: {e}')
             return None
     
-    def evaluate(self, population):
+    def evaluate_task(self, population):
         all_genes = np.vstack([np.asarray(ind.gene) for ind in population])
         all_fitness = np.array([ind.fitness for ind in population])
 
@@ -66,7 +66,8 @@ class Solver:
             scores.append(score)
 
         scores = np.array(scores, dtype=float)
-        self.eval_score = float(scores.mean())
+        task_score = float(scores.mean())
+        return task_score
             
         
         
