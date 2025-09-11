@@ -2,7 +2,6 @@ import numpy as np
 from .abstract import AbstractTask
 from .GNBG import GNBG_instances
 
-# TODO: batch evaluation
 class GNBGTask(AbstractTask):
     def __init__(self, id : int, bound: float):
         super().__init__(f'GNBG_{id}', -bound, bound, 30)
