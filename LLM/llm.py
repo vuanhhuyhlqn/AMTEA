@@ -42,13 +42,13 @@ class LLM():
                                     f"{get_code(solver.id)}\n")
 
         prompt_parts.append(
-            "\nPlease create a new crossover solver that takes inspiration from the well-performing solvers but avoids the weaknesses and design patterns of the poor-performing solvers.\n"
-            "The new solver should aim for strong performance on optimization tasks.\n\n"
-            "First, describe the design idea and main steps of your solver in one sentence. "
-            "The description must be inside a brace outside the code implementation.\n\n"
-            "Next, implement it in Python as a function named `crossover`.\n\n"
-            "This function should accept 2 inputs: `parent1` and `parent2`, both real-valued vectors.\n\n"
-            "The function should return 1 output: `offspring`, a real-valued vector.\n\n"
+            "\nPlease create a new generation solver that takes inspiration from the well-performing solvers but avoids the weaknesses and design patterns of the poor-performing solvers.\n"
+            "The new solver should aim for strong performance on optimization tasks.\n"
+            "First, describe the design idea and main steps of your solver in one sentence.\n"
+            "The description must be inside a brace outside the code implementation.\n"
+            "Next, implement it in Python as a function named `generation`.\n"
+            "This function should accept only 1 input: `population`, an array of shape (N, d) of real-valued vectors.\n"
+            "The function should return 1 output: `offspring`, an array of shape (N, d) of real-valued vectors.\n"
             "The offspring must stay within the bounds [0, 1] for each variable.\n\n"
             "Do not give additional explanations."
         )
