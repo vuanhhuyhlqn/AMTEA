@@ -7,16 +7,11 @@ import subprocess
 class Solver:
     def __init__(self, id: str, algorithm: str):
         self.id = id
-        self.num_operands = 2  
         self.algorithm = algorithm
         self.eval_score = -np.inf
 
     def __call__(self, operands: List[np.ndarray]) -> np.ndarray:
-        if len(operands) != self.num_operands:
-            print('Number of operands doesn\'t match')
-            return None
         
-        # print(f'Running solver {self.id}')
         temp_dir = path.join(path.dirname(__file__), 'temp')
         temp_file = path.join(temp_dir, 'temp_parents.npy')
         np.save(temp_file, operands, allow_pickle=True)
@@ -55,19 +50,15 @@ class Solver:
             if offspring is None:
                 score = 0.0
             else:   
-                # Feasibility
                 FR = 1.0 if np.all((offspring >= 0) & (offspring <= 1)) else 0.0
                 
-                # Relative Proximity to Best Parent
                 dist_pb_pw = np.linalg.norm(pworst - pbest) + 1e-12
                 RPB = 1 - np.linalg.norm(offspring - pbest) / dist_pb_pw   
                 
-                # Diversity Score
                 dist_par = np.linalg.norm(indi1.gene - indi2.gene) + 1e-12
                 DS = ((np.linalg.norm(offspring - indi1.gene) + np.linalg.norm(offspring - indi2.gene))
                 / (2 * dist_par))
 
-                # Weighted Score
                 score = 0.4 * FR + 0.4 * RPB + 0.2 * DS
             scores.append(score)
         

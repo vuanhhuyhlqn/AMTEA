@@ -25,17 +25,14 @@ class AMTEA(AbstractModel):
         lst_task_names = [task.task_name for task in self.lst_tasks]
         self.mem = Memory(lst_task_names=lst_task_names, memory_size=memory_size)
         self.population = Population(self.lst_tasks, size=pop_size, mem=self.mem)
-        
-        # For evaluating solvers
-        parent_pairs = self.get_parent_pairs()
-        
-        # LLM to init solvers
+                
         client = OpenAIClient(model='gpt-4o-mini',temperature=1.0, api_key=GPT_API_KEY)
         self.llm = LLM("chat.openai.com", GPT_API_KEY, client)
         
-        # Số lượng solvers khởi tạo để chọn lọc solvers tốt
         num_llm_solvers = 10
         lst_solvers = []
+        parent_pairs = self.get_parent_pairs()
+
         for i in range(num_llm_solvers):
             [id, alg] = self.llm.init()
             solver = Solver(id, alg)
