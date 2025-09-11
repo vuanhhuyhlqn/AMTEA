@@ -21,7 +21,7 @@ class TaskPopulation:
         while not self.is_full():
             i = Individual(self.dim)
             i.fitness = self.task.eval(i.gene)
-            self.lst_indis.append(Individual(self.dim))
+            self.lst_indis.append(i)
 
     def evolve(self, gen : int):
         start = time.time()
@@ -29,7 +29,6 @@ class TaskPopulation:
         dict_subpopulations : Dict[str, SubPopulation] = {}
         lst_p_values : List[float] = []
         solver_ids : List[str] = [solver.id for solver in self.lst_solvers]
-
 
         for solver in self.lst_solvers:
             dict_subpopulations[solver.id] = SubPopulation(self.task, solver)

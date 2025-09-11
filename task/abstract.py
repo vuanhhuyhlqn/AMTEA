@@ -19,5 +19,8 @@ class AbstractTask:
     def eval(self, gene : np.ndarray) -> float:
         pass
 
+    def batch_eval(self, genes : np.ndarray):
+        pass
+
     def __str__(self):
         return f'Task name: {self.task_name}, dimension: {self.dim}'

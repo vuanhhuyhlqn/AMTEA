@@ -29,12 +29,12 @@ class AMTEA(AbstractModel):
         client = OpenAIClient(model='gpt-4o-mini',temperature=1.0, api_key=GPT_API_KEY)
         self.llm = LLM("chat.openai.com", GPT_API_KEY, client)
         
-        num_llm_solvers = 6
+        num_llm_solvers = 4
         self.lst_solvers = []
-        self.lst_solvers.append(Solver('ga', 'Simulated Binary Crossover (SBX) combined with Polynomial Mutation: This operator generates an offspring population by pairing parents from the given population, performing SBX crossover on each pair, and then applying polynomial mutation to introduce additional diversity.'))
-        self.lst_solvers.append(Solver('de', 'Differential Evolution (DE) Crossover: This operator generates an offspring population by applying DE/rand/1 mutation and binomial crossover to each individual in the given population.'))
+        self.lst_solvers.append(Solver('ga', 'Simulated Binary Crossover (SBX) combined with Polynomial Mutation: This operator generates an offspring population by pairing parents from the given population, performing SBX crossover on each pair, and then applying polynomial mutation to introduce additional diversity.', 0.6))
+        self.lst_solvers.append(Solver('de', 'Differential Evolution (DE) Crossover: This operator generates an offspring population by applying DE/rand/1 mutation and binomial crossover to each individual in the given population.', 0.6))
 
-        lst_solvers = []
+        # lst_solvers = []
         for i in range(num_llm_solvers):
             [id, alg] = self.llm.init()
             solver = Solver(id, alg)
@@ -45,12 +45,13 @@ class AMTEA(AbstractModel):
             eval_scores = np.array(eval_scores, dtype=float)
             solver.eval_score = eval_scores.mean()
             print(f'Solver {solver.id}, eval_score: {solver.eval_score}')
-            lst_solvers.append(solver)
-        lst_solvers = sorted(lst_solvers, key=lambda s: s.eval_score, reverse=True)[:num_solvers]
-        self.lst_solvers.extend(lst_solvers)
+            self.lst_solvers.append(solver)
+        self.lst_solvers = sorted(self.lst_solvers, key=lambda s: s.eval_score, reverse=True)[:num_solvers]
+        # self.lst_solvers.extend(lst_solvers)
         
         self.population.num_solvers = num_solvers
         self.population.lst_solvers = self.lst_solvers
+        print(f'NUM SOLVER {len(self.population.lst_solvers)}')
         
         for task_name in self.population.lst_task_names:
             self.population.dict_taskpopulations[task_name].num_solvers = num_solvers

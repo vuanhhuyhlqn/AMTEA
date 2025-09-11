@@ -34,8 +34,7 @@ class Population:
 																 size=int(self.size / len(self.lst_tasks)),
 																 mem=self.mem,
 																 dim = self.indi_dim)
-		
-	
+
 	def evolve(self, gen : int):
 		for task_name in self.lst_task_names:
 			self.dict_taskpopulations[task_name].evolve(gen=gen)
@@ -45,7 +44,7 @@ class Population:
 				for solver in self.lst_solvers:
 					self.mem.update_p_value(task_name=task_name, solver_id=solver.id, generation=gen)
 				
-    			# Update the best solver list
+				# Update the best solver list
 				best_solver_id = self.mem.get_best_solver_id()
 				if best_solver_id not in self.mem.lst_best_solver_ids:
 					self.mem.lst_best_solver_ids.append(best_solver_id)

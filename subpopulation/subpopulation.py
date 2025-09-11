@@ -22,12 +22,11 @@ class SubPopulation:
         start = time.time()
         size = len(self.lst_indis)
         lst_offs: List[Individual] = []
-        while len(lst_offs) < size:
-            p1 = self.get_random_indi(size=size)
-            p2 = self.get_random_indi(size=size)
-            off : Individual = Individual(dim=p1.dim, gene=self.solver([p1.gene, p2.gene]))
-            off.fitness = self.task.eval(off.gene)
-            lst_offs.append(off)
+
+        off_genes = self.solver(np.vstack([indi.gene for indi in self.lst_indis]))
+        off_fitnesses = self.task.batch_eval(off_genes)
+        lst_offs = [Individual(self.task.dim, gene=off_gene, fitness=off_fitness) for off_gene, off_fitness in zip(off_genes, off_fitnesses)]
+
         end = time.time()
         print(f"Subpopulation evolve time taken: {end - start}")
         return lst_offs

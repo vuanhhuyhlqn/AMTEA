@@ -1,5 +1,5 @@
 I am solving optimization problems using evolutionary algorithms.
-The goal is to design crossover solvers that take two parent solutions and produce one offspring solution.
+The goal is to design generation solvers that take a population of parent solutions and produce an offspring population. 
 
 I have a list of well-performing solvers with their descriptions and Python code implementations as follows:
 
@@ -7,25 +7,22 @@ I have a list of well-performing solvers with their descriptions and Python code
 
 No.1 solver’s description and its code:
 # Its Description
-{Adaptive Crossover: This operator generates an offspring by combining features of both parents using a time-varying weight factor that is adjusted based on the fitness of the parents, alongside incorporating elements from Differential Evolution for diversity.}
+{Differential Evolution (DE) Crossover: This operator generates an offspring population by applying DE/rand/1 mutation and binomial crossover to each individual in the given population.}
 # Its Python Code Implementation of a Function
 import numpy as np
+def generation(population, F=0.5, CR=0.9):
+    N, d = population.shape
+    offspring = np.zeros_like(population)
 
-def crossover(parent1, parent2, F=0.5, CR=0.9):
-    dim = len(parent1)
-    offspring = np.copy(parent1)
-    
-    # Calculate a time-varying weight based on the fitness of the parents (assumed fitness function here for demo)
-    fitness_parent1 = np.sum(parent1)  # Example fitness
-    fitness_parent2 = np.sum(parent2)  # Example fitness
-    weight = fitness_parent1 / (fitness_parent1 + fitness_parent2)
-    
-    j_rand = np.random.randint(dim)
-    for j in range(dim):
-        if np.random.rand() < CR or j == j_rand:
-            offspring[j] = parent1[j] + F * (parent2[j] - parent1[j]) * weight
-        offspring[j] = np.clip(offspring[j], 0.0, 1.0)
-    
+    for i in range(N):
+        idxs = np.random.choice([idx for idx in range(N) if idx != i], 3, replace=False)
+        x1, x2, x3 = population[idxs]
+        trial = population[i].copy()
+        j_rand = np.random.randint(d)
+        for j in range(d):
+            if np.random.rand() < CR or j == j_rand:
+                trial[j] = x1[j] + F * (x2[j] - x3[j])
+        offspring[i] = np.clip(trial, 0.0, 1.0)
     return offspring
 
 
@@ -33,69 +30,52 @@ def crossover(parent1, parent2, F=0.5, CR=0.9):
 
 No.1 poor solver’s description and its code:
 # Its Description
-{Adaptive Multi-Point Crossover: This operator uses multiple crossover points based on a random threshold and combines offspring traits from both parents, while self-adapting the crossover points based on the diversity of parents.}
+{Simulated Binary Crossover (SBX) combined with Polynomial Mutation: This operator generates an offspring population by pairing parents from the given population, performing SBX crossover on each pair, and then applying polynomial mutation to introduce additional diversity.}
 # Its Python Code Implementation of a Function
 import numpy as np
+def generation(population, eta_c=20, eta_m=15, pm=0.1):
+    N, d = population.shape
+    offspring = np.zeros_like(population)
+    indices = np.random.permutation(N)
+    half = N // 2
 
-def crossover(parent1, parent2, num_points=3):
-    dim = len(parent1)
-    offspring = np.copy(parent1)
-    crossover_points = np.random.choice(dim, size=num_points, replace=False)
-    threshold = np.random.rand()
+    for i in range(half):
+        p1 = population[indices[i]]
+        p2 = population[indices[i + half]]
+        child = np.empty(d)
+        # SBX crossover
+        for j in range(d):
+            u = np.random.rand()
+            if u <= 0.5:
+                beta = (2 * u) ** (1 / (eta_c + 1))
+            else:
+                beta = (1 / (2 * (1 - u))) ** (1 / (eta_c + 1))
+            child[j] = 0.5 * ((1 + beta) * p1[j] + (1 - beta) * p2[j])
+        # polynomial mutation
+        for j in range(d):
+            if np.random.rand() < pm:
+                u = np.random.rand()
+                if u < 0.5:
+                    delta = (2 * u) ** (1 / (eta_m + 1)) - 1
+                else:
+                    delta = 1 - (2 * (1 - u)) ** (1 / (eta_m + 1))
+                child[j] += delta
+        offspring[i] = np.clip(child, 0.0, 1.0)
 
-    for i in range(num_points):
-        if np.random.rand() < threshold:
-            idx = crossover_points[i]
-            offspring[idx] = np.random.rand() * parent1[idx] + (1 - np.random.rand()) * parent2[idx]
-    
-    offspring = np.clip(offspring, 0.0, 1.0)
-    return offspring
-
-No.2 poor solver’s description and its code:
-# Its Description
-{Smart Adaptive Crossover: This operator generates an offspring by applying a weighted combination of parental genes based on their relative fitness, utilizing a single crossover point influenced by a scaling factor derived from the diversity of the parents.}
-# Its Python Code Implementation of a Function
-import numpy as np
-
-def crossover(parent1, parent2):
-    dim = len(parent1)
-    offspring = np.copy(parent1)
-    
-    # Calculate fitness
-    fitness_parent1 = np.sum(parent1)
-    fitness_parent2 = np.sum(parent2)
-    
-    # Calculate weight based on fitness
-    weight = fitness_parent1 / (fitness_parent1 + fitness_parent2)
-    
-    # Determine diversity measure (standard deviation of parents)
-    diversity = np.std([parent1, parent2], axis=0)
-    
-    # Single crossover point influenced by diversity
-    j_rand = np.random.randint(dim)
-    scaling_factor = np.clip(np.mean(diversity), 0.1, 0.5)  # Limit scaling factor
-    
-    for j in range(dim):
-        if j == j_rand:
-            offspring[j] = parent1[j] + scaling_factor * (parent2[j] - parent1[j]) * weight
-        else:
-            offspring[j] = parent1[j]
-    
-    offspring = np.clip(offspring, 0.0, 1.0)
+    if N % 2 != 0:
+        offspring[-1] = population[indices[-1]]
     return offspring
 
 
-Please create a new crossover solver that takes inspiration from the well-performing solvers but avoids the weaknesses and design patterns of the poor-performing solvers.
+Please create a new generation solver that takes inspiration from the well-performing solvers but avoids the weaknesses and design patterns of the poor-performing solvers.
 The new solver should aim for strong performance on optimization tasks.
 
 First, describe the design idea and main steps of your solver in one sentence. The description must be inside a brace outside the code implementation.
 
-Next, implement it in Python as a function named `crossover`.
+Next, implement it in Python as a function named `generation`.
 
-This function should accept 2 inputs: `parent1` and `parent2`, both real-valued vectors.
-
-The function should return 1 output: `offspring`, a real-valued vector.
-
-The offspring must stay within the bounds [0, 1] for each variable.
+This function should accept only 1 input: `population`, an array of shape (N, d) of real-valued vectors. 
+The function should return 1 output: `offspring`, an array of shape (N, d) of real-valued vectors. 
+The offspring must stay within the bounds [0, 1] for each variable. 
 
 Do not give additional explanations.

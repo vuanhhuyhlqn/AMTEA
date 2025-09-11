@@ -69,7 +69,7 @@ First, describe the design idea and main steps of your solver in one sentence.
 The description must be inside a brace outside the code implementation. 
 Next, implement it in Python as a function named `generation`.
 
-This function should accept 1 input: `population`, an array of shape (N, d) of real-valued vectors. 
+This function should accept only 1 input: `population`, an array of shape (N, d) of real-valued vectors. 
 The function should return 1 output: `offspring`, an array of shape (N, d) of real-valued vectors. 
 The offspring must stay within the bounds [0, 1] for each variable. 
 
