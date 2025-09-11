@@ -14,9 +14,9 @@ class Solver:
 
     def __call__(self, operands: List[np.ndarray]) -> np.ndarray:
         start = time.time()
-        if len(operands) != self.num_operands:
-            print('Number of operands doesn\'t match')
-            return None
+        # if len(operands) != self.num_operands:
+        #     print('Number of operands doesn\'t match')
+        #     return None
 
         # print(f'Running solver {self.id}')
         temp_dir = path.join(path.dirname(__file__), 'temp')
