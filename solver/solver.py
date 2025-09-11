@@ -6,10 +6,13 @@ import subprocess
 import time
 
 class Solver:
-    def __init__(self, id: str, algorithm: str):
+    def __init__(self, id: str, algorithm: str, eval_score=None):
         self.id = id
         self.algorithm = algorithm
-        self.eval_score = -np.inf
+        if eval_score is None:
+            self.eval_score = -np.inf
+        else:
+            self.eval_score = eval_score
 
     def __call__(self, operands: np.ndarray) -> np.ndarray:
         start = time.time()
