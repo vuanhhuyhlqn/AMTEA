@@ -22,7 +22,7 @@ class LLM():
         prompt_parts = []
         prompt_parts.append(
             "I am solving optimization problems using evolutionary algorithms.\n"
-            "The goal is to design crossover solvers that take two parent solutions and produce one offspring solution.\n"
+            "The goal is to design generation solvers that take a population of parent solutions and produce an offspring population.\n"
         )
 
         prompt_parts.append("I have a list of well-performing solvers with their descriptions and Python code implementations as follows:\n")
@@ -101,7 +101,6 @@ class LLM():
         return [code_all, algorithm]
     
     def init(self):
-        print('Initializing solver ... ')
         prompt_content = self.get_prompt_init()
 
         [code_all, algorithm] = self._get_alg(prompt_content)
@@ -111,7 +110,6 @@ class LLM():
         return [id, algorithm]
     
     def update(self, good_solver_history, bad_solver_history):
-        print('Updating solver ... ')
         prompt_content = self.get_prompt_update(good_solver_history, bad_solver_history)
         
         prompts_folder = 'LLM/prompts'

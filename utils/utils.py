@@ -153,8 +153,9 @@ def delete_solver_file(solver_id, folder_path='cache/solvers'):
         print(f"No file found: {file_path}")
         
 def delete_all(folder_path='cache/solvers'):
+    exclude_files = {'ga.py', 'de.py'} 
     for filename in os.listdir(folder_path):
-        if filename.endswith('.py'):
+        if filename.endswith('.py') and filename not in exclude_files:
             file_path = os.path.join(folder_path, filename)
             try:
                 os.remove(file_path)

@@ -10,18 +10,21 @@ from memory import Memory
 import numpy as np
 
 class TaskPopulation:
-    def __init__(self, task : AbstractTask, size : int, mem : Memory, dim : int):
+    def __init__(self, task : AbstractTask, size : int, memory_size : int, dim : int):
         self.task = task
         self.size = size
         self.lst_solvers = []
         self.num_solvers = None
-        self.mem = mem
+        self.mem = Memory(memory_size=memory_size)
         self.dim = dim # Individual dimension
         self.lst_indis : List[Individual] = []
         while not self.is_full():
             i = Individual(self.dim)
             i.fitness = self.task.eval(i.gene)
             self.lst_indis.append(i)
+            
+        self.good_solvers_history = []
+        self.worst_solvers_history = []
 
     def evolve(self, gen : int):
         start = time.time()
@@ -32,7 +35,7 @@ class TaskPopulation:
 
         for solver in self.lst_solvers:
             dict_subpopulations[solver.id] = SubPopulation(self.task, solver)
-            lst_p_values.append(self.mem.get_p_value(task_name=self.task.task_name, solver_id=solver.id))
+            lst_p_values.append(self.mem.get_p_value(solver_id=solver.id))
 
         print(f'[*] Task {self.task.task_name}')
         print(f'[*] lst_p_values: {lst_p_values}')
@@ -56,8 +59,7 @@ class TaskPopulation:
                 else:
                     failure += 1
             
-            self.mem.set_value(task_name=self.task.task_name, 
-                               solver_id=solver_id, 
+            self.mem.set_value(solver_id=solver_id, 
                                generation=gen, 
                                num_success=success, 
                                num_failure=failure)
@@ -69,9 +71,6 @@ class TaskPopulation:
         random.shuffle(self.lst_indis)
         end = time.time()
         print(f"Task Subpopulation evolve time taken: {end - start}")
-
-    def update_solvers(self, lst_solvers: List[Solver]):
-        self.lst_solvers = lst_solvers
 
     def get_median_fitness(self) -> float:
         fitness_values = [indi.fitness for indi in self.lst_indis]

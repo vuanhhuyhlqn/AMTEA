@@ -11,8 +11,8 @@ import numpy as np
 class Population:
 	def __init__(self, 
 				 lst_tasks: List[AbstractTask], 
-				 size,
-				 mem: Memory):
+				 size: int,
+				 memory_size : int):
 		self.lst_tasks: List[AbstractTask] = lst_tasks
 		self.lst_task_names = [task.task_name for task in self.lst_tasks]
 		self.dict_tasks: Dict[str, AbstractTask] = {}
@@ -21,9 +21,7 @@ class Population:
 
 		self.dict_taskpopulations: Dict[str, TaskPopulation] = {}
 		self.size = size
-		self.num_solvers = None
-		self.lst_solvers = []
-		self.mem = mem
+		self.memory_size = memory_size
 		self.indi_dim = max([task.dim for task in self.lst_tasks])
 
 		self.dict_best_fitness : Dict[str, float] = {}
@@ -32,7 +30,7 @@ class Population:
 			task_name = self.lst_tasks[i].task_name
 			self.dict_taskpopulations[task_name] = TaskPopulation(task=self.lst_tasks[i], 
 																 size=int(self.size / len(self.lst_tasks)),
-																 mem=self.mem,
+																 memory_size=self.memory_size,
 																 dim = self.indi_dim)
 
 	def evolve(self, gen : int):
@@ -40,14 +38,9 @@ class Population:
 			self.dict_taskpopulations[task_name].evolve(gen=gen)
 			self.dict_best_fitness[task_name] = self.dict_taskpopulations[task_name].get_best_fitness()
 
-			if gen % self.mem.memory_size == 0:
-				for solver in self.lst_solvers:
-					self.mem.update_p_value(task_name=task_name, solver_id=solver.id, generation=gen)
-				
-				# Update the best solver list
-				best_solver_id = self.mem.get_best_solver_id()
-				if best_solver_id not in self.mem.lst_best_solver_ids:
-					self.mem.lst_best_solver_ids.append(best_solver_id)
+			if gen % self.memory_size == 0:
+				for solver in self.dict_taskpopulations[task_name].lst_solvers:
+					self.dict_taskpopulations[task_name].mem.update_p_value(solver_id=solver.id, generation=gen)
 
 	def knowledge_transfer(self, k : int):
 		# Construct the transfer pool
@@ -66,14 +59,7 @@ class Population:
 																							src_task=self.dict_tasks[task_name], 
 																							target_task=self.dict_tasks[target_task_name]))
 					break
-	
-	def update_solvers(self, lst_solvers: List[Solver]):
-		self.lst_solvers = lst_solvers
-		for task_name in self.lst_task_names:
-			self.dict_taskpopulations[task_name].update_solvers(self.lst_solvers)
 		
-		self.mem.restart([solver.id for solver in self.lst_solvers])
-
 	def load_pop(self, path:str):
 		# TODO implement this if have time
 		pass

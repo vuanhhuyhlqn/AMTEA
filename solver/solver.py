@@ -15,7 +15,7 @@ class Solver:
             self.eval_score = eval_score
 
     def __call__(self, operands: np.ndarray) -> np.ndarray:
-        start = time.time()
+        # start = time.time()
         temp_dir = path.join(path.dirname(__file__), 'temp')
         temp_file = path.join(temp_dir, 'temp_parents.npy')
         np.save(temp_file, operands, allow_pickle=True)
@@ -37,8 +37,8 @@ class Solver:
 
         try:
             result_array = np.load(output_file, allow_pickle=True)
-            end = time.time()
-            print(f'Solver {self.id} executed successfully, time taken: {end - start}')
+            # end = time.time()
+            # print(f'Solver {self.id} executed successfully, time taken: {end - start}')
             return result_array
         except Exception as e:
             print(f'Error loading result from output.npy: {e}')

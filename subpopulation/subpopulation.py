@@ -19,7 +19,7 @@ class SubPopulation:
         return self.lst_indis[random_idx]
 
     def evolve(self) -> List[Individual]:
-        start = time.time()
+        # start = time.time()
         size = len(self.lst_indis)
         lst_offs: List[Individual] = []
 
@@ -27,8 +27,8 @@ class SubPopulation:
         off_fitnesses = self.task.batch_eval(off_genes)
         lst_offs = [Individual(self.task.dim, gene=off_gene, fitness=off_fitness) for off_gene, off_fitness in zip(off_genes, off_fitnesses)]
 
-        end = time.time()
-        print(f"Subpopulation evolve time taken: {end - start}")
+        # end = time.time()
+        # print(f"Subpopulation evolve time taken: {end - start}")
         return lst_offs
         
 
