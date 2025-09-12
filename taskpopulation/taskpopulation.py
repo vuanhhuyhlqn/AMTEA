@@ -22,7 +22,6 @@ class TaskPopulation:
         while not self.is_full():
             i = Individual(self.dim)
             i.fitness = self.task.eval(i.gene)
-            # print(i.fitness)
             self.lst_indis.append(i)
             
         self.good_solvers_history = []
@@ -34,8 +33,11 @@ class TaskPopulation:
 
         # ! A lot of np.inf here
         # TODO: Fix until it no longer prints np.inf
-        for indi in self.lst_indis:
-            print(f'{np.sum(indi.gene)} - {indi.fitness}')
+        self.lst_indis = sorted(self.lst_indis, key=lambda ind : ind.fitness)
+        print('TOP 5 INDI:')
+        for i in range(5):
+            print(f'{np.sum(self.lst_indis[i].gene)} - {self.lst_indis[i].fitness}')
+        random.shuffle(self.lst_indis)
 
         start = time.time()
         # divide lst_indis into subpopulation
