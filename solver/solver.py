@@ -59,13 +59,19 @@ class Solver:
 		center = np.mean(all_genes, axis=0)
 		scores = []
 		for off in offspring_genes:
-			FR = 1.0 if np.all((off >= 0.0) & (off <= 1.0)) else 0.0
+			if not np.all((off >= 0.0) & (off <= 1.0)):
+				return 0.0
+
 			dist_pb_pw = np.linalg.norm(pworst_global - pbest_global) + 1e-12
-			RPB = 1.0 - np.linalg.norm(off - pbest_global) / dist_pb_pw
+			dist_off_pb = np.linalg.norm(off - pbest_global)
+
+			RPB = max(0.0, (dist_pb_pw - dist_off_pb) / dist_pb_pw)
+
 			dist_mean = np.linalg.norm(off - center) + 1e-12
 			max_dist = max(np.linalg.norm(g - center) for g in all_genes) + 1e-12
 			DS = dist_mean / max_dist
-			score = 0.7 * FR + 0.2 * RPB + 0.1 * DS
+			
+			score = 0.6 * RPB + 0.4 * DS
 			scores.append(score)
 
 		scores = np.array(scores, dtype=float)
