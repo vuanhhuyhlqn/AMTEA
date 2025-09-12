@@ -7,164 +7,102 @@ I have a list of well-performing solvers with their descriptions and Python code
 
 No.1 solver’s description and its code:
 # Its Description
-{Hybrid Crossover Using Adaptive Blend and Self-Adaptive Mutation: This operator combines Gaussian blend crossover with a self-adaptive mutation strategy based on the variance of parents' traits, enhancing exploration and exploitation features in the offspring generation.}
+{Differential Evolution (DE) Crossover: This operator generates an offspring population by applying DE/rand/1 mutation and binomial crossover to each individual in the given population.}
 # Its Python Code Implementation of a Function
 import numpy as np
-
-def generation(population):
+def generation(population, F=0.5, CR=0.9):
     N, d = population.shape
     offspring = np.zeros_like(population)
-    
+
     for i in range(N):
-        p1, p2 = population[np.random.choice(N, 2, replace=False)]
-        # Gaussian blend crossover
-        alpha = np.random.uniform(0, 1, d)
-        child = alpha * p1 + (1 - alpha) * p2
-        
-        # Self-adaptive mutation based on variance
-        mutation_strength = np.std([p1, p2], axis=0) * np.random.uniform(0, 1, d)
-        mutation_direction = np.random.normal(0, 1, d)  # Gaussian noise
-        mutation = mutation_strength * mutation_direction
-        child += mutation
-        
-        # Clip to ensure within [0, 1]
-        offspring[i] = np.clip(child, 0.0, 1.0)
-    
+        idxs = np.random.choice([idx for idx in range(N) if idx != i], 3, replace=False)
+        x1, x2, x3 = population[idxs]
+        trial = population[i].copy()
+        j_rand = np.random.randint(d)
+        for j in range(d):
+            if np.random.rand() < CR or j == j_rand:
+                trial[j] = x1[j] + F * (x2[j] - x3[j])
+        offspring[i] = np.clip(trial, 0.0, 1.0)
     return offspring
 
 No.2 solver’s description and its code:
 # Its Description
-{Hybrid Crossover Using Adaptive Blend and Self-Adaptive Mutation: This operator combines Gaussian blend crossover with a self-adaptive mutation strategy based on the variance of parents' traits, enhancing exploration and exploitation features in the offspring generation.}
+{Differential Evolution (DE) Crossover: This operator generates an offspring population by applying DE/rand/1 mutation and binomial crossover to each individual in the given population.}
 # Its Python Code Implementation of a Function
 import numpy as np
-
-def generation(population):
+def generation(population, F=0.5, CR=0.9):
     N, d = population.shape
     offspring = np.zeros_like(population)
-    
+
     for i in range(N):
-        p1, p2 = population[np.random.choice(N, 2, replace=False)]
-        # Gaussian blend crossover
-        alpha = np.random.uniform(0, 1, d)
-        child = alpha * p1 + (1 - alpha) * p2
-        
-        # Self-adaptive mutation based on variance
-        mutation_strength = np.std([p1, p2], axis=0) * np.random.uniform(0, 1, d)
-        mutation_direction = np.random.normal(0, 1, d)  # Gaussian noise
-        mutation = mutation_strength * mutation_direction
-        child += mutation
-        
-        # Clip to ensure within [0, 1]
-        offspring[i] = np.clip(child, 0.0, 1.0)
-    
+        idxs = np.random.choice([idx for idx in range(N) if idx != i], 3, replace=False)
+        x1, x2, x3 = population[idxs]
+        trial = population[i].copy()
+        j_rand = np.random.randint(d)
+        for j in range(d):
+            if np.random.rand() < CR or j == j_rand:
+                trial[j] = x1[j] + F * (x2[j] - x3[j])
+        offspring[i] = np.clip(trial, 0.0, 1.0)
     return offspring
 
 No.3 solver’s description and its code:
 # Its Description
-{Adaptive Crossover with Variable Blend and Controlled Gaussian Mutation: This operator employs a variable blend crossover mechanism influenced by the traits of parents and applies a controlled Gaussian mutation strategy that retains offspring within specified bounds while encouraging diversity.}
+{This solver utilizes a blend of Differential Evolution mutation with a two-parent crossover and a dynamic scaling factor that adapts based on the diversity of the population, encouraging exploration while maintaining convergence.}
 # Its Python Code Implementation of a Function
 import numpy as np
 
-def generation(population):
+def generation(population, base_F=0.5, base_CR=0.9):
     N, d = population.shape
     offspring = np.zeros_like(population)
-    
+
+    # Compute population diversity
+    diversity = np.mean(np.std(population, axis=0))
+    F = base_F + diversity  # Adjust F based on diversity
+    CR = base_CR  # Keep CR constant for simplicity
+
     for i in range(N):
-        p1, p2 = population[np.random.choice(N, 2, replace=False)]
-        # Adaptive blend crossover
-        alpha = np.random.uniform(0, 1, d) * np.random.uniform(0.5, 1.5, d)
-        child = alpha * p1 + (1 - alpha) * p2
+        # Select three distinct parents
+        idxs = np.random.choice([idx for idx in range(N) if idx != i], 3, replace=False)
+        x1, x2, x3 = population[idxs]
+        trial = population[i].copy()
+        j_rand = np.random.randint(d)
+
+        for j in range(d):
+            if np.random.rand() < CR or j == j_rand:
+                trial[j] = x1[j] + F * (x2[j] - x3[j])
         
-        # Controlled Gaussian mutation
-        mutation_size = np.clip(np.std([p1, p2], axis=0) * np.random.uniform(0.1, 0.3, d), 0, 0.1)
-        mutation_direction = np.random.normal(0, 1, d)
-        mutation = mutation_size * mutation_direction
-        child += mutation
-        
-        # Clip to ensure within [0, 1]
-        offspring[i] = np.clip(child, 0.0, 1.0)
-    
+        offspring[i] = np.clip(trial, 0.0, 1.0)
+
     return offspring
 
 No.4 solver’s description and its code:
 # Its Description
-{Adaptive Crossover with Variable Blend and Controlled Gaussian Mutation: This operator employs a variable blend crossover mechanism influenced by the traits of parents and applies a controlled Gaussian mutation strategy that retains offspring within specified bounds while encouraging diversity.}
+{This solver utilizes a blend of Differential Evolution mutation with a two-parent crossover and a dynamic scaling factor that adapts based on the diversity of the population, encouraging exploration while maintaining convergence.}
 # Its Python Code Implementation of a Function
 import numpy as np
 
-def generation(population):
+def generation(population, base_F=0.5, base_CR=0.9):
     N, d = population.shape
     offspring = np.zeros_like(population)
-    
+
+    # Compute population diversity
+    diversity = np.mean(np.std(population, axis=0))
+    F = base_F + diversity  # Adjust F based on diversity
+    CR = base_CR  # Keep CR constant for simplicity
+
     for i in range(N):
-        p1, p2 = population[np.random.choice(N, 2, replace=False)]
-        # Adaptive blend crossover
-        alpha = np.random.uniform(0, 1, d) * np.random.uniform(0.5, 1.5, d)
-        child = alpha * p1 + (1 - alpha) * p2
-        
-        # Controlled Gaussian mutation
-        mutation_size = np.clip(np.std([p1, p2], axis=0) * np.random.uniform(0.1, 0.3, d), 0, 0.1)
-        mutation_direction = np.random.normal(0, 1, d)
-        mutation = mutation_size * mutation_direction
-        child += mutation
-        
-        # Clip to ensure within [0, 1]
-        offspring[i] = np.clip(child, 0.0, 1.0)
-    
-    return offspring
+        # Select three distinct parents
+        idxs = np.random.choice([idx for idx in range(N) if idx != i], 3, replace=False)
+        x1, x2, x3 = population[idxs]
+        trial = population[i].copy()
+        j_rand = np.random.randint(d)
 
-No.5 solver’s description and its code:
-# Its Description
-{Adaptive Crossover with Dynamic Blend and Gaussian Noise Mutation: This operator utilizes a dynamic blend factor influenced by parent traits and applies Gaussian noise mutation with a varying intensity based on the average distance between parents, promoting flexibility and diversity in offspring generation.}
-# Its Python Code Implementation of a Function
-import numpy as np
+        for j in range(d):
+            if np.random.rand() < CR or j == j_rand:
+                trial[j] = x1[j] + F * (x2[j] - x3[j])
+        
+        offspring[i] = np.clip(trial, 0.0, 1.0)
 
-def generation(population):
-    N, d = population.shape
-    offspring = np.zeros_like(population)
-    
-    for i in range(N):
-        p1, p2 = population[np.random.choice(N, 2, replace=False)]
-        # Dynamic blend factor
-        average_distance = np.abs(p1 - p2)
-        blend_factor = np.clip(np.random.uniform(0.5, 1.5, d) * average_distance, 0, 1)
-        child = blend_factor * p1 + (1 - blend_factor) * p2
-        
-        # Gaussian noise mutation
-        mutation_strength = np.clip(np.mean(average_distance) * np.random.uniform(0.05, 0.2), 0, 0.1)
-        mutation = mutation_strength * np.random.normal(0, 1, d)
-        child += mutation
-        
-        # Clip to ensure within [0, 1]
-        offspring[i] = np.clip(child, 0.0, 1.0)
-    
-    return offspring
-
-No.6 solver’s description and its code:
-# Its Description
-{Adaptive Crossover with Dynamic Blend and Gaussian Noise Mutation: This operator utilizes a dynamic blend factor influenced by parent traits and applies Gaussian noise mutation with a varying intensity based on the average distance between parents, promoting flexibility and diversity in offspring generation.}
-# Its Python Code Implementation of a Function
-import numpy as np
-
-def generation(population):
-    N, d = population.shape
-    offspring = np.zeros_like(population)
-    
-    for i in range(N):
-        p1, p2 = population[np.random.choice(N, 2, replace=False)]
-        # Dynamic blend factor
-        average_distance = np.abs(p1 - p2)
-        blend_factor = np.clip(np.random.uniform(0.5, 1.5, d) * average_distance, 0, 1)
-        child = blend_factor * p1 + (1 - blend_factor) * p2
-        
-        # Gaussian noise mutation
-        mutation_strength = np.clip(np.mean(average_distance) * np.random.uniform(0.05, 0.2), 0, 0.1)
-        mutation = mutation_strength * np.random.normal(0, 1, d)
-        child += mutation
-        
-        # Clip to ensure within [0, 1]
-        offspring[i] = np.clip(child, 0.0, 1.0)
-    
     return offspring
 
 
@@ -172,44 +110,68 @@ def generation(population):
 
 No.1 poor solver’s description and its code:
 # Its Description
-{Simulated Binary Crossover (SBX) combined with Polynomial Mutation: This operator generates an offspring population by pairing parents from the given population, performing SBX crossover on each pair, and then applying polynomial mutation to introduce additional diversity.}
+{This solver employs a hybridized approach that combines adaptive uniform crossover with self-adjusting mutation based on the fitness difference of parent pairs, promoting exploration of the search space while balancing convergence.}
 # Its Python Code Implementation of a Function
 import numpy as np
-def generation(population, eta_c=2, eta_m=5, pm=0.1):
+
+def generation(population):
     N, d = population.shape
     offspring = np.zeros_like(population)
-    indices = np.random.permutation(N)
-    half = N // 2
+    fitness = np.random.rand(N)  # Placeholder for actual fitness values; use real fitness evaluations in practice
 
-    for i in range(half):
-        p1 = population[indices[i]]
-        p2 = population[indices[i + half]]
-        child = np.empty(d)
-        # SBX crossover
-        for j in range(d):
-            u = np.random.rand()
-            if u <= 0.5:
-                beta = (2 * u) ** (1 / (eta_c + 1))
-            else:
-                beta = (1 / (2 * (1 - u))) ** (1 / (eta_c + 1))
-            child[j] = 0.5 * ((1 + beta) * p1[j] + (1 - beta) * p2[j])
-        # polynomial mutation
-        for j in range(d):
-            if np.random.rand() < pm:
-                u = np.random.rand()
-                if u < 0.5:
-                    delta = (2 * u) ** (1 / (eta_m + 1)) - 1
-                else:
-                    delta = 1 - (2 * (1 - u)) ** (1 / (eta_m + 1))
-                child[j] += delta
+    for i in range(N):
+        # Select two distinct parents based on fitness
+        idxs = np.random.choice([idx for idx in range(N) if idx != i], 2, replace=False)
+        p1, p2 = population[idxs]
+        
+        # Adaptive uniform crossover
+        alpha = np.random.rand(d)
+        child = np.where(alpha < 0.5, p1, p2)
+        
+        # Self-adjustment based on fitness difference
+        fitness_diff = np.abs(fitness[idxs[0]] - fitness[idxs[1]])
+        mutation_strength = 0.1 + 0.9 * fitness_diff  # Self-adjusting mutation strength based on fitness difference
+        mutation = np.random.randn(d) * mutation_strength
+        
+        # Apply mutation
+        child += mutation
         offspring[i] = np.clip(child, 0.0, 1.0)
 
-    if N % 2 != 0:
-        offspring[-1] = population[indices[-1]]
     return offspring
 
 No.2 poor solver’s description and its code:
 # Its Description
+{This solver employs a hybridized approach that combines adaptive uniform crossover with self-adjusting mutation based on the fitness difference of parent pairs, promoting exploration of the search space while balancing convergence.}
+# Its Python Code Implementation of a Function
+import numpy as np
+
+def generation(population):
+    N, d = population.shape
+    offspring = np.zeros_like(population)
+    fitness = np.random.rand(N)  # Placeholder for actual fitness values; use real fitness evaluations in practice
+
+    for i in range(N):
+        # Select two distinct parents based on fitness
+        idxs = np.random.choice([idx for idx in range(N) if idx != i], 2, replace=False)
+        p1, p2 = population[idxs]
+        
+        # Adaptive uniform crossover
+        alpha = np.random.rand(d)
+        child = np.where(alpha < 0.5, p1, p2)
+        
+        # Self-adjustment based on fitness difference
+        fitness_diff = np.abs(fitness[idxs[0]] - fitness[idxs[1]])
+        mutation_strength = 0.1 + 0.9 * fitness_diff  # Self-adjusting mutation strength based on fitness difference
+        mutation = np.random.randn(d) * mutation_strength
+        
+        # Apply mutation
+        child += mutation
+        offspring[i] = np.clip(child, 0.0, 1.0)
+
+    return offspring
+
+No.3 poor solver’s description and its code:
+# Its Description
 {Simulated Binary Crossover (SBX) combined with Polynomial Mutation: This operator generates an offspring population by pairing parents from the given population, performing SBX crossover on each pair, and then applying polynomial mutation to introduce additional diversity.}
 # Its Python Code Implementation of a Function
 import numpy as np
@@ -246,98 +208,106 @@ def generation(population, eta_c=2, eta_m=5, pm=0.1):
         offspring[-1] = population[indices[-1]]
     return offspring
 
-No.3 poor solver’s description and its code:
-# Its Description
-{Differential Evolution (DE) Crossover: This operator generates an offspring population by applying DE/rand/1 mutation and binomial crossover to each individual in the given population.}
-# Its Python Code Implementation of a Function
-import numpy as np
-def generation(population, F=0.5, CR=0.9):
-    N, d = population.shape
-    offspring = np.zeros_like(population)
-
-    for i in range(N):
-        idxs = np.random.choice([idx for idx in range(N) if idx != i], 3, replace=False)
-        x1, x2, x3 = population[idxs]
-        trial = population[i].copy()
-        j_rand = np.random.randint(d)
-        for j in range(d):
-            if np.random.rand() < CR or j == j_rand:
-                trial[j] = x1[j] + F * (x2[j] - x3[j])
-        offspring[i] = np.clip(trial, 0.0, 1.0)
-    return offspring
-
 No.4 poor solver’s description and its code:
 # Its Description
-{Differential Evolution (DE) Crossover: This operator generates an offspring population by applying DE/rand/1 mutation and binomial crossover to each individual in the given population.}
+{Simulated Binary Crossover (SBX) combined with Polynomial Mutation: This operator generates an offspring population by pairing parents from the given population, performing SBX crossover on each pair, and then applying polynomial mutation to introduce additional diversity.}
 # Its Python Code Implementation of a Function
 import numpy as np
-def generation(population, F=0.5, CR=0.9):
+def generation(population, eta_c=2, eta_m=5, pm=0.1):
     N, d = population.shape
     offspring = np.zeros_like(population)
+    indices = np.random.permutation(N)
+    half = N // 2
 
-    for i in range(N):
-        idxs = np.random.choice([idx for idx in range(N) if idx != i], 3, replace=False)
-        x1, x2, x3 = population[idxs]
-        trial = population[i].copy()
-        j_rand = np.random.randint(d)
+    for i in range(half):
+        p1 = population[indices[i]]
+        p2 = population[indices[i + half]]
+        child = np.empty(d)
+        # SBX crossover
         for j in range(d):
-            if np.random.rand() < CR or j == j_rand:
-                trial[j] = x1[j] + F * (x2[j] - x3[j])
-        offspring[i] = np.clip(trial, 0.0, 1.0)
+            u = np.random.rand()
+            if u <= 0.5:
+                beta = (2 * u) ** (1 / (eta_c + 1))
+            else:
+                beta = (1 / (2 * (1 - u))) ** (1 / (eta_c + 1))
+            child[j] = 0.5 * ((1 + beta) * p1[j] + (1 - beta) * p2[j])
+        # polynomial mutation
+        for j in range(d):
+            if np.random.rand() < pm:
+                u = np.random.rand()
+                if u < 0.5:
+                    delta = (2 * u) ** (1 / (eta_m + 1)) - 1
+                else:
+                    delta = 1 - (2 * (1 - u)) ** (1 / (eta_m + 1))
+                child[j] += delta
+        offspring[i] = np.clip(child, 0.0, 1.0)
+
+    if N % 2 != 0:
+        offspring[-1] = population[indices[-1]]
     return offspring
 
 No.5 poor solver’s description and its code:
 # Its Description
-{Hybrid Crossover Using Adaptive Blend and Self-Adaptive Mutation: This operator combines Gaussian blend crossover with a self-adaptive mutation strategy based on the variance of parents' traits, enhancing exploration and exploitation features in the offspring generation.}
+{This solver implements a novel approach that combines Differential Evolution with a multi-parent crossover strategy, utilizing random sampling from diverse parents and a self-adaptive scaling factor based on fitness metrics to enhance exploration without compromising convergence.}
 # Its Python Code Implementation of a Function
 import numpy as np
 
-def generation(population):
+def generation(population, base_F=0.5, base_CR=0.9):
     N, d = population.shape
     offspring = np.zeros_like(population)
-    
+    fitness = np.random.rand(N)  # Placeholder for actual fitness values; use real fitness evaluations in practice
+
+    # Compute average fitness difference and adjust F based on it
+    fitness_diff = np.abs(fitness[:, None] - fitness[None, :])
+    F = base_F + np.mean(fitness_diff)
+
     for i in range(N):
-        p1, p2 = population[np.random.choice(N, 2, replace=False)]
-        # Gaussian blend crossover
-        alpha = np.random.uniform(0, 1, d)
-        child = alpha * p1 + (1 - alpha) * p2
+        # Select four distinct parents to enhance diversity
+        idxs = np.random.choice([idx for idx in range(N) if idx != i], 4, replace=False)
+        parents = population[idxs]
         
-        # Self-adaptive mutation based on variance
-        mutation_strength = np.std([p1, p2], axis=0) * np.random.uniform(0, 1, d)
-        mutation_direction = np.random.normal(0, 1, d)  # Gaussian noise
-        mutation = mutation_strength * mutation_direction
-        child += mutation
+        # Apply crossover using a mixing of parents
+        j_rand = np.random.randint(d)
+        trial = population[i].copy()
         
-        # Clip to ensure within [0, 1]
-        offspring[i] = np.clip(child, 0.0, 1.0)
-    
+        for j in range(d):
+            if np.random.rand() < base_CR or j == j_rand:
+                trial[j] = np.mean(parents[:, j]) + F * (np.max(parents[:, j]) - np.min(parents[:, j]))
+        
+        offspring[i] = np.clip(trial, 0.0, 1.0)
+
     return offspring
 
 No.6 poor solver’s description and its code:
 # Its Description
-{Hybrid Crossover Using Adaptive Blend and Self-Adaptive Mutation: This operator combines Gaussian blend crossover with a self-adaptive mutation strategy based on the variance of parents' traits, enhancing exploration and exploitation features in the offspring generation.}
+{This solver implements a novel approach that combines Differential Evolution with a multi-parent crossover strategy, utilizing random sampling from diverse parents and a self-adaptive scaling factor based on fitness metrics to enhance exploration without compromising convergence.}
 # Its Python Code Implementation of a Function
 import numpy as np
 
-def generation(population):
+def generation(population, base_F=0.5, base_CR=0.9):
     N, d = population.shape
     offspring = np.zeros_like(population)
-    
+    fitness = np.random.rand(N)  # Placeholder for actual fitness values; use real fitness evaluations in practice
+
+    # Compute average fitness difference and adjust F based on it
+    fitness_diff = np.abs(fitness[:, None] - fitness[None, :])
+    F = base_F + np.mean(fitness_diff)
+
     for i in range(N):
-        p1, p2 = population[np.random.choice(N, 2, replace=False)]
-        # Gaussian blend crossover
-        alpha = np.random.uniform(0, 1, d)
-        child = alpha * p1 + (1 - alpha) * p2
+        # Select four distinct parents to enhance diversity
+        idxs = np.random.choice([idx for idx in range(N) if idx != i], 4, replace=False)
+        parents = population[idxs]
         
-        # Self-adaptive mutation based on variance
-        mutation_strength = np.std([p1, p2], axis=0) * np.random.uniform(0, 1, d)
-        mutation_direction = np.random.normal(0, 1, d)  # Gaussian noise
-        mutation = mutation_strength * mutation_direction
-        child += mutation
+        # Apply crossover using a mixing of parents
+        j_rand = np.random.randint(d)
+        trial = population[i].copy()
         
-        # Clip to ensure within [0, 1]
-        offspring[i] = np.clip(child, 0.0, 1.0)
-    
+        for j in range(d):
+            if np.random.rand() < base_CR or j == j_rand:
+                trial[j] = np.mean(parents[:, j]) + F * (np.max(parents[:, j]) - np.min(parents[:, j]))
+        
+        offspring[i] = np.clip(trial, 0.0, 1.0)
+
     return offspring
 
 
