@@ -11,6 +11,7 @@ import numpy as np
 
 class TaskPopulation:
     def __init__(self, task : AbstractTask, size : int, memory_size : int, dim : int):
+        # print('Task Population Initiation!')
         self.task = task
         self.size = size
         self.lst_solvers = []
@@ -21,6 +22,7 @@ class TaskPopulation:
         while not self.is_full():
             i = Individual(self.dim)
             i.fitness = self.task.eval(i.gene)
+            # print(i.fitness)
             self.lst_indis.append(i)
             
         self.good_solvers_history = []
@@ -29,6 +31,11 @@ class TaskPopulation:
     def evolve(self, gen : int):
         print(f'Task name: {self.task.task_name}')
         print(f'List solvers: {[solver.id for solver in self.lst_solvers]}')
+
+        # ! A lot of np.inf here
+        # TODO: Fix until it no longer prints np.inf
+        for indi in self.lst_indis:
+            print(f'{np.sum(indi.gene)} - {indi.fitness}')
 
         start = time.time()
         # divide lst_indis into subpopulation

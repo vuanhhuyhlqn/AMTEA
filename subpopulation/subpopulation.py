@@ -25,6 +25,10 @@ class SubPopulation:
         try:
             off_genes = self.solver(np.vstack([indi.gene for indi in self.lst_indis]))
             off_fitnesses = self.task.batch_eval(off_genes)
+            for off_fitness in off_fitnesses:
+                if off_fitness == np.inf:
+                    raise Exception('[ERROR] Off fitness inf!')
+
             lst_offs = [Individual(self.task.dim, gene=off_gene, fitness=off_fitness) for off_gene, off_fitness in zip(off_genes, off_fitnesses)]
 
             # end = time.time()
