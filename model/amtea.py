@@ -88,16 +88,21 @@ class AMTEA(AbstractModel):
             print(f'Updating solvers for task {task_name} ... ')
             lst_solvers = self.population.dict_taskpopulations[task_name].lst_solvers
             mem = self.population.dict_taskpopulations[task_name].mem
+            lst_solvers_id = mem.lst_solver_ids
             best_solver_id = mem.get_best_solver_id()
             worst_solver_id = mem.get_worst_solver_id()
+            good_solvers_history = self.population.dict_taskpopulations[task_name].good_solvers_history
+            worst_solvers_history = self.population.dict_taskpopulations[task_name].worst_solvers_history
             
             good_solver = next((solver for solver in lst_solvers if solver.id == best_solver_id), None)
-            self.population.dict_taskpopulations[task_name].good_solvers_history.append(good_solver)
-            good_solvers_history = self.population.dict_taskpopulations[task_name].good_solvers_history
+            if (good_solver.id not in [s.id for s in good_solvers_history]):
+                self.population.dict_taskpopulations[task_name].good_solvers_history.append(good_solver)
+                good_solvers_history.append(good_solver)
             
             worst_solver = next((solver for solver in lst_solvers if solver.id == worst_solver_id), None)
-            self.population.dict_taskpopulations[task_name].worst_solvers_history.append(worst_solver)
-            worst_solvers_history = self.population.dict_taskpopulations[task_name].worst_solvers_history
+            if (worst_solver.id not in [s.id for s in worst_solvers_history]):
+                self.population.dict_taskpopulations[task_name].worst_solvers_history.append(worst_solver)
+                worst_solvers_history.append(worst_solver)
             
             self.population.dict_taskpopulations[task_name].lst_solvers = [solver for solver in lst_solvers if solver != worst_solver]
             

@@ -80,6 +80,41 @@ def generation(population):
 
     return offspring
 
+No.3 solver’s description and its code:
+# Its Description
+{Dynamic Hybrid Crossover with Enhanced Adaptive Mutation: This operator generates an offspring population by combining a dynamic blend crossover based on fitness and random parent selection, followed by an enhanced adaptive mutation that utilizes both small perturbations and local exploration based on the average distance of selected parents.}
+# Its Python Code Implementation of a Function
+import numpy as np
+
+def generation(population):
+    N, d = population.shape
+    offspring = np.zeros_like(population)
+
+    # Calculate fitness (assuming lower is better)
+    fitness = np.sum(population**2, axis=1)  # Example fitness (minimizing sum of squares)
+    fitness_inv = 1 / (1 + fitness)  # Inverse fitness for blending weights
+
+    for i in range(N):
+        # Select two different parents based on their fitness
+        idxs = np.random.choice(N, 2, replace=False)
+        p1, p2 = population[idxs]
+
+        # Dynamic blend crossover
+        blend_ratio = fitness_inv[idxs] / np.sum(fitness_inv[idxs])
+        child = blend_ratio[0] * p1 + blend_ratio[1] * p2
+
+        # Enhanced adaptive mutation based on distance between parents
+        average_distance = np.mean(np.abs(p1 - p2))
+        mutation_strength = np.random.rand() * (average_distance / 2)  # Smaller mutation based on similarity
+        for j in range(d):
+            if np.random.rand() < mutation_strength:
+                delta = np.random.uniform(-0.05, 0.05)  # Small perturbation
+                child[j] += delta
+        
+        offspring[i] = np.clip(child, 0.0, 1.0)
+
+    return offspring
+
 
 **Poor solvers to avoid:**
 
@@ -139,6 +174,40 @@ def generation(population, F=0.5, CR=0.9):
             if np.random.rand() < CR or j == j_rand:
                 trial[j] = x1[j] + F * (x2[j] - x3[j])
         offspring[i] = np.clip(trial, 0.0, 1.0)
+    return offspring
+
+No.3 poor solver’s description and its code:
+# Its Description
+{Adaptive Blend Crossover with Non-uniform Mutation: This operator generates an offspring population by blending parent solutions with adaptive mixing ratios based on their fitness, followed by non-uniform mutation that adjusts the search space dynamically throughout the generations.}
+# Its Python Code Implementation of a Function
+import numpy as np
+
+def generation(population):
+    N, d = population.shape
+    offspring = np.zeros_like(population)
+
+    # Calculate fitness (assuming lower is better)
+    fitness = np.sum(population**2, axis=1)  # Example fitness (minimizing sum of squares)
+    fitness_inv = 1 / (1 + fitness)  # Inverse fitness for blending weights
+
+    for i in range(N):
+        # Select two different parents based on their fitness
+        idxs = np.random.choice(N, 2, replace=False)
+        p1, p2 = population[idxs]
+
+        # Adaptive blend crossover
+        blend_ratio = fitness_inv[idxs] / np.sum(fitness_inv[idxs])
+        child = blend_ratio[0] * p1 + blend_ratio[1] * p2
+
+        # Non-uniform mutation
+        mutation_strength = np.random.rand() * (1 - (i / N))  # Decrease mutation strength with generations
+        for j in range(d):
+            if np.random.rand() < mutation_strength:
+                delta = np.random.uniform(-0.1, 0.1)  # Small perturbation
+                child[j] += delta
+        
+        offspring[i] = np.clip(child, 0.0, 1.0)
+
     return offspring
 
 
