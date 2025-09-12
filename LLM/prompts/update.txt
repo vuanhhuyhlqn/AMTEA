@@ -7,7 +7,7 @@ I have a list of well-performing solvers with their descriptions and Python code
 
 No.1 solver’s description and its code:
 # Its Description
-{A novel Family-based Crossover and Mutation operator that combines the concepts of neighbor-based exploration with a multi-parent approach, where each offspring is created by averaging contributions from multiple parents selected from the population, followed by an adaptive mutation step based on the distance of selected parents.}
+{Hybrid Adaptive Crossover with Self-Adjusted Mutation: This operator first selects pairs of parents and creates offspring using a weighted average based on a self-adaptive weight derived from the difference between the parents, followed by a multi-point mutation process that uses individual mutation rates adjusted according to the parent's diversity.}
 # Its Python Code Implementation of a Function
 import numpy as np
 
@@ -15,29 +15,33 @@ def generation(population):
     N, d = population.shape
     offspring = np.zeros_like(population)
 
+    # Calculate diversity among parents for self-adjusted mutation
+    diversity = np.std(population, axis=0)
+    
     for i in range(N):
-        # Select parents based on random neighbors, with one static reference for diversity
-        indices = np.random.choice(N, 4, replace=False)
-        p1, p2, p3, reference = population[indices]
+        # Select two unique parents
+        idxs = np.random.choice([idx for idx in range(N) if idx != i], 2, replace=False)
+        p1, p2 = population[idxs]
         
-        # Family-based crossover: average contributions
-        child = (p1 + p2 + p3) / 3
+        # Calculate a weighted average
+        weight = np.random.rand(d)
+        child = weight * p1 + (1 - weight) * p2
         
-        # Adaptive mutation based on distance from reference
-        mutation_strength = np.linalg.norm(child - reference) / np.sqrt(d)
+        # Multi-point mutation using individual mutation rates
         for j in range(d):
-            if np.random.rand() < 1.0 / (1 + mutation_strength):
-                delta = np.random.uniform(-0.1, 0.1)
-                child[j] += delta
-
-        # Clip the values to remain in [0, 1]
+            # Self-adaptive mutation rate based on diversity
+            pm = 0.1 + 0.9 * (1 - (diversity[j] / np.max(diversity)))
+            if np.random.rand() < pm:
+                mutation_value = np.random.normal(0, 0.1)  # Gaussian mutation
+                child[j] += mutation_value
+                
         offspring[i] = np.clip(child, 0.0, 1.0)
     
     return offspring
 
 No.2 solver’s description and its code:
 # Its Description
-{A novel Family-based Crossover and Mutation operator that combines the concepts of neighbor-based exploration with a multi-parent approach, where each offspring is created by averaging contributions from multiple parents selected from the population, followed by an adaptive mutation step based on the distance of selected parents.}
+{Hybrid Adaptive Crossover with Self-Adjusted Mutation: This operator first selects pairs of parents and creates offspring using a weighted average based on a self-adaptive weight derived from the difference between the parents, followed by a multi-point mutation process that uses individual mutation rates adjusted according to the parent's diversity.}
 # Its Python Code Implementation of a Function
 import numpy as np
 
@@ -45,22 +49,176 @@ def generation(population):
     N, d = population.shape
     offspring = np.zeros_like(population)
 
+    # Calculate diversity among parents for self-adjusted mutation
+    diversity = np.std(population, axis=0)
+    
     for i in range(N):
-        # Select parents based on random neighbors, with one static reference for diversity
-        indices = np.random.choice(N, 4, replace=False)
-        p1, p2, p3, reference = population[indices]
+        # Select two unique parents
+        idxs = np.random.choice([idx for idx in range(N) if idx != i], 2, replace=False)
+        p1, p2 = population[idxs]
         
-        # Family-based crossover: average contributions
-        child = (p1 + p2 + p3) / 3
+        # Calculate a weighted average
+        weight = np.random.rand(d)
+        child = weight * p1 + (1 - weight) * p2
         
-        # Adaptive mutation based on distance from reference
-        mutation_strength = np.linalg.norm(child - reference) / np.sqrt(d)
+        # Multi-point mutation using individual mutation rates
         for j in range(d):
-            if np.random.rand() < 1.0 / (1 + mutation_strength):
-                delta = np.random.uniform(-0.1, 0.1)
-                child[j] += delta
+            # Self-adaptive mutation rate based on diversity
+            pm = 0.1 + 0.9 * (1 - (diversity[j] / np.max(diversity)))
+            if np.random.rand() < pm:
+                mutation_value = np.random.normal(0, 0.1)  # Gaussian mutation
+                child[j] += mutation_value
+                
+        offspring[i] = np.clip(child, 0.0, 1.0)
+    
+    return offspring
 
-        # Clip the values to remain in [0, 1]
+No.3 solver’s description and its code:
+# Its Description
+{Adaptive Weighted Crossover combined with Gaussian Mutation and Diversity-Based Selection: This operator selects pairs of parents to generate offspring using a weighted average based on a dynamically adjusted weight that reflects the diversity of the parents, followed by a Gaussian mutation where the mutation strength is scaled based on the overall diversity of the population.}
+# Its Python Code Implementation of a Function
+import numpy as np
+
+def generation(population):
+    N, d = population.shape
+    offspring = np.zeros_like(population)
+
+    # Calculate overall diversity for adaptive mutation
+    diversity = np.std(population, axis=0)
+    
+    for i in range(N):
+        # Select two unique parents
+        idxs = np.random.choice([idx for idx in range(N) if idx != i], 2, replace=False)
+        p1, p2 = population[idxs]
+        
+        # Calculate a weighted average
+        weight = np.random.rand(d)
+        child = weight * p1 + (1 - weight) * p2
+        
+        # Gaussian mutation with adaptive mutation strength
+        for j in range(d):
+            if np.random.rand() < 0.1:  # Mutation probability
+                # Adaptive mutation scale based on diversity
+                mutation_strength = 0.1 * (1 + diversity[j])
+                mutation_value = np.random.normal(0, mutation_strength)
+                child[j] += mutation_value
+                
+        offspring[i] = np.clip(child, 0.0, 1.0)
+    
+    return offspring
+
+No.4 solver’s description and its code:
+# Its Description
+{Adaptive Weighted Crossover combined with Gaussian Mutation and Diversity-Based Selection: This operator selects pairs of parents to generate offspring using a weighted average based on a dynamically adjusted weight that reflects the diversity of the parents, followed by a Gaussian mutation where the mutation strength is scaled based on the overall diversity of the population.}
+# Its Python Code Implementation of a Function
+import numpy as np
+
+def generation(population):
+    N, d = population.shape
+    offspring = np.zeros_like(population)
+
+    # Calculate overall diversity for adaptive mutation
+    diversity = np.std(population, axis=0)
+    
+    for i in range(N):
+        # Select two unique parents
+        idxs = np.random.choice([idx for idx in range(N) if idx != i], 2, replace=False)
+        p1, p2 = population[idxs]
+        
+        # Calculate a weighted average
+        weight = np.random.rand(d)
+        child = weight * p1 + (1 - weight) * p2
+        
+        # Gaussian mutation with adaptive mutation strength
+        for j in range(d):
+            if np.random.rand() < 0.1:  # Mutation probability
+                # Adaptive mutation scale based on diversity
+                mutation_strength = 0.1 * (1 + diversity[j])
+                mutation_value = np.random.normal(0, mutation_strength)
+                child[j] += mutation_value
+                
+        offspring[i] = np.clip(child, 0.0, 1.0)
+    
+    return offspring
+
+No.5 solver’s description and its code:
+# Its Description
+{Dynamic Adaptive Crossover with Gaussian Mutation using Elite Selection: This operator first selects a subset of elite parents based on fitness to conduct crossover using a dynamic weight influenced by fitness differences, followed by a Gaussian mutation where mutation strength is adapted based on the average fitness of the population.}
+# Its Python Code Implementation of a Function
+import numpy as np
+
+def generation(population):
+    N, d = population.shape
+    offspring = np.zeros_like(population)
+    
+    # Calculate fitness (assumed to be minimized; modify according to your optimization context)
+    fitness = np.sum(population ** 2, axis=1)  # Example: simple fitness evaluation (e.g., sphere function)
+    
+    # Select elite parents based on sorted fitness
+    elite_indices = np.argsort(fitness)[:N // 2]
+    elite_population = population[elite_indices]
+    
+    # Calculate diverse weights based on fitness
+    weight_diffs = np.abs(elite_population[:, np.newaxis] - elite_population)
+    dynamic_weights = np.clip(1 - weight_diffs / np.max(weight_diffs), 0, 1)
+    
+    for i in range(N):
+        # Select two unique elite parents
+        idxs = np.random.choice(len(elite_population), 2, replace=False)
+        p1, p2 = elite_population[idxs]
+        
+        # Calculate a weighted average
+        weight = dynamic_weights[idxs[0], idxs[1]]
+        child = weight * p1 + (1 - weight) * p2
+        
+        # Gaussian mutation with adaptive strength based on average fitness
+        avg_fitness = np.mean(fitness)
+        mutation_strength = 0.1 * (1 + (avg_fitness / np.max(fitness)))
+        if np.random.rand() < 0.1:  # Mutation probability
+            mutation_value = np.random.normal(0, mutation_strength, d)
+            child += mutation_value
+        
+        offspring[i] = np.clip(child, 0.0, 1.0)
+    
+    return offspring
+
+No.6 solver’s description and its code:
+# Its Description
+{Dynamic Adaptive Crossover with Gaussian Mutation using Elite Selection: This operator first selects a subset of elite parents based on fitness to conduct crossover using a dynamic weight influenced by fitness differences, followed by a Gaussian mutation where mutation strength is adapted based on the average fitness of the population.}
+# Its Python Code Implementation of a Function
+import numpy as np
+
+def generation(population):
+    N, d = population.shape
+    offspring = np.zeros_like(population)
+    
+    # Calculate fitness (assumed to be minimized; modify according to your optimization context)
+    fitness = np.sum(population ** 2, axis=1)  # Example: simple fitness evaluation (e.g., sphere function)
+    
+    # Select elite parents based on sorted fitness
+    elite_indices = np.argsort(fitness)[:N // 2]
+    elite_population = population[elite_indices]
+    
+    # Calculate diverse weights based on fitness
+    weight_diffs = np.abs(elite_population[:, np.newaxis] - elite_population)
+    dynamic_weights = np.clip(1 - weight_diffs / np.max(weight_diffs), 0, 1)
+    
+    for i in range(N):
+        # Select two unique elite parents
+        idxs = np.random.choice(len(elite_population), 2, replace=False)
+        p1, p2 = elite_population[idxs]
+        
+        # Calculate a weighted average
+        weight = dynamic_weights[idxs[0], idxs[1]]
+        child = weight * p1 + (1 - weight) * p2
+        
+        # Gaussian mutation with adaptive strength based on average fitness
+        avg_fitness = np.mean(fitness)
+        mutation_strength = 0.1 * (1 + (avg_fitness / np.max(fitness)))
+        if np.random.rand() < 0.1:  # Mutation probability
+            mutation_value = np.random.normal(0, mutation_strength, d)
+            child += mutation_value
+        
         offspring[i] = np.clip(child, 0.0, 1.0)
     
     return offspring
@@ -70,42 +228,214 @@ def generation(population):
 
 No.1 poor solver’s description and its code:
 # Its Description
-{Differential Evolution (DE) Crossover: This operator generates an offspring population by applying DE/rand/1 mutation and binomial crossover to each individual in the given population.}
+{Simulated Binary Crossover (SBX) combined with Polynomial Mutation: This operator generates an offspring population by pairing parents from the given population, performing SBX crossover on each pair, and then applying polynomial mutation to introduce additional diversity.}
 # Its Python Code Implementation of a Function
 import numpy as np
-def generation(population, F=0.5, CR=0.9):
+def generation(population, eta_c=2, eta_m=5, pm=0.1):
     N, d = population.shape
     offspring = np.zeros_like(population)
+    indices = np.random.permutation(N)
+    half = N // 2
 
-    for i in range(N):
-        idxs = np.random.choice([idx for idx in range(N) if idx != i], 3, replace=False)
-        x1, x2, x3 = population[idxs]
-        trial = population[i].copy()
-        j_rand = np.random.randint(d)
+    for i in range(half):
+        p1 = population[indices[i]]
+        p2 = population[indices[i + half]]
+        child = np.empty(d)
+        # SBX crossover
         for j in range(d):
-            if np.random.rand() < CR or j == j_rand:
-                trial[j] = x1[j] + F * (x2[j] - x3[j])
-        offspring[i] = np.clip(trial, 0.0, 1.0)
+            u = np.random.rand()
+            if u <= 0.5:
+                beta = (2 * u) ** (1 / (eta_c + 1))
+            else:
+                beta = (1 / (2 * (1 - u))) ** (1 / (eta_c + 1))
+            child[j] = 0.5 * ((1 + beta) * p1[j] + (1 - beta) * p2[j])
+        # polynomial mutation
+        for j in range(d):
+            if np.random.rand() < pm:
+                u = np.random.rand()
+                if u < 0.5:
+                    delta = (2 * u) ** (1 / (eta_m + 1)) - 1
+                else:
+                    delta = 1 - (2 * (1 - u)) ** (1 / (eta_m + 1))
+                child[j] += delta
+        offspring[i] = np.clip(child, 0.0, 1.0)
+
+    if N % 2 != 0:
+        offspring[-1] = population[indices[-1]]
     return offspring
 
 No.2 poor solver’s description and its code:
 # Its Description
-{Differential Evolution (DE) Crossover: This operator generates an offspring population by applying DE/rand/1 mutation and binomial crossover to each individual in the given population.}
+{Simulated Binary Crossover (SBX) combined with Polynomial Mutation: This operator generates an offspring population by pairing parents from the given population, performing SBX crossover on each pair, and then applying polynomial mutation to introduce additional diversity.}
 # Its Python Code Implementation of a Function
 import numpy as np
-def generation(population, F=0.5, CR=0.9):
+def generation(population, eta_c=2, eta_m=5, pm=0.1):
+    N, d = population.shape
+    offspring = np.zeros_like(population)
+    indices = np.random.permutation(N)
+    half = N // 2
+
+    for i in range(half):
+        p1 = population[indices[i]]
+        p2 = population[indices[i + half]]
+        child = np.empty(d)
+        # SBX crossover
+        for j in range(d):
+            u = np.random.rand()
+            if u <= 0.5:
+                beta = (2 * u) ** (1 / (eta_c + 1))
+            else:
+                beta = (1 / (2 * (1 - u))) ** (1 / (eta_c + 1))
+            child[j] = 0.5 * ((1 + beta) * p1[j] + (1 - beta) * p2[j])
+        # polynomial mutation
+        for j in range(d):
+            if np.random.rand() < pm:
+                u = np.random.rand()
+                if u < 0.5:
+                    delta = (2 * u) ** (1 / (eta_m + 1)) - 1
+                else:
+                    delta = 1 - (2 * (1 - u)) ** (1 / (eta_m + 1))
+                child[j] += delta
+        offspring[i] = np.clip(child, 0.0, 1.0)
+
+    if N % 2 != 0:
+        offspring[-1] = population[indices[-1]]
+    return offspring
+
+No.3 poor solver’s description and its code:
+# Its Description
+{Hybrid Adaptive Crossover with Self-Adjusted Mutation: This operator first selects pairs of parents and creates offspring using a weighted average based on a self-adaptive weight derived from the difference between the parents, followed by a multi-point mutation process that uses individual mutation rates adjusted according to the parent's diversity.}
+# Its Python Code Implementation of a Function
+import numpy as np
+
+def generation(population):
     N, d = population.shape
     offspring = np.zeros_like(population)
 
+    # Calculate diversity among parents for self-adjusted mutation
+    diversity = np.std(population, axis=0)
+    
     for i in range(N):
-        idxs = np.random.choice([idx for idx in range(N) if idx != i], 3, replace=False)
-        x1, x2, x3 = population[idxs]
-        trial = population[i].copy()
-        j_rand = np.random.randint(d)
+        # Select two unique parents
+        idxs = np.random.choice([idx for idx in range(N) if idx != i], 2, replace=False)
+        p1, p2 = population[idxs]
+        
+        # Calculate a weighted average
+        weight = np.random.rand(d)
+        child = weight * p1 + (1 - weight) * p2
+        
+        # Multi-point mutation using individual mutation rates
         for j in range(d):
-            if np.random.rand() < CR or j == j_rand:
-                trial[j] = x1[j] + F * (x2[j] - x3[j])
-        offspring[i] = np.clip(trial, 0.0, 1.0)
+            # Self-adaptive mutation rate based on diversity
+            pm = 0.1 + 0.9 * (1 - (diversity[j] / np.max(diversity)))
+            if np.random.rand() < pm:
+                mutation_value = np.random.normal(0, 0.1)  # Gaussian mutation
+                child[j] += mutation_value
+                
+        offspring[i] = np.clip(child, 0.0, 1.0)
+    
+    return offspring
+
+No.4 poor solver’s description and its code:
+# Its Description
+{Hybrid Adaptive Crossover with Self-Adjusted Mutation: This operator first selects pairs of parents and creates offspring using a weighted average based on a self-adaptive weight derived from the difference between the parents, followed by a multi-point mutation process that uses individual mutation rates adjusted according to the parent's diversity.}
+# Its Python Code Implementation of a Function
+import numpy as np
+
+def generation(population):
+    N, d = population.shape
+    offspring = np.zeros_like(population)
+
+    # Calculate diversity among parents for self-adjusted mutation
+    diversity = np.std(population, axis=0)
+    
+    for i in range(N):
+        # Select two unique parents
+        idxs = np.random.choice([idx for idx in range(N) if idx != i], 2, replace=False)
+        p1, p2 = population[idxs]
+        
+        # Calculate a weighted average
+        weight = np.random.rand(d)
+        child = weight * p1 + (1 - weight) * p2
+        
+        # Multi-point mutation using individual mutation rates
+        for j in range(d):
+            # Self-adaptive mutation rate based on diversity
+            pm = 0.1 + 0.9 * (1 - (diversity[j] / np.max(diversity)))
+            if np.random.rand() < pm:
+                mutation_value = np.random.normal(0, 0.1)  # Gaussian mutation
+                child[j] += mutation_value
+                
+        offspring[i] = np.clip(child, 0.0, 1.0)
+    
+    return offspring
+
+No.5 poor solver’s description and its code:
+# Its Description
+{Adaptive Weighted Crossover combined with Gaussian Mutation and Diversity-Based Selection: This operator selects pairs of parents to generate offspring using a weighted average based on a dynamically adjusted weight that reflects the diversity of the parents, followed by a Gaussian mutation where the mutation strength is scaled based on the overall diversity of the population.}
+# Its Python Code Implementation of a Function
+import numpy as np
+
+def generation(population):
+    N, d = population.shape
+    offspring = np.zeros_like(population)
+
+    # Calculate overall diversity for adaptive mutation
+    diversity = np.std(population, axis=0)
+    
+    for i in range(N):
+        # Select two unique parents
+        idxs = np.random.choice([idx for idx in range(N) if idx != i], 2, replace=False)
+        p1, p2 = population[idxs]
+        
+        # Calculate a weighted average
+        weight = np.random.rand(d)
+        child = weight * p1 + (1 - weight) * p2
+        
+        # Gaussian mutation with adaptive mutation strength
+        for j in range(d):
+            if np.random.rand() < 0.1:  # Mutation probability
+                # Adaptive mutation scale based on diversity
+                mutation_strength = 0.1 * (1 + diversity[j])
+                mutation_value = np.random.normal(0, mutation_strength)
+                child[j] += mutation_value
+                
+        offspring[i] = np.clip(child, 0.0, 1.0)
+    
+    return offspring
+
+No.6 poor solver’s description and its code:
+# Its Description
+{Adaptive Weighted Crossover combined with Gaussian Mutation and Diversity-Based Selection: This operator selects pairs of parents to generate offspring using a weighted average based on a dynamically adjusted weight that reflects the diversity of the parents, followed by a Gaussian mutation where the mutation strength is scaled based on the overall diversity of the population.}
+# Its Python Code Implementation of a Function
+import numpy as np
+
+def generation(population):
+    N, d = population.shape
+    offspring = np.zeros_like(population)
+
+    # Calculate overall diversity for adaptive mutation
+    diversity = np.std(population, axis=0)
+    
+    for i in range(N):
+        # Select two unique parents
+        idxs = np.random.choice([idx for idx in range(N) if idx != i], 2, replace=False)
+        p1, p2 = population[idxs]
+        
+        # Calculate a weighted average
+        weight = np.random.rand(d)
+        child = weight * p1 + (1 - weight) * p2
+        
+        # Gaussian mutation with adaptive mutation strength
+        for j in range(d):
+            if np.random.rand() < 0.1:  # Mutation probability
+                # Adaptive mutation scale based on diversity
+                mutation_strength = 0.1 * (1 + diversity[j])
+                mutation_value = np.random.normal(0, mutation_strength)
+                child[j] += mutation_value
+                
+        offspring[i] = np.clip(child, 0.0, 1.0)
+    
     return offspring
 
 
