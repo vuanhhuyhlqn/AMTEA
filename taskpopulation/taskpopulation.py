@@ -27,6 +27,9 @@ class TaskPopulation:
         self.worst_solvers_history = []
 
     def evolve(self, gen : int):
+        print(f'Task name: {self.task.task_name}')
+        print(f'List solvers: {[solver.id for solver in self.lst_solvers]}')
+
         start = time.time()
         # divide lst_indis into subpopulation
         dict_subpopulations : Dict[str, SubPopulation] = {}
@@ -37,7 +40,6 @@ class TaskPopulation:
             dict_subpopulations[solver.id] = SubPopulation(self.task, solver)
             lst_p_values.append(self.mem.get_p_value(solver_id=solver.id))
 
-        print(f'[*] Task {self.task.task_name}')
         print(f'[*] lst_p_values: {lst_p_values}')
 
         for indi in self.lst_indis:

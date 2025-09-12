@@ -32,17 +32,20 @@ class AMTEA(AbstractModel):
 
         temp_lst_solvers = []
         print(f'Initializing {num_llm_solvers} LLM-based solvers to choose top {num_solvers} solvers ... ')
-        for i in range(num_llm_solvers):
-            [id, alg] = self.llm.init()
-            solver = Solver(id, alg)
-            eval_scores = []
-            for task_name in self.population.lst_task_names:
-                lst_indis = self.population.dict_taskpopulations[task_name].lst_indis
-                eval_scores.append(solver.evaluate_task(lst_indis))   
-            eval_scores = np.array(eval_scores, dtype=float)
-            solver.eval_score = eval_scores.mean()
-            print(f'Solver {solver.id}, eval_score: {solver.eval_score}')
-            temp_lst_solvers.append(solver)
+        while len(temp_lst_solvers) < num_llm_solvers:
+            try:
+                [id, alg] = self.llm.init()
+                solver = Solver(id, alg)
+                eval_scores = []
+                for task_name in self.population.lst_task_names:
+                    lst_indis = self.population.dict_taskpopulations[task_name].lst_indis
+                    eval_scores.append(solver.evaluate_task(lst_indis))   
+                eval_scores = np.array(eval_scores, dtype=float)
+                solver.eval_score = eval_scores.mean()
+                print(f'Solver {solver.id}, eval_score: {solver.eval_score}')
+                temp_lst_solvers.append(solver)
+            except:
+                print('[ERROR] Create new solver failed!')
         temp_lst_solvers = sorted(temp_lst_solvers, key=lambda s: s.eval_score, reverse=True)[:num_solvers]
         lst_solvers.extend(temp_lst_solvers)
         
