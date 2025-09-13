@@ -16,7 +16,7 @@ load_dotenv()
 GPT_API_KEY = os.getenv("GPT_API_KEY")
 
 class AMTEA(AbstractModel):
-    def __init__(self, pop_size: int, memory_size : int, lst_tasks : List[AbstractTask]):
+    def __init__(self, pop_size: int, memory_size : int, lst_tasks : List[AbstractTask], num_solvers=1):
         self.pop_size = pop_size
         self.lst_tasks = lst_tasks
         self.memory_size = memory_size
@@ -69,20 +69,21 @@ class AMTEA(AbstractModel):
         gen = 0
         while self.check_terminate_condition() == False:
             gen += 1
-            # if gen % lp <= lp - self.memory_size and gen % tgap == 0:
-            #     print(f'[*] Knowledge transfer')
-            #     self.population.knowledge_transfer(k=k)
 
-            self.population.evolve(gen)
+            if gen % lp <= lp - self.memory_size and gen % tgap == 0:
+                print(f'[*] Knowledge transfer')
+                
+
+            self.population.evolve(gen=gen, lp=lp, tgap=tgap, k=k)
             
             if monitor == True and gen % monitor_rate == 0:
                 print(f'Generation {gen}:')
                 print(self.population.dict_best_fitness)
 
             # Update solvers
-            # if gen % up == 0:
-            #     self.update_solvers()
-            #     gen = 0
+            if gen % up == 0:
+                self.update_solvers()
+                gen = 0
                 
         delete_all()
                     
@@ -107,12 +108,13 @@ class AMTEA(AbstractModel):
             good_solver = next((solver for solver in lst_solvers if solver.id == best_solver_id), None)
             if (good_solver.id not in [s.id for s in good_solvers_history]):
                 self.population.dict_taskpopulations[task_name].good_solvers_history.append(good_solver)
-                good_solvers_history.append(good_solver)
+                # good_solvers_history.append(good_solver)
+            
             
             worst_solver = next((solver for solver in lst_solvers if solver.id == worst_solver_id), None)
             if (worst_solver.id not in [s.id for s in worst_solvers_history]):
                 self.population.dict_taskpopulations[task_name].worst_solvers_history.append(worst_solver)
-                worst_solvers_history.append(worst_solver)
+                # worst_solvers_history.append(worst_solver)
             
             self.population.dict_taskpopulations[task_name].lst_solvers = [solver for solver in lst_solvers if solver != worst_solver]
             

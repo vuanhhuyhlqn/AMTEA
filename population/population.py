@@ -1,5 +1,5 @@
 from typing import List, Dict
-from task import AbstractTask, mapping
+from task import AbstractTask
 from indi import Individual
 from taskpopulation import TaskPopulation
 from subpopulation import SubPopulation
@@ -33,32 +33,32 @@ class Population:
 																 memory_size=self.memory_size,
 																 dim = self.indi_dim)
 
-	def evolve(self, gen : int):
+	def evolve(self, gen : int, lp : int = 10, tgap : int = 10, k : int = 5):
 		for task_name in self.lst_task_names:
-			self.dict_taskpopulations[task_name].evolve(gen=gen)
+
+			parents = [indi for indi in self.dict_taskpopulations[task_name].lst_indis]
+			if gen % lp <= lp - self.memory_size and gen % tgap == 0:
+				print('[*] KNOWLEDGE TRANSFER')
+				replace_idx = np.random.randint(0, len(parents), size=k)
+				transfer_pool = self.get_transfer_pool(task_name, k)
+				for i, replace_id in enumerate(replace_idx):
+					parents[replace_id] = transfer_pool[i]
+
+			self.dict_taskpopulations[task_name].evolve(gen=gen, parents=parents)
 			self.dict_best_fitness[task_name] = self.dict_taskpopulations[task_name].get_best_fitness()
 
-			if gen % self.memory_size == 0:
+			if gen % lp == 0:
 				for solver in self.dict_taskpopulations[task_name].lst_solvers:
 					self.dict_taskpopulations[task_name].mem.update_p_value(solver_id=solver.id, generation=gen)
 
-	def knowledge_transfer(self, k : int):
-		# Construct the transfer pool
-		transfer_pool : Dict[str, List[Individual]] = {}
-		for task_name in self.lst_task_names:
-			transfer_pool[task_name] = self.dict_taskpopulations[task_name].remove_individuals(k=k)
-
-		for task_name in self.lst_task_names:
-			other_task_names = [tn for tn in self.lst_task_names if tn != task_name]
-			for indi in transfer_pool[task_name]:
-				while True:
-					target_task_name = random.choice(other_task_names)
-					if self.dict_taskpopulations[target_task_name].is_full():
-						continue
-					self.dict_taskpopulations[target_task_name].add_individual(indi=mapping(indi, 
-																							src_task=self.dict_tasks[task_name], 
-																							target_task=self.dict_tasks[target_task_name]))
-					break
+	def get_transfer_pool(self, task_name, k : int):
+		transfer_pool : List[Individual] = []
+		for _ in range(k):
+			tmp_task_name = random.choice([tn for tn in self.lst_task_names if tn != task_name])
+			indi = self.dict_taskpopulations[tmp_task_name].get_random_individuals(1)[0]
+			transfer_pool.append(indi)
+		return transfer_pool
+		
 		
 	def load_pop(self, path:str):
 		# TODO implement this if have time
