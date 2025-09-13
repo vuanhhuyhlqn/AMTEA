@@ -30,24 +30,24 @@ class AMTEA(AbstractModel):
         lst_solvers.append(Solver('ga', 'Simulated Binary Crossover (SBX) combined with Polynomial Mutation: This operator generates an offspring population by pairing parents from the given population, performing SBX crossover on each pair, and then applying polynomial mutation to introduce additional diversity.'))
         lst_solvers.append(Solver('de', 'Differential Evolution (DE) Crossover: This operator generates an offspring population by applying DE/rand/1 mutation and binomial crossover to each individual in the given population.'))
 
-        temp_lst_solvers = []
-        print(f'Initializing {num_llm_solvers} LLM-based solvers to choose top {num_solvers} solvers ... ')
-        while len(temp_lst_solvers) < num_llm_solvers:
-            try:
-                [id, alg] = self.llm.init()
-                solver = Solver(id, alg)
-                eval_scores = []
-                for task_name in self.population.lst_task_names:
-                    lst_indis = self.population.dict_taskpopulations[task_name].lst_indis
-                    eval_scores.append(solver.evaluate_task(lst_indis))   
-                eval_scores = np.array(eval_scores, dtype=float)
-                solver.eval_score = eval_scores.mean()
-                print(f'Solver {solver.id}, eval_score: {solver.eval_score}')
-                temp_lst_solvers.append(solver)
-            except:
-                print('[ERROR] Create new solver failed!')
-        temp_lst_solvers = sorted(temp_lst_solvers, key=lambda s: s.eval_score, reverse=True)[:num_solvers]
-        lst_solvers.extend(temp_lst_solvers)
+        # temp_lst_solvers = []
+        # print(f'Initializing {num_llm_solvers} LLM-based solvers to choose top {num_solvers} solvers ... ')
+        # while len(temp_lst_solvers) < num_llm_solvers:
+        #     try:
+        #         [id, alg] = self.llm.init()
+        #         solver = Solver(id, alg)
+        #         eval_scores = []
+        #         for task_name in self.population.lst_task_names:
+        #             lst_indis = self.population.dict_taskpopulations[task_name].lst_indis
+        #             eval_scores.append(solver.evaluate_task(lst_indis))   
+        #         eval_scores = np.array(eval_scores, dtype=float)
+        #         solver.eval_score = eval_scores.mean()
+        #         print(f'Solver {solver.id}, eval_score: {solver.eval_score}')
+        #         temp_lst_solvers.append(solver)
+        #     except:
+        #         print('[ERROR] Create new solver failed!')
+        # temp_lst_solvers = sorted(temp_lst_solvers, key=lambda s: s.eval_score, reverse=True)[:num_solvers]
+        # lst_solvers.extend(temp_lst_solvers)
         
         lst_solver_ids = [solver.id for solver in lst_solvers]       
         for task_name in self.population.lst_task_names:
@@ -84,7 +84,7 @@ class AMTEA(AbstractModel):
                 self.update_solvers()
                 gen = 0
                 
-        # delete_all()
+        delete_all()
                     
     def update_solvers(self):
         for task_name in self.population.lst_task_names:

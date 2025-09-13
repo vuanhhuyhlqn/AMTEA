@@ -21,7 +21,7 @@ class SubPopulation:
     def evolve(self) -> List[Individual]:
         # start = time.time()
         size = len(self.lst_indis)
-        print(len(self.lst_indis))
+        # print(len(self.lst_indis))
         try:
             off_genes = self.solver(np.vstack([indi.gene for indi in self.lst_indis]))
             off_fitnesses = self.task.batch_eval(off_genes)

@@ -7,74 +7,42 @@ I have a list of well-performing solvers with their descriptions and Python code
 
 No.1 solver’s description and its code:
 # Its Description
-{Hybrid Crossover with Adaptive Weighting and Multi-Point Mutation: This operator generates an offspring population by combining a weighted average of randomly selected parents' genes with a multi-point mutation inspired by the DE strategy, where weights are dynamically adjusted based on the similarity of parents and a variety of mutation strategies are applied to different segments of each offspring.}
+{Differential Evolution (DE) Crossover: This operator generates an offspring population by applying DE/rand/1 mutation and binomial crossover to each individual in the given population.}
 # Its Python Code Implementation of a Function
 import numpy as np
-
-def generation(population):
+def generation(population, F=0.5, CR=0.9):
     N, d = population.shape
     offspring = np.zeros_like(population)
 
     for i in range(N):
-        indices = np.random.choice(N, 3, replace=False)
-        p1, p2, p3 = population[indices]
-        
-        # Adaptive weight calculation based on the distance between p1 and p2
-        distance = np.linalg.norm(p1 - p2)
-        weight = np.clip(distance, 0, 1)  # Ensuring the weight is within bounds [0, 1]
-        
-        # Weighted average for crossover
-        child = weight * p1 + (1 - weight) * p2
-        
-        # Multi-point mutation
-        mutation_points = np.random.choice(d, size=np.random.randint(1, d + 1), replace=False)
-        for j in mutation_points:
-            u = np.random.rand()
-            if u < 0.5:
-                # Additive mutation
-                child[j] += (np.random.rand() - 0.5) * 0.1
-            else:
-                # Multiplicative mutation
-                child[j] *= (1 + (np.random.rand() - 0.5) * 0.1)
-        
-        offspring[i] = np.clip(child, 0.0, 1.0)
-
+        idxs = np.random.choice([idx for idx in range(N) if idx != i], 3, replace=False)
+        x1, x2, x3 = population[idxs]
+        trial = population[i].copy()
+        j_rand = np.random.randint(d)
+        for j in range(d):
+            if np.random.rand() < CR or j == j_rand:
+                trial[j] = x1[j] + F * (x2[j] - x3[j])
+        offspring[i] = np.clip(trial, 0.0, 1.0)
     return offspring
 
 No.2 solver’s description and its code:
 # Its Description
-{Hybrid Crossover with Adaptive Weighting and Multi-Point Mutation: This operator generates an offspring population by combining a weighted average of randomly selected parents' genes with a multi-point mutation inspired by the DE strategy, where weights are dynamically adjusted based on the similarity of parents and a variety of mutation strategies are applied to different segments of each offspring.}
+{Differential Evolution (DE) Crossover: This operator generates an offspring population by applying DE/rand/1 mutation and binomial crossover to each individual in the given population.}
 # Its Python Code Implementation of a Function
 import numpy as np
-
-def generation(population):
+def generation(population, F=0.5, CR=0.9):
     N, d = population.shape
     offspring = np.zeros_like(population)
 
     for i in range(N):
-        indices = np.random.choice(N, 3, replace=False)
-        p1, p2, p3 = population[indices]
-        
-        # Adaptive weight calculation based on the distance between p1 and p2
-        distance = np.linalg.norm(p1 - p2)
-        weight = np.clip(distance, 0, 1)  # Ensuring the weight is within bounds [0, 1]
-        
-        # Weighted average for crossover
-        child = weight * p1 + (1 - weight) * p2
-        
-        # Multi-point mutation
-        mutation_points = np.random.choice(d, size=np.random.randint(1, d + 1), replace=False)
-        for j in mutation_points:
-            u = np.random.rand()
-            if u < 0.5:
-                # Additive mutation
-                child[j] += (np.random.rand() - 0.5) * 0.1
-            else:
-                # Multiplicative mutation
-                child[j] *= (1 + (np.random.rand() - 0.5) * 0.1)
-        
-        offspring[i] = np.clip(child, 0.0, 1.0)
-
+        idxs = np.random.choice([idx for idx in range(N) if idx != i], 3, replace=False)
+        x1, x2, x3 = population[idxs]
+        trial = population[i].copy()
+        j_rand = np.random.randint(d)
+        for j in range(d):
+            if np.random.rand() < CR or j == j_rand:
+                trial[j] = x1[j] + F * (x2[j] - x3[j])
+        offspring[i] = np.clip(trial, 0.0, 1.0)
     return offspring
 
 
@@ -154,6 +122,164 @@ def generation(population, eta_c=20, eta_m=15, pm=0.1):
 
     if N % 2 != 0:
         offspring[-1] = population[indices[-1]]
+    return offspring
+
+No.3 poor solver’s description and its code:
+# Its Description
+{Adaptive Crossover and Mutation: This operator dynamically adjusts the crossover and mutation rates based on the diversity of the population, fostering exploration of the solution space while maintaining stability.}
+# Its Python Code Implementation of a Function
+import numpy as np
+
+def generation(population, F_init=0.5, CR_init=0.9):
+    N, d = population.shape
+    offspring = np.zeros_like(population)
+    
+    # Calculate diversity
+    diversity = np.std(population, axis=0)
+    F = F_init * (1 + np.mean(diversity))
+    CR = CR_init * (1 + np.mean(diversity))
+
+    for i in range(N):
+        idxs = np.random.choice(np.arange(N), 3, replace=False)
+        x1, x2, x3 = population[idxs]
+        trial = population[i].copy()
+        j_rand = np.random.randint(d)
+
+        for j in range(d):
+            if np.random.rand() < CR or j == j_rand:
+                trial[j] = x1[j] + F * (x2[j] - x3[j])
+        
+        offspring[i] = np.clip(trial, 0.0, 1.0)
+    
+    return offspring
+
+No.4 poor solver’s description and its code:
+# Its Description
+{Adaptive Crossover and Mutation: This operator dynamically adjusts the crossover and mutation rates based on the diversity of the population, fostering exploration of the solution space while maintaining stability.}
+# Its Python Code Implementation of a Function
+import numpy as np
+
+def generation(population, F_init=0.5, CR_init=0.9):
+    N, d = population.shape
+    offspring = np.zeros_like(population)
+    
+    # Calculate diversity
+    diversity = np.std(population, axis=0)
+    F = F_init * (1 + np.mean(diversity))
+    CR = CR_init * (1 + np.mean(diversity))
+
+    for i in range(N):
+        idxs = np.random.choice(np.arange(N), 3, replace=False)
+        x1, x2, x3 = population[idxs]
+        trial = population[i].copy()
+        j_rand = np.random.randint(d)
+
+        for j in range(d):
+            if np.random.rand() < CR or j == j_rand:
+                trial[j] = x1[j] + F * (x2[j] - x3[j])
+        
+        offspring[i] = np.clip(trial, 0.0, 1.0)
+    
+    return offspring
+
+No.5 poor solver’s description and its code:
+# Its Description
+{This solver employs a Gaussian mutation combined with uniform crossover to enhance exploration and diversity by allowing substantial variation of offspring while ensuring a wide coverage of the search space.}
+# Its Python Code Implementation of a Function
+import numpy as np
+
+def generation(population, mutation_strength=0.5):
+    N, d = population.shape
+    offspring = np.zeros_like(population)
+
+    for i in range(N):
+        # Gaussian mutation
+        mutation = np.random.normal(0, mutation_strength, d)
+        trial = population[i] + mutation
+        
+        # Uniform crossover
+        mask = np.random.rand(d) < 0.5
+        trial[mask] = population[np.random.randint(N)][mask]  # Swap with a random parent for exploration
+        
+        offspring[i] = np.clip(trial, 0.0, 1.0)
+
+    return offspring
+
+No.6 poor solver’s description and its code:
+# Its Description
+{This solver employs a Gaussian mutation combined with uniform crossover to enhance exploration and diversity by allowing substantial variation of offspring while ensuring a wide coverage of the search space.}
+# Its Python Code Implementation of a Function
+import numpy as np
+
+def generation(population, mutation_strength=0.5):
+    N, d = population.shape
+    offspring = np.zeros_like(population)
+
+    for i in range(N):
+        # Gaussian mutation
+        mutation = np.random.normal(0, mutation_strength, d)
+        trial = population[i] + mutation
+        
+        # Uniform crossover
+        mask = np.random.rand(d) < 0.5
+        trial[mask] = population[np.random.randint(N)][mask]  # Swap with a random parent for exploration
+        
+        offspring[i] = np.clip(trial, 0.0, 1.0)
+
+    return offspring
+
+No.7 poor solver’s description and its code:
+# Its Description
+{This solver employs a combination of a diverse mutation strategy using both uniform and Gaussian mutations, followed by a dynamic crossover mechanism that utilizes both components to enhance exploration and avoid local minima.}
+# Its Python Code Implementation of a Function
+import numpy as np
+
+def generation(population, mutation_strength=0.5):
+    N, d = population.shape
+    offspring = np.zeros_like(population)
+
+    for i in range(N):
+        # Gaussian mutation
+        gaussian_mutation = np.random.normal(0, mutation_strength, d)
+        # Uniform mutation
+        uniform_mutation = np.random.uniform(-mutation_strength, mutation_strength, d)
+        # Combined mutation
+        mutation = gaussian_mutation + uniform_mutation
+        
+        # Create trial solution with dynamic crossover
+        trial = population[i] + mutation
+        mask = np.random.rand(d) < 0.5
+        trial[mask] = population[np.random.randint(N)][mask]  # Swap with a random parent for exploration
+        
+        offspring[i] = np.clip(trial, 0.0, 1.0)
+
+    return offspring
+
+No.8 poor solver’s description and its code:
+# Its Description
+{This solver employs a combination of a diverse mutation strategy using both uniform and Gaussian mutations, followed by a dynamic crossover mechanism that utilizes both components to enhance exploration and avoid local minima.}
+# Its Python Code Implementation of a Function
+import numpy as np
+
+def generation(population, mutation_strength=0.5):
+    N, d = population.shape
+    offspring = np.zeros_like(population)
+
+    for i in range(N):
+        # Gaussian mutation
+        gaussian_mutation = np.random.normal(0, mutation_strength, d)
+        # Uniform mutation
+        uniform_mutation = np.random.uniform(-mutation_strength, mutation_strength, d)
+        # Combined mutation
+        mutation = gaussian_mutation + uniform_mutation
+        
+        # Create trial solution with dynamic crossover
+        trial = population[i] + mutation
+        mask = np.random.rand(d) < 0.5
+        trial[mask] = population[np.random.randint(N)][mask]  # Swap with a random parent for exploration
+        
+        offspring[i] = np.clip(trial, 0.0, 1.0)
+
     return offspring
 
 

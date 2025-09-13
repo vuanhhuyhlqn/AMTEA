@@ -35,7 +35,7 @@ class TaskPopulation:
         # ! A lot of np.inf here
         # TODO: Fix until it no longer prints np.inf
         self.lst_indis = sorted(self.lst_indis, key=lambda ind : ind.fitness)
-        print('TOP 5 INDI:')
+        # print('TOP 5 INDI:')
         # for i in range(5):
         #     print(f'{np.sum(self.lst_indis[i].gene)} - {self.lst_indis[i].fitness}')
         random.shuffle(self.lst_indis)
@@ -123,7 +123,7 @@ class TaskPopulation:
         return float(dists[iu].mean())
     
     def compute_pdi(self, window: int = 5,
-                    k_sigmoid: float = 10.0,
+                    k_sigmoid: float = 8.0,
                     alpha: float = 0.6,
                     gamma: float = 1.5,
                     eps: float = 1e-12):
@@ -148,10 +148,13 @@ class TaskPopulation:
                 recent = float(np.mean(self.best_fitness_hitory[-w:]))
                 past = float(np.mean(self.best_fitness_hitory[-2 * w:-w]))
                 raw_improve = past - recent
+                print(f'Raw improve: {raw_improve}')
             else:  
                 raw_improve = self.best_fitness_hitory[0] - self.best_fitness_hitory[1]
             IR = 1.0 / (1.0 + np.exp(-k_sigmoid * raw_improve))
+            print(f'IR before clip: {IR}')
             IR = float(np.clip(IR, 0.0, 1.0))
+            print(f'IR after clip: {IR}')
 
         pdi = alpha * IR + (1.0 - alpha) * DIc
         pdi = float(np.clip(pdi, 0.0, 1.0))
