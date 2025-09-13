@@ -91,12 +91,19 @@ class AMTEA(AbstractModel):
             print(f'Updating solvers for task {task_name} ... ')
             lst_solvers = self.population.dict_taskpopulations[task_name].lst_solvers
             mem = self.population.dict_taskpopulations[task_name].mem
-            lst_solvers_id = mem.lst_solver_ids
             best_solver_id = mem.get_best_solver_id()
             worst_solver_id = mem.get_worst_solver_id()
             good_solvers_history = self.population.dict_taskpopulations[task_name].good_solvers_history
             worst_solvers_history = self.population.dict_taskpopulations[task_name].worst_solvers_history
-            
+            pdi, IR, DIc = self.population.dict_taskpopulations[task_name].compute_pdi()
+            print(f'[*] PDI: {pdi}, IR: {IR}, DIc: {DIc}')
+            if pdi < 0.4:
+                mode = "explore"
+            elif pdi > 0.6:
+                mode = "exploit"
+            else:
+                mode = "balanced"
+            print(f'[*] Update mode: {mode}')
             good_solver = next((solver for solver in lst_solvers if solver.id == best_solver_id), None)
             if (good_solver.id not in [s.id for s in good_solvers_history]):
                 self.population.dict_taskpopulations[task_name].good_solvers_history.append(good_solver)
@@ -111,7 +118,7 @@ class AMTEA(AbstractModel):
             
             # Create new solver
             lst_indis = self.population.dict_taskpopulations[task_name].lst_indis
-            best_eval_score = good_solver.evaluate_task(lst_indis)
+            best_eval_score = good_solver.evaluate_task(lst_indis, mode)
             print(f'Eval score of best solver: {best_eval_score}')
             num_llm_solvers = 5
             temp_lst_solvers = []
@@ -120,7 +127,7 @@ class AMTEA(AbstractModel):
                 try:
                     [id, alg] = self.llm.update(good_solvers_history, worst_solvers_history)
                     solver = Solver(id, alg)
-                    solver.eval_score = solver.evaluate_task(lst_indis) 
+                    solver.eval_score = solver.evaluate_task(lst_indis, mode) 
                     print(f'LLM Solver {len(temp_lst_solvers) + 1}: {solver.id}, eval_score: {solver.eval_score}')
                     temp_lst_solvers.append(solver)
                     if solver.eval_score >= best_eval_score:

@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Optional
 import random
 import time
 import statistics
@@ -26,6 +26,7 @@ class TaskPopulation:
             
         self.good_solvers_history = []
         self.worst_solvers_history = []
+        self.best_fitness_hitory = []
 
     def evolve(self, gen : int):
         print(f'Task name: {self.task.task_name}')
@@ -35,11 +36,11 @@ class TaskPopulation:
         # TODO: Fix until it no longer prints np.inf
         self.lst_indis = sorted(self.lst_indis, key=lambda ind : ind.fitness)
         print('TOP 5 INDI:')
-        for i in range(5):
-            print(f'{np.sum(self.lst_indis[i].gene)} - {self.lst_indis[i].fitness}')
+        # for i in range(5):
+        #     print(f'{np.sum(self.lst_indis[i].gene)} - {self.lst_indis[i].fitness}')
         random.shuffle(self.lst_indis)
 
-        start = time.time()
+        # start = time.time()
         # divide lst_indis into subpopulation
         dict_subpopulations : Dict[str, SubPopulation] = {}
         lst_p_values : List[float] = []
@@ -80,8 +81,8 @@ class TaskPopulation:
         self.lst_indis = sorted(self.lst_indis, key=lambda ind : ind.fitness)
         self.lst_indis = self.lst_indis[:self.size]
         random.shuffle(self.lst_indis)
-        end = time.time()
-        print(f"Task Subpopulation evolve time taken: {end - start}")
+        # end = time.time()
+        # print(f"Task Subpopulation evolve time taken: {end - start}")
 
     def get_median_fitness(self) -> float:
         fitness_values = [indi.fitness for indi in self.lst_indis]
@@ -92,6 +93,7 @@ class TaskPopulation:
         for indi in self.lst_indis:
             if indi.fitness < best_fitness:
                 best_fitness = indi.fitness
+        self.best_fitness_hitory.append(best_fitness)
         return best_fitness
 
     def add_individual(self, indi : Individual):
@@ -109,7 +111,52 @@ class TaskPopulation:
 
     def is_full(self) -> bool:
         return len(self.lst_indis) == self.size
+    
+    def pairwise_avg_distance(self, X: np.ndarray) -> float:
+        # Khoảng cách Euclidean trung bình theo từng cặp
+        N = X.shape[0]
+        if N < 2:
+            return 0.0
+        diffs = X[:, None, :] - X[None, :, :]
+        dists = np.sqrt(np.sum(diffs**2, axis=2))
+        iu = np.triu_indices(N, k=1)
+        return float(dists[iu].mean())
+    
+    def compute_pdi(self, window: int = 5,
+                    k_sigmoid: float = 10.0,
+                    alpha: float = 0.6,
+                    gamma: float = 1.5,
+                    eps: float = 1e-12):
+        
+        pop = [indi.gene for indi in self.lst_indis]
+        pop_mat = np.vstack([np.asarray(x, dtype=float) for x in pop])
+        N, d = pop_mat.shape 
+        avg_dist = self.pairwise_avg_distance(pop_mat)
+        baseline_diversity = np.sqrt(d) / 3.0 + eps
+        
+        # Diversity Index: Mức đa dạng -> Đo khả năng explore
+        DI = avg_dist / (baseline_diversity + eps)
+        DIc = float(np.clip(DI / gamma, 0.0, 1.0))
+        
+        # Improvement Rate: Mức độ cải thiện fitness
+        IR = 0.5
+        if self.best_fitness_hitory is not None and len(self.best_fitness_hitory) >= 2:
+            print(f'Best fitness history: {self.best_fitness_hitory}')
+            L = len(self.best_fitness_hitory)
+            w = int(min(window, max(1, L//2)))
+            if L >= 2 * w:
+                recent = float(np.mean(self.best_fitness_hitory[-w:]))
+                past = float(np.mean(self.best_fitness_hitory[-2 * w:-w]))
+                raw_improve = past - recent
+            else:  
+                raw_improve = self.best_fitness_hitory[0] - self.best_fitness_hitory[1]
+            IR = 1.0 / (1.0 + np.exp(-k_sigmoid * raw_improve))
+            IR = float(np.clip(IR, 0.0, 1.0))
 
+        pdi = alpha * IR + (1.0 - alpha) * DIc
+        pdi = float(np.clip(pdi, 0.0, 1.0))
+        
+        return pdi, IR, DIc
 
     
 
