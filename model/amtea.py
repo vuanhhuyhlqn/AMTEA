@@ -16,7 +16,7 @@ load_dotenv()
 GPT_API_KEY = os.getenv("GPT_API_KEY")
 
 class AMTEA(AbstractModel):
-    def __init__(self, pop_size: int, memory_size : int, lst_tasks : List[AbstractTask], num_solvers: int):
+    def __init__(self, pop_size: int, memory_size : int, lst_tasks : List[AbstractTask]):
         self.pop_size = pop_size
         self.lst_tasks = lst_tasks
         self.memory_size = memory_size
@@ -69,9 +69,9 @@ class AMTEA(AbstractModel):
         gen = 0
         while self.check_terminate_condition() == False:
             gen += 1
-            if gen % lp <= lp - self.memory_size and gen % tgap == 0:
-                print(f'[*] Knowledge transfer')
-                self.population.knowledge_transfer(k=k)
+            # if gen % lp <= lp - self.memory_size and gen % tgap == 0:
+            #     print(f'[*] Knowledge transfer')
+            #     self.population.knowledge_transfer(k=k)
 
             self.population.evolve(gen)
             
@@ -80,9 +80,9 @@ class AMTEA(AbstractModel):
                 print(self.population.dict_best_fitness)
 
             # Update solvers
-            if gen % up == 0:
-                self.update_solvers()
-                gen = 0
+            # if gen % up == 0:
+            #     self.update_solvers()
+            #     gen = 0
                 
         delete_all()
                     

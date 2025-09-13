@@ -39,6 +39,7 @@ class Solver:
 			result_array = np.load(output_file, allow_pickle=True)
 			# end = time.time()
 			# print(f'Solver {self.id} executed successfully, time taken: {end - start}')
+			assert(len(result_array) == len(operands))
 			return result_array
 		except Exception as e:
 			print(f'Error loading result from output.npy: {e}')
