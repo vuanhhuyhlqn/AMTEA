@@ -28,20 +28,12 @@ class TaskPopulation:
         self.worst_solvers_history = []
         self.best_fitness_hitory = []
 
-    def evolve(self, gen : int):
+    def evolve(self, gen : int, parents : List[Individual]):
         print(f'Task name: {self.task.task_name}')
         print(f'List solvers: {[solver.id for solver in self.lst_solvers]}')
 
-        # ! A lot of np.inf here
-        # TODO: Fix until it no longer prints np.inf
-        self.lst_indis = sorted(self.lst_indis, key=lambda ind : ind.fitness)
-        # print('TOP 5 INDI:')
-        # for i in range(5):
-        #     print(f'{np.sum(self.lst_indis[i].gene)} - {self.lst_indis[i].fitness}')
         random.shuffle(self.lst_indis)
 
-        # start = time.time()
-        # divide lst_indis into subpopulation
         dict_subpopulations : Dict[str, SubPopulation] = {}
         lst_p_values : List[float] = []
         solver_ids : List[str] = [solver.id for solver in self.lst_solvers]
@@ -52,7 +44,7 @@ class TaskPopulation:
 
         print(f'[*] lst_p_values: {lst_p_values}')
 
-        for indi in self.lst_indis:
+        for indi in parents:
             chosen_solver_id = random.choices(solver_ids, weights=lst_p_values, k=1)[0]
             dict_subpopulations[chosen_solver_id].add_individual(indi)
         
@@ -99,6 +91,16 @@ class TaskPopulation:
     def add_individual(self, indi : Individual):
         assert(self.is_full() == False)
         self.lst_indis.append(indi)
+
+    def get_random_individuals(self, k : int) -> List[Individual]:
+        random.shuffle(self.lst_indis)
+        assert(k < len(self.lst_indis))
+
+        ret : List[Individual] = []
+        while len(ret) < k:
+            random_id = random.randint(0, self.size)
+            ret.append(self.lst_indis[random_id])
+        return ret
 
     def remove_individuals(self, k : int) -> List[Individual]:
         random.shuffle(self.lst_indis)
