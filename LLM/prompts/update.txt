@@ -7,101 +7,73 @@ I have a list of well-performing solvers with their descriptions and Python code
 
 No.1 solver’s description and its code:
 # Its Description
-{Differential Evolution (DE) Crossover: This operator generates an offspring population by applying DE/rand/1 mutation and binomial crossover to each individual in the given population.}
+{Hybrid Crossover with Adaptive Weighting and Multi-Point Mutation: This operator generates an offspring population by combining a weighted average of randomly selected parents' genes with a multi-point mutation inspired by the DE strategy, where weights are dynamically adjusted based on the similarity of parents and a variety of mutation strategies are applied to different segments of each offspring.}
 # Its Python Code Implementation of a Function
 import numpy as np
-def generation(population, F=0.5, CR=0.9):
+
+def generation(population):
     N, d = population.shape
     offspring = np.zeros_like(population)
 
     for i in range(N):
-        idxs = np.random.choice([idx for idx in range(N) if idx != i], 3, replace=False)
-        x1, x2, x3 = population[idxs]
-        trial = population[i].copy()
-        j_rand = np.random.randint(d)
-        for j in range(d):
-            if np.random.rand() < CR or j == j_rand:
-                trial[j] = x1[j] + F * (x2[j] - x3[j])
-        offspring[i] = np.clip(trial, 0.0, 1.0)
+        indices = np.random.choice(N, 3, replace=False)
+        p1, p2, p3 = population[indices]
+        
+        # Adaptive weight calculation based on the distance between p1 and p2
+        distance = np.linalg.norm(p1 - p2)
+        weight = np.clip(distance, 0, 1)  # Ensuring the weight is within bounds [0, 1]
+        
+        # Weighted average for crossover
+        child = weight * p1 + (1 - weight) * p2
+        
+        # Multi-point mutation
+        mutation_points = np.random.choice(d, size=np.random.randint(1, d + 1), replace=False)
+        for j in mutation_points:
+            u = np.random.rand()
+            if u < 0.5:
+                # Additive mutation
+                child[j] += (np.random.rand() - 0.5) * 0.1
+            else:
+                # Multiplicative mutation
+                child[j] *= (1 + (np.random.rand() - 0.5) * 0.1)
+        
+        offspring[i] = np.clip(child, 0.0, 1.0)
+
     return offspring
 
 No.2 solver’s description and its code:
 # Its Description
-{Differential Evolution (DE) Crossover: This operator generates an offspring population by applying DE/rand/1 mutation and binomial crossover to each individual in the given population.}
+{Hybrid Crossover with Adaptive Weighting and Multi-Point Mutation: This operator generates an offspring population by combining a weighted average of randomly selected parents' genes with a multi-point mutation inspired by the DE strategy, where weights are dynamically adjusted based on the similarity of parents and a variety of mutation strategies are applied to different segments of each offspring.}
 # Its Python Code Implementation of a Function
 import numpy as np
-def generation(population, F=0.5, CR=0.9):
+
+def generation(population):
     N, d = population.shape
     offspring = np.zeros_like(population)
 
     for i in range(N):
-        idxs = np.random.choice([idx for idx in range(N) if idx != i], 3, replace=False)
-        x1, x2, x3 = population[idxs]
-        trial = population[i].copy()
-        j_rand = np.random.randint(d)
-        for j in range(d):
-            if np.random.rand() < CR or j == j_rand:
-                trial[j] = x1[j] + F * (x2[j] - x3[j])
-        offspring[i] = np.clip(trial, 0.0, 1.0)
-    return offspring
-
-No.3 solver’s description and its code:
-# Its Description
-{This solver utilizes a blend of Differential Evolution mutation with a two-parent crossover and a dynamic scaling factor that adapts based on the diversity of the population, encouraging exploration while maintaining convergence.}
-# Its Python Code Implementation of a Function
-import numpy as np
-
-def generation(population, base_F=0.5, base_CR=0.9):
-    N, d = population.shape
-    offspring = np.zeros_like(population)
-
-    # Compute population diversity
-    diversity = np.mean(np.std(population, axis=0))
-    F = base_F + diversity  # Adjust F based on diversity
-    CR = base_CR  # Keep CR constant for simplicity
-
-    for i in range(N):
-        # Select three distinct parents
-        idxs = np.random.choice([idx for idx in range(N) if idx != i], 3, replace=False)
-        x1, x2, x3 = population[idxs]
-        trial = population[i].copy()
-        j_rand = np.random.randint(d)
-
-        for j in range(d):
-            if np.random.rand() < CR or j == j_rand:
-                trial[j] = x1[j] + F * (x2[j] - x3[j])
+        indices = np.random.choice(N, 3, replace=False)
+        p1, p2, p3 = population[indices]
         
-        offspring[i] = np.clip(trial, 0.0, 1.0)
-
-    return offspring
-
-No.4 solver’s description and its code:
-# Its Description
-{This solver utilizes a blend of Differential Evolution mutation with a two-parent crossover and a dynamic scaling factor that adapts based on the diversity of the population, encouraging exploration while maintaining convergence.}
-# Its Python Code Implementation of a Function
-import numpy as np
-
-def generation(population, base_F=0.5, base_CR=0.9):
-    N, d = population.shape
-    offspring = np.zeros_like(population)
-
-    # Compute population diversity
-    diversity = np.mean(np.std(population, axis=0))
-    F = base_F + diversity  # Adjust F based on diversity
-    CR = base_CR  # Keep CR constant for simplicity
-
-    for i in range(N):
-        # Select three distinct parents
-        idxs = np.random.choice([idx for idx in range(N) if idx != i], 3, replace=False)
-        x1, x2, x3 = population[idxs]
-        trial = population[i].copy()
-        j_rand = np.random.randint(d)
-
-        for j in range(d):
-            if np.random.rand() < CR or j == j_rand:
-                trial[j] = x1[j] + F * (x2[j] - x3[j])
+        # Adaptive weight calculation based on the distance between p1 and p2
+        distance = np.linalg.norm(p1 - p2)
+        weight = np.clip(distance, 0, 1)  # Ensuring the weight is within bounds [0, 1]
         
-        offspring[i] = np.clip(trial, 0.0, 1.0)
+        # Weighted average for crossover
+        child = weight * p1 + (1 - weight) * p2
+        
+        # Multi-point mutation
+        mutation_points = np.random.choice(d, size=np.random.randint(1, d + 1), replace=False)
+        for j in mutation_points:
+            u = np.random.rand()
+            if u < 0.5:
+                # Additive mutation
+                child[j] += (np.random.rand() - 0.5) * 0.1
+            else:
+                # Multiplicative mutation
+                child[j] *= (1 + (np.random.rand() - 0.5) * 0.1)
+        
+        offspring[i] = np.clip(child, 0.0, 1.0)
 
     return offspring
 
@@ -110,72 +82,48 @@ def generation(population, base_F=0.5, base_CR=0.9):
 
 No.1 poor solver’s description and its code:
 # Its Description
-{This solver employs a hybridized approach that combines adaptive uniform crossover with self-adjusting mutation based on the fitness difference of parent pairs, promoting exploration of the search space while balancing convergence.}
+{Simulated Binary Crossover (SBX) combined with Polynomial Mutation: This operator generates an offspring population by pairing parents from the given population, performing SBX crossover on each pair, and then applying polynomial mutation to introduce additional diversity.}
 # Its Python Code Implementation of a Function
 import numpy as np
-
-def generation(population):
+def generation(population, eta_c=20, eta_m=15, pm=0.1):
     N, d = population.shape
     offspring = np.zeros_like(population)
-    fitness = np.random.rand(N)  # Placeholder for actual fitness values; use real fitness evaluations in practice
+    indices = np.random.permutation(N)
+    half = N // 2
 
-    for i in range(N):
-        # Select two distinct parents based on fitness
-        idxs = np.random.choice([idx for idx in range(N) if idx != i], 2, replace=False)
-        p1, p2 = population[idxs]
-        
-        # Adaptive uniform crossover
-        alpha = np.random.rand(d)
-        child = np.where(alpha < 0.5, p1, p2)
-        
-        # Self-adjustment based on fitness difference
-        fitness_diff = np.abs(fitness[idxs[0]] - fitness[idxs[1]])
-        mutation_strength = 0.1 + 0.9 * fitness_diff  # Self-adjusting mutation strength based on fitness difference
-        mutation = np.random.randn(d) * mutation_strength
-        
-        # Apply mutation
-        child += mutation
+    for i in range(half):
+        p1 = population[indices[i]]
+        p2 = population[indices[i + half]]
+        child = np.empty(d)
+        # SBX crossover
+        for j in range(d):
+            u = np.random.rand()
+            if u <= 0.5:
+                beta = (2 * u) ** (1 / (eta_c + 1))
+            else:
+                beta = (1 / (2 * (1 - u))) ** (1 / (eta_c + 1))
+            child[j] = 0.5 * ((1 + beta) * p1[j] + (1 - beta) * p2[j])
+        # polynomial mutation
+        for j in range(d):
+            if np.random.rand() < pm:
+                u = np.random.rand()
+                if u < 0.5:
+                    delta = (2 * u) ** (1 / (eta_m + 1)) - 1
+                else:
+                    delta = 1 - (2 * (1 - u)) ** (1 / (eta_m + 1))
+                child[j] += delta
         offspring[i] = np.clip(child, 0.0, 1.0)
 
+    if N % 2 != 0:
+        offspring[-1] = population[indices[-1]]
     return offspring
 
 No.2 poor solver’s description and its code:
 # Its Description
-{This solver employs a hybridized approach that combines adaptive uniform crossover with self-adjusting mutation based on the fitness difference of parent pairs, promoting exploration of the search space while balancing convergence.}
-# Its Python Code Implementation of a Function
-import numpy as np
-
-def generation(population):
-    N, d = population.shape
-    offspring = np.zeros_like(population)
-    fitness = np.random.rand(N)  # Placeholder for actual fitness values; use real fitness evaluations in practice
-
-    for i in range(N):
-        # Select two distinct parents based on fitness
-        idxs = np.random.choice([idx for idx in range(N) if idx != i], 2, replace=False)
-        p1, p2 = population[idxs]
-        
-        # Adaptive uniform crossover
-        alpha = np.random.rand(d)
-        child = np.where(alpha < 0.5, p1, p2)
-        
-        # Self-adjustment based on fitness difference
-        fitness_diff = np.abs(fitness[idxs[0]] - fitness[idxs[1]])
-        mutation_strength = 0.1 + 0.9 * fitness_diff  # Self-adjusting mutation strength based on fitness difference
-        mutation = np.random.randn(d) * mutation_strength
-        
-        # Apply mutation
-        child += mutation
-        offspring[i] = np.clip(child, 0.0, 1.0)
-
-    return offspring
-
-No.3 poor solver’s description and its code:
-# Its Description
 {Simulated Binary Crossover (SBX) combined with Polynomial Mutation: This operator generates an offspring population by pairing parents from the given population, performing SBX crossover on each pair, and then applying polynomial mutation to introduce additional diversity.}
 # Its Python Code Implementation of a Function
 import numpy as np
-def generation(population, eta_c=2, eta_m=5, pm=0.1):
+def generation(population, eta_c=20, eta_m=15, pm=0.1):
     N, d = population.shape
     offspring = np.zeros_like(population)
     indices = np.random.permutation(N)
@@ -208,111 +156,9 @@ def generation(population, eta_c=2, eta_m=5, pm=0.1):
         offspring[-1] = population[indices[-1]]
     return offspring
 
-No.4 poor solver’s description and its code:
-# Its Description
-{Simulated Binary Crossover (SBX) combined with Polynomial Mutation: This operator generates an offspring population by pairing parents from the given population, performing SBX crossover on each pair, and then applying polynomial mutation to introduce additional diversity.}
-# Its Python Code Implementation of a Function
-import numpy as np
-def generation(population, eta_c=2, eta_m=5, pm=0.1):
-    N, d = population.shape
-    offspring = np.zeros_like(population)
-    indices = np.random.permutation(N)
-    half = N // 2
 
-    for i in range(half):
-        p1 = population[indices[i]]
-        p2 = population[indices[i + half]]
-        child = np.empty(d)
-        # SBX crossover
-        for j in range(d):
-            u = np.random.rand()
-            if u <= 0.5:
-                beta = (2 * u) ** (1 / (eta_c + 1))
-            else:
-                beta = (1 / (2 * (1 - u))) ** (1 / (eta_c + 1))
-            child[j] = 0.5 * ((1 + beta) * p1[j] + (1 - beta) * p2[j])
-        # polynomial mutation
-        for j in range(d):
-            if np.random.rand() < pm:
-                u = np.random.rand()
-                if u < 0.5:
-                    delta = (2 * u) ** (1 / (eta_m + 1)) - 1
-                else:
-                    delta = 1 - (2 * (1 - u)) ** (1 / (eta_m + 1))
-                child[j] += delta
-        offspring[i] = np.clip(child, 0.0, 1.0)
+Please create a new generation solver that strongly focuses on exploration (diversity and coverage), expanding search space and avoiding local minima.
 
-    if N % 2 != 0:
-        offspring[-1] = population[indices[-1]]
-    return offspring
-
-No.5 poor solver’s description and its code:
-# Its Description
-{This solver implements a novel approach that combines Differential Evolution with a multi-parent crossover strategy, utilizing random sampling from diverse parents and a self-adaptive scaling factor based on fitness metrics to enhance exploration without compromising convergence.}
-# Its Python Code Implementation of a Function
-import numpy as np
-
-def generation(population, base_F=0.5, base_CR=0.9):
-    N, d = population.shape
-    offspring = np.zeros_like(population)
-    fitness = np.random.rand(N)  # Placeholder for actual fitness values; use real fitness evaluations in practice
-
-    # Compute average fitness difference and adjust F based on it
-    fitness_diff = np.abs(fitness[:, None] - fitness[None, :])
-    F = base_F + np.mean(fitness_diff)
-
-    for i in range(N):
-        # Select four distinct parents to enhance diversity
-        idxs = np.random.choice([idx for idx in range(N) if idx != i], 4, replace=False)
-        parents = population[idxs]
-        
-        # Apply crossover using a mixing of parents
-        j_rand = np.random.randint(d)
-        trial = population[i].copy()
-        
-        for j in range(d):
-            if np.random.rand() < base_CR or j == j_rand:
-                trial[j] = np.mean(parents[:, j]) + F * (np.max(parents[:, j]) - np.min(parents[:, j]))
-        
-        offspring[i] = np.clip(trial, 0.0, 1.0)
-
-    return offspring
-
-No.6 poor solver’s description and its code:
-# Its Description
-{This solver implements a novel approach that combines Differential Evolution with a multi-parent crossover strategy, utilizing random sampling from diverse parents and a self-adaptive scaling factor based on fitness metrics to enhance exploration without compromising convergence.}
-# Its Python Code Implementation of a Function
-import numpy as np
-
-def generation(population, base_F=0.5, base_CR=0.9):
-    N, d = population.shape
-    offspring = np.zeros_like(population)
-    fitness = np.random.rand(N)  # Placeholder for actual fitness values; use real fitness evaluations in practice
-
-    # Compute average fitness difference and adjust F based on it
-    fitness_diff = np.abs(fitness[:, None] - fitness[None, :])
-    F = base_F + np.mean(fitness_diff)
-
-    for i in range(N):
-        # Select four distinct parents to enhance diversity
-        idxs = np.random.choice([idx for idx in range(N) if idx != i], 4, replace=False)
-        parents = population[idxs]
-        
-        # Apply crossover using a mixing of parents
-        j_rand = np.random.randint(d)
-        trial = population[i].copy()
-        
-        for j in range(d):
-            if np.random.rand() < base_CR or j == j_rand:
-                trial[j] = np.mean(parents[:, j]) + F * (np.max(parents[:, j]) - np.min(parents[:, j]))
-        
-        offspring[i] = np.clip(trial, 0.0, 1.0)
-
-    return offspring
-
-
-Please create a new generation solver that takes inspiration from the well-performing solvers but avoids the weaknesses and design patterns of the poor-performing solvers.
-The new solver should aim for strong performance on optimization tasks.
 First, describe the design idea and main steps of your solver in one sentence.
 The description must be inside a brace outside the code implementation.
 Next, implement it in Python as a function named `generation`.

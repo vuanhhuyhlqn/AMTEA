@@ -125,7 +125,7 @@ class AMTEA(AbstractModel):
             eval_check = False
             while not (eval_check and len(temp_lst_solvers) >= num_llm_solvers):
                 try:
-                    [id, alg] = self.llm.update(good_solvers_history, worst_solvers_history)
+                    [id, alg] = self.llm.update(good_solvers_history, worst_solvers_history, mode)
                     solver = Solver(id, alg)
                     solver.eval_score = solver.evaluate_task(lst_indis, mode) 
                     print(f'LLM Solver {len(temp_lst_solvers) + 1}: {solver.id}, eval_score: {solver.eval_score}')
