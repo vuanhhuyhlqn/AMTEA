@@ -44,7 +44,7 @@ class Solver:
 			print(f'Error loading result from output.npy: {e}')
 			return None
 	
-	def evaluate_task(self, population):
+	def evaluate_task(self, population, mode = "balanced"):
 		all_genes = np.vstack([np.asarray(ind.gene) for ind in population])
 		all_fitness = np.array([ind.fitness for ind in population])
 
@@ -57,21 +57,28 @@ class Solver:
 		offspring_genes = self(parent_genes)  
 
 		center = np.mean(all_genes, axis=0)
+		dist_pb_pw = np.linalg.norm(pworst_global - pbest_global) + 1e-12
+		max_dist = max(np.linalg.norm(g - center) for g in all_genes) + 1e-12
+
 		scores = []
 		for off in offspring_genes:
 			if not np.all((off >= 0.0) & (off <= 1.0)):
 				return 0.0
 
-			dist_pb_pw = np.linalg.norm(pworst_global - pbest_global) + 1e-12
 			dist_off_pb = np.linalg.norm(off - pbest_global)
 
 			RPB = max(0.0, (dist_pb_pw - dist_off_pb) / dist_pb_pw)
 
 			dist_mean = np.linalg.norm(off - center) + 1e-12
-			max_dist = max(np.linalg.norm(g - center) for g in all_genes) + 1e-12
 			DS = dist_mean / max_dist
 			
-			score = 0.6 * RPB + 0.4 * DS
+			if mode == "exploit":
+				score = 0.6 * RPB + 0.4 * (1.0 - DS)
+			elif mode == "explore":
+				score = 0.3 * RPB + 0.7 * DS
+			else:
+				score = 0.5 * RPB + 0.5 * DS
+    
 			scores.append(score)
 
 		scores = np.array(scores, dtype=float)

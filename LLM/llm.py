@@ -18,7 +18,7 @@ class LLM():
         prompt_content = get_prompt('init')
         return prompt_content
     
-    def get_prompt_update(self, good_solver_history, bad_solver_history):
+    def get_prompt_update(self, good_solver_history, bad_solver_history, mode: str = "balanced"):
         prompt_parts = []
         prompt_parts.append(
             "I am solving optimization problems using evolutionary algorithms.\n"
@@ -40,10 +40,23 @@ class LLM():
                                     f"# Its Description\n{{{solver.algorithm}}}\n"
                                     "# Its Python Code Implementation of a Function\n"
                                     f"{get_code(solver.id)}\n")
+        if mode == "exploit":
+            prompt_parts.append(
+                "\nPlease create a new generation solver that strongly focuses on exploitation (fast convergence), "
+                "refining promising regions and reducing diversity while avoiding premature stagnation.\n"
+            )
+        elif mode == "explore":
+            prompt_parts.append(
+                "\nPlease create a new generation solver that strongly focuses on exploration (diversity and coverage), "
+                "expanding search space and avoiding local minima.\n"
+            )
+        else:  
+            prompt_parts.append(
+                "\nPlease create a new generation solver that balances exploitation and exploration "
+                "to achieve stable progress and maintain diversity.\n"
+            )
 
         prompt_parts.append(
-            "\nPlease create a new generation solver that takes inspiration from the well-performing solvers but avoids the weaknesses and design patterns of the poor-performing solvers.\n"
-            "The new solver should aim for strong performance on optimization tasks.\n"
             "First, describe the design idea and main steps of your solver in one sentence.\n"
             "The description must be inside a brace outside the code implementation.\n"
             "Next, implement it in Python as a function named `generation`.\n"
@@ -109,8 +122,8 @@ class LLM():
         print(f'Solver initialized with id: {id}')
         return [id, algorithm]
     
-    def update(self, good_solver_history, bad_solver_history):
-        prompt_content = self.get_prompt_update(good_solver_history, bad_solver_history)
+    def update(self, good_solver_history, bad_solver_history, mode):
+        prompt_content = self.get_prompt_update(good_solver_history, bad_solver_history, mode)
         
         prompts_folder = 'LLM/prompts'
         os.makedirs(prompts_folder, exist_ok=True)
