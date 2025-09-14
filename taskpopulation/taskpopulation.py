@@ -138,6 +138,7 @@ class TaskPopulation:
         
         # Diversity Index: Mức đa dạng -> Đo khả năng explore
         DI = avg_dist / (baseline_diversity + eps)
+
         DIc = float(np.clip(DI / gamma, 0.0, 1.0))
         
         # Improvement Rate: Mức độ cải thiện fitness

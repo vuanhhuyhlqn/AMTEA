@@ -1,4 +1,7 @@
+from typing import List
+import numpy as np
 import os
+import dotenv
 from solver import Solver
 import logging
 import re
@@ -6,12 +9,15 @@ import inspect
 import hydra
 import random
 import string
+from indi import Individual
 from LLM.llm_models import *
+
+dotenv.load_dotenv()
 
 def init_llm_model(model_name: str):
     if model_name == "gpt":
         from openai import OpenAI
-        client = OpenAI()
+        client = OpenAI(api_key=os.getenv('GPT_API_KEY'))
         model = GPTModel("gpt-4o-mini", client)
         
     elif model_name == "gemini":
@@ -69,3 +75,17 @@ def delete_all(folder_path='cache/solvers'):
                 print(f"Deleted file: {file_path}")
             except Exception as e:
                 print(f"Error deleting file {file_path}: {e}")
+
+def get_diversity(X: np.ndarray) -> float:
+    # Khoảng cách Euclidean trung bình theo từng cặp
+    N, d = X.shape
+    if N < 2:
+        return 0.0
+    diffs = X[:, None, :] - X[None, :, :]
+    dists = np.sqrt(np.sum(diffs**2, axis=2))
+    iu = np.triu_indices(N, k=1)
+
+    baseline_diversity = np.sqrt(d) / 3.0 + 1e-12
+
+
+    return float(dists[iu].mean()) / baseline_diversity

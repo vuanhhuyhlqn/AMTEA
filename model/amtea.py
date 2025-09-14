@@ -6,6 +6,7 @@ from solver import Solver
 from utils.utils import *
 from LLM.llm import LLM
 from dotenv import load_dotenv
+from matplotlib import pyplot as plt
 import numpy as np
 
 class AMTEA(AbstractModel):
@@ -21,7 +22,7 @@ class AMTEA(AbstractModel):
         model = init_llm_model(model_name)
         self.llm = LLM(model)
         
-        num_llm_solvers = 0
+        num_llm_solvers = 5
         lst_solvers = []
         ga_solver = Solver('ga', 'Simulated Binary Crossover (SBX) combined with Polynomial Mutation: This operator generates an offspring population by pairing parents from the given population, performing SBX crossover on each pair, and then applying polynomial mutation to introduce additional diversity.')
         de_solver = Solver('de', 'Differential Evolution (DE) Crossover: This operator generates an offspring population by applying DE/rand/1 mutation and binomial crossover to each individual in the given population.')    
@@ -48,7 +49,7 @@ class AMTEA(AbstractModel):
             except:
                 print('[ERROR] Create new solver failed!')
         lst_solvers = sorted(lst_solvers, key=lambda s: s.eval_score, reverse=True)[:num_solvers]
-        
+
         lst_solver_ids = [solver.id for solver in lst_solvers]
                  
         for task_name in self.population.lst_task_names:
@@ -66,9 +67,21 @@ class AMTEA(AbstractModel):
         k : Number of individuals from each task's population to be added to the transfer pool
         up: Update period
         """
+        dct_fitness : Dict[str, List[float]] = {}
+        dct_diversity : Dict[str, List[float]] = {}
+        for task_name in self.population.lst_task_names:
+            dct_diversity[task_name] = []
+            dct_fitness[task_name] = []
+
         self.eval_budget = eval_budget
         gen = 0
         while self.check_terminate_condition() == False:
+            for task_name in self.population.lst_task_names:
+                pop = [indi.gene for indi in self.population.dict_taskpopulations[task_name].lst_indis]
+                pop_mat = np.vstack([np.asarray(x, dtype=float) for x in pop])               
+                dct_diversity[task_name].append(get_diversity(pop_mat))
+                dct_fitness[task_name].append(self.population.dict_taskpopulations[task_name].get_best_fitness())
+
             gen += 1
             # if gen % lp <= lp - self.memory_size and gen % tgap == 0:
             #     print(f'[*] Knowledge transfer')   
@@ -85,6 +98,11 @@ class AMTEA(AbstractModel):
                 gen = 0
         if delete_after_run:
             delete_all()
+
+        fig, ax = plt.subplots(len(self.lst_tasks), 2)
+        for i, task_name in enumerate(self.population.lst_task_names):
+            ax[i, 0].plot(np.arange(len(dct_diversity[task_name])), dct_diversity[task_name])
+            ax[i, 1].plot(np.arange(len(dct_fitness[task_name])), dct_fitness[task_name])
                     
     def update_solvers(self):
         for task_name in self.population.lst_task_names:

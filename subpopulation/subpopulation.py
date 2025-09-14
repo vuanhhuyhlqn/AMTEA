@@ -20,11 +20,8 @@ class SubPopulation:
 
     def evolve(self) -> List[Individual]:
         # start = time.time()
-        size = len(self.lst_indis)
-        # print(len(self.lst_indis))
         try:
             off_genes = self.solver(np.vstack([indi.gene for indi in self.lst_indis]))
-            print(len(off_genes))
             off_fitnesses = self.task.batch_eval(off_genes)
             for off_fitness in off_fitnesses:
                 if off_fitness == np.inf:
