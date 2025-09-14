@@ -22,7 +22,6 @@ def main():
 
     result = solve_func(operands)
 
-    
     output_file = os.path.join(os.path.dirname(__file__), 'temp', 'output.npy')
     np.save(output_file, result, allow_pickle=True)
 

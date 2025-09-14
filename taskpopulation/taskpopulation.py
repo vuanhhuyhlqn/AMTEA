@@ -15,6 +15,7 @@ class TaskPopulation:
         self.task = task
         self.size = size
         self.lst_solvers = []
+        self.dict_solvers: Dict[str, Solver] = {}
         self.num_solvers = None
         self.mem = Memory(memory_size=memory_size)
         self.dim = dim # Individual dimension
@@ -98,7 +99,7 @@ class TaskPopulation:
 
         ret : List[Individual] = []
         while len(ret) < k:
-            random_id = random.randint(0, self.size)
+            random_id = random.randrange(self.size)
             ret.append(self.lst_indis[random_id])
         return ret
 

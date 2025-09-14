@@ -13,9 +13,6 @@ class Memory():
 		self.p_data = pd.DataFrame(columns=["solver_id", "p"])
 
 		self.lst_solver_ids = []
-		self.lst_best_solver_ids = []
-
-		# self.restart(self.lst_solver_ids)
 
 	def restart(self, lst_solver_ids: List[str]):
 		self.data = pd.DataFrame(columns=self.data.columns)

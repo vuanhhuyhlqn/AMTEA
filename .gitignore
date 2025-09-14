@@ -5,6 +5,8 @@ main.ipynb
 .vscode/
 solver/temp/output.npy
 solver/temp/temp_parents.npy
+LLM/prompts/texts/update.txt
 test_llm.ipynb
+test.ipynb
 cache/solvers/*
 .env

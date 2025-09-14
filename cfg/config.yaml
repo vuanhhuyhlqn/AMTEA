@@ -1,4 +1,0 @@
-defaults:
-  - _self_
-  - llm_client: openai
-  - algorithm: amtea

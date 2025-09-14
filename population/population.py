@@ -58,14 +58,4 @@ class Population:
 			indi = self.dict_taskpopulations[tmp_task_name].get_random_individuals(1)[0]
 			transfer_pool.append(indi)
 		return transfer_pool
-		
-		
-	def load_pop(self, path:str):
-		# TODO implement this if have time
-		pass
-
-	def save_pop(self, path:str):
-		# TODO implement this if have time
-		pass
-
 	

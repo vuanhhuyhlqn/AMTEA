@@ -6,11 +6,12 @@ import subprocess
 import time
 
 class Solver:
-	def __init__(self, id: str, algorithm: str, eval_score=None):
+	def __init__(self, id: str, algorithm: str, mode: str = "balanced", eval_score=None):
 		self.id = id
 		self.algorithm = algorithm
+		self.mode = mode
 		if eval_score is None:
-			self.eval_score = -np.inf
+			self.eval_score = 0.0
 		else:
 			self.eval_score = eval_score
 
@@ -78,7 +79,8 @@ class Solver:
 			elif mode == "explore":
 				score = 0.3 * RPB + 0.7 * DS
 			else:
-				score = 0.5 * RPB + 0.5 * DS
+				ds_term = 1.0 - abs(DS - 0.5)
+				score = 0.6 * RPB + 0.4 * ds_term
     
 			scores.append(score)
 
