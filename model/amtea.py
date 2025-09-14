@@ -116,13 +116,24 @@ class AMTEA(AbstractModel):
             worst_solvers_history = self.population.dict_taskpopulations[task_name].worst_solvers_history
             pdi, IR, DIc = self.population.dict_taskpopulations[task_name].compute_pdi()
             print(f'[*] PDI: {pdi}, IR: {IR}, DIc: {DIc}')
-            if pdi < 0.4:
+            # if pdi < 0.4:
+            #     mode = "explore"
+            # elif pdi > 0.6:
+            #     mode = "exploit"
+            # else:
+            #     mode = "balanced"
+            
+            if IR > 0.7 and DIc > 0.7:
                 mode = "explore"
-            elif pdi > 0.6:
+            elif IR > 0.7 and DIc < 0.3:
                 mode = "exploit"
+            elif IR < 0.6 and DIc > 0.7:
+                mode = "exploit"
+            elif IR < 0.6 and DIc < 0.3:
+                mode = "explore"
             else:
                 mode = "balanced"
-            print(f'[*] Update mode: {mode}')
+            print(f'[*][*][*][*][*][*][*][*][*][*][*][*][*][*][*][*][*][*] Update mode: {mode}')
             good_solver = next((solver for solver in lst_solvers if solver.id == best_solver_id), None)
             if (good_solver.id not in [s.id for s in good_solvers_history]):
                 good_solvers_history.append(good_solver)

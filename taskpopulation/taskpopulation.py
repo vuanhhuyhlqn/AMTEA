@@ -125,7 +125,7 @@ class TaskPopulation:
         return float(dists[iu].mean())
     
     def compute_pdi(self, window: int = 5,
-                    k_sigmoid: float = 2.0,
+                    k_sigmoid: float = 1.0,
                     alpha: float = 0.6,
                     gamma: float = 1.5,
                     eps: float = 1e-12):
