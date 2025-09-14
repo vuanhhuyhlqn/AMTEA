@@ -70,9 +70,11 @@ class Solver:
 			dist_off_pb = np.linalg.norm(off - pbest_global)
 
 			RPB = max(0.0, (dist_pb_pw - dist_off_pb) / dist_pb_pw)
+			# print(f'RPB: {RPB}')
 
 			dist_mean = np.linalg.norm(off - center) + 1e-12
-			DS = dist_mean / max_dist
+			DS = min(dist_mean / max_dist, 1.0)
+			# print(f'DS: {DS}')
 			
 			if mode == "exploit":
 				score = 0.6 * RPB + 0.4 * (1.0 - DS)

@@ -15,7 +15,6 @@ class TaskPopulation:
         self.task = task
         self.size = size
         self.lst_solvers = []
-        self.dict_solvers: Dict[str, Solver] = {}
         self.num_solvers = None
         self.mem = Memory(memory_size=memory_size)
         self.dim = dim # Individual dimension
