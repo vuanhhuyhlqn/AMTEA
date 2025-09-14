@@ -53,14 +53,12 @@ class UpdatePrompt(AbstractPrompt):
             )
 
         prompt_parts.append(
-            "Important requirement:\n"
-            "- Implement the new solver in Python in a single code block suitable for a file named `solver.py`.\n"
-            "- It is allowed and recommended to define multiple helper functions (for example custom crossover, mutation, parameter adaptation…) inside the same code block.\n"
-            "- The main entry point must be a function named `generation(population: np.ndarray)` which returns an array of shape (N,d) with offspring values in [0,1].\n"
-            "- Combine, hybridize, or extend ideas in a novel way (for example adaptive parameters, multi-point operations, hierarchical selection).\n"
-            "- Use clear function names for helper functions.\n\n"
-            "First, describe the design idea and main steps of your solver in one sentence inside curly braces outside the code implementation.\n"
-            "Then implement the full Python code (helper functions + main `generation`) in one code block.\n"
+            "First, describe the design idea and main steps of your solver in one sentence.\n"
+            "The description must be inside a brace outside the code implementation.\n"
+            "Next, implement it in Python as a function named `generation`.\n"
+            "This function should accept only 1 input: `population`, an array of shape (N, d) of real-valued vectors.\n"
+            "The function should return 1 output: `offspring`, an array of shape (N, d) of real-valued vectors.\n"
+            "The offspring must stay within the bounds [0, 1] for each variable.\n\n"
             "Do not give additional explanations."
         )
 
