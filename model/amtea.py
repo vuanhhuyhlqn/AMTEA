@@ -46,8 +46,9 @@ class AMTEA(AbstractModel):
                 solver.eval_score = eval_scores.mean()
                 print(f'Solver {solver.id}, eval_score: {solver.eval_score}')
                 lst_solvers.append(solver)
-            except:
+            except Exception as e:
                 print('[ERROR] Create new solver failed!')
+                print(e)
         lst_solvers = sorted(lst_solvers, key=lambda s: s.eval_score, reverse=True)[:num_solvers]
 
         lst_solver_ids = [solver.id for solver in lst_solvers]
@@ -141,7 +142,7 @@ class AMTEA(AbstractModel):
             for solver in lst_solvers:
                 solver.mode = mode
                 solver.eval_score = solver.evaluate_task(lst_indis, mode)
-                if solver.eval_score > eval_check_score:
+                if solver.eval_score >= (eval_check_score * 0.99):
                     eval_check_count += 1
                 print(f'EVAL CHECK COUNT: {eval_check_count}')
                 print(f'Solver {solver.id}, eval_score: {solver.eval_score}')
@@ -154,7 +155,7 @@ class AMTEA(AbstractModel):
                     solver.eval_score = solver.evaluate_task(lst_indis, mode) 
                     print(f'LLM Solver {len(lst_solvers) - self.num_solvers + 2}: {solver.id}, eval_score: {solver.eval_score}')
                     lst_solvers.append(solver)
-                    if solver.eval_score > eval_check_score:
+                    if solver.eval_score >= (eval_check_score * 0.99):
                         eval_check_count += 1
                     print(f'EVAL CHECK COUNT 2: {eval_check_count}')
                 except:
