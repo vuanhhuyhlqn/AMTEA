@@ -61,7 +61,7 @@ class AMTEA(AbstractModel):
             self.population.dict_taskpopulations[task_name].dict_solvers = dict_solvers
             self.population.dict_taskpopulations[task_name].mem.restart(lst_solver_ids)
 
-    def run(self, eval_budget=100, lp=5, tgap=2, k=5, up=10, monitor=True, monitor_rate=1):
+    def run(self, eval_budget=100, lp=5, tgap=2, k=5, up=10, monitor=True, monitor_rate=1, delete_after_run=True):
         """
         Parameters
         ----------
@@ -88,8 +88,8 @@ class AMTEA(AbstractModel):
             if gen % up == 0:
                 self.update_solvers()
                 gen = 0
-                
-        # delete_all()
+        if delete_after_run:
+            delete_all()
                     
     def update_solvers(self):
         for task_name in self.population.lst_task_names:
