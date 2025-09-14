@@ -20,7 +20,7 @@ class TaskPopulation:
         self.dim = dim # Individual dimension
         self.lst_indis : List[Individual] = []
         while not self.is_full():
-            i = Individual(self.dim)
+            i = Individual(dim=self.dim, task_name=self.task.task_name)
             i.fitness = self.task.eval(i.gene)
             self.lst_indis.append(i)
             
@@ -73,6 +73,12 @@ class TaskPopulation:
         self.lst_indis = sorted(self.lst_indis, key=lambda ind : ind.fitness)
         self.lst_indis = self.lst_indis[:self.size]
         random.shuffle(self.lst_indis)
+
+        for indi in self.lst_indis:
+            try:
+                assert(indi.task_name == self.task.task_name)
+            except:
+                print('Indi task name not match!')
         # end = time.time()
         # print(f"Task Subpopulation evolve time taken: {end - start}")
 

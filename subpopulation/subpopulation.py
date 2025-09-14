@@ -27,12 +27,15 @@ class SubPopulation:
                 if off_fitness == np.inf:
                     raise Exception('[ERROR] Off fitness inf!')
 
-            lst_offs = [Individual(self.task.dim, gene=off_gene, fitness=off_fitness) for off_gene, off_fitness in zip(off_genes, off_fitnesses)]
+            lst_offs = [Individual(self.task.dim, gene=off_gene, fitness=off_fitness, task_name=self.task.task_name) for off_gene, off_fitness in zip(off_genes, off_fitnesses)]
 
             # end = time.time()
             # print(f"Subpopulation evolve time taken: {end - start}")
             return lst_offs
         except:
+            for indi in self.lst_indis:
+                if indi.task_name != self.task.task_name:
+                    indi.fitness = np.inf
             return self.lst_indis
         
 

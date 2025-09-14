@@ -1,8 +1,9 @@
 import numpy as np
 
 class Individual:
-	def __init__(self, dim, gene:np.ndarray=None, fitness=None):
+	def __init__(self, dim, gene:np.ndarray=None, fitness=None, task_name: str=None):
 		self.dim = dim
+		self.task_name = task_name
 		if gene is None:
 			self.gene = np.random.uniform(size=(self.dim))
 		else:
