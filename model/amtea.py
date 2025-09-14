@@ -143,10 +143,11 @@ class AMTEA(AbstractModel):
                 solver.eval_score = solver.evaluate_task(lst_indis, mode)
                 if solver.eval_score > eval_check_score:
                     eval_check_count += 1
+                print(f'EVAL CHECK COUNT: {eval_check_count}')
                 print(f'Solver {solver.id}, eval_score: {solver.eval_score}')
                 
             num_llm_solvers = 5
-            while not (eval_check_count == self.num_solvers and (len(lst_solvers) >= num_llm_solvers + self.num_solvers - 1)):
+            while not (eval_check_count >= self.num_solvers and (len(lst_solvers) >= num_llm_solvers + self.num_solvers - 1)):
                 try:
                     [id, alg] = self.llm.update_solver(good_solvers_history, worst_solvers_history, mode)
                     solver = Solver(id, alg, mode)
@@ -155,6 +156,7 @@ class AMTEA(AbstractModel):
                     lst_solvers.append(solver)
                     if solver.eval_score > eval_check_score:
                         eval_check_count += 1
+                    print(f'EVAL CHECK COUNT 2: {eval_check_count}')
                 except:
                     print('[ERROR] Create new solver failed!')
             lst_solvers = sorted(lst_solvers, key=lambda s: s.eval_score, reverse=True)[:self.num_solvers]
