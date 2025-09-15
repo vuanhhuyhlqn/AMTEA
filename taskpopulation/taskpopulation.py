@@ -7,6 +7,7 @@ from subpopulation import SubPopulation
 from indi import Individual
 from solver import Solver
 from memory import Memory
+from selection import *
 import numpy as np
 
 class TaskPopulation:
@@ -14,7 +15,7 @@ class TaskPopulation:
         # print('Task Population Initiation!')
         self.task = task
         self.size = size
-        self.lst_solvers = []
+        self.lst_solvers : List[Solver] = []
         self.num_solvers = None
         self.mem = Memory(memory_size=memory_size)
         self.dim = dim # Individual dimension
@@ -70,8 +71,12 @@ class TaskPopulation:
 
         # Selection
         self.lst_indis.extend(lst_offs)
-        self.lst_indis = sorted(self.lst_indis, key=lambda ind : ind.fitness)
-        self.lst_indis = self.lst_indis[:self.size]
+    
+        selection = ElitismSelection(self.size)
+        self.lst_indis = selection(self.lst_indis)
+
+        # self.lst_indis = sorted(self.lst_indis, key=lambda ind : ind.fitness)
+        # self.lst_indis = self.lst_indis[:self.size]
         random.shuffle(self.lst_indis)
 
         for indi in self.lst_indis:
