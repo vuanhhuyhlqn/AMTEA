@@ -89,7 +89,7 @@ class TaskPopulation:
 
     def get_median_fitness(self) -> float:
         fitness_values = [indi.fitness for indi in self.lst_indis]
-        return statistics.median(fitness_values)
+        return np.quantile(fitness_values, 1/3)
 
     def get_best_fitness(self) -> float:
         best_fitness = np.inf
