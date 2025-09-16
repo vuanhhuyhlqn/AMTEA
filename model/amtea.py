@@ -79,9 +79,11 @@ class AMTEA(AbstractModel):
         self.eval_budget = eval_budget
         gen = 0
         while self.check_terminate_condition() == False:
-            self.alpha *= 1.02
+            self.alpha *= 1.01
+            self.alpha = min(self.alpha, 1.0)
+
             print(f'Alpha: {self.alpha}')
-            
+
             for task_name in self.population.lst_task_names:
                 pop = [indi.gene for indi in self.population.dict_taskpopulations[task_name].lst_indis]
                 pop_mat = np.vstack([np.asarray(x, dtype=float) for x in pop])               

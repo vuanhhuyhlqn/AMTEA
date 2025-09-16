@@ -81,19 +81,9 @@ class Solver:
 			assert(alpha >= 0.0 and alpha <= 1.0)
 			score += exploit_score * alpha + explore_score * (1.0 - alpha)
 
-		score /= num_test
+		score /= num_test # Get average score
 
 		return score
-
-
-			
-
-
-
-
-		scores = np.array(scores, dtype=float)
-		task_score = float(scores.mean())
-		return task_score
 			
 		
 		

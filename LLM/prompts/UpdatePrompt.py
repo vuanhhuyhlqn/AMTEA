@@ -79,6 +79,6 @@ class UpdatePrompt(AbstractPrompt):
             f.write(prompt_content)
         
     def get_prompt(self):
-        print(super().get_prompt())
+        # print(super().get_prompt())
         return super().get_prompt()
         
