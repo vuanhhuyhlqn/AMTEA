@@ -51,8 +51,8 @@ class Solver:
 		all_genes = np.vstack([np.asarray(ind.gene) for ind in population])
 		all_fitness = np.array([ind.fitness for ind in population])
 
-		assert(len(population) >= 10)
-		top_idx = np.argsort(all_fitness)[10:]
+		assert(len(population) >= 5)
+		top_idx = np.argsort(all_fitness)[5:]
 		top_genes = all_genes[top_idx]
 		
 		parent_genes = [np.asarray(ind.gene) for ind in population]
