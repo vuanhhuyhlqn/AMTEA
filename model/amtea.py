@@ -16,16 +16,18 @@ class AMTEA(AbstractModel):
         self.memory_size = memory_size
         self.num_solvers = num_solvers
         self.population = Population(self.lst_tasks, size=pop_size, memory_size=self.memory_size)
-        
+        self.alpha = 0.4
+
         load_dotenv()
         print(f'Initializing LLM model: {model_name}')
+        print(f'Initial alpha: {self.alpha}')
         model = init_llm_model(model_name)
         self.llm = LLM(model)
         
         num_llm_solvers = 5
         lst_solvers = []
-        ga_solver = Solver('ga', 'Simulated Binary Crossover (SBX) combined with Polynomial Mutation: This operator generates an offspring population by pairing parents from the given population, performing SBX crossover on each pair, and then applying polynomial mutation to introduce additional diversity.')
-        de_solver = Solver('de', 'Differential Evolution (DE) Crossover: This operator generates an offspring population by applying DE/rand/1 mutation and binomial crossover to each individual in the given population.')    
+        ga_solver = Solver('ga', 'Simulated Binary Crossover (SBX) combined with Polynomial Mutation: This operator generates an offspring population by pairing parents from the given population, performing SBX crossover on each pair, and then applying polynomial mutation to introduce additional diversity.', alpha = self.alpha)
+        de_solver = Solver('de', 'Differential Evolution (DE) Crossover: This operator generates an offspring population by applying DE/rand/1 mutation and binomial crossover to each individual in the given population.', alpha=self.alpha)    
         
         print(f'Initializing {num_llm_solvers} LLM-based solvers to choose top {num_solvers} solvers.')
         while len(lst_solvers) < num_llm_solvers + 2:
@@ -41,7 +43,7 @@ class AMTEA(AbstractModel):
                 eval_scores = []
                 for task_name in self.population.lst_task_names:
                     lst_indis = self.population.dict_taskpopulations[task_name].lst_indis
-                    eval_scores.append(solver.evaluate_task(lst_indis))   
+                    eval_scores.append(solver.evaluate_task(lst_indis, self.alpha))   
                 eval_scores = np.array(eval_scores, dtype=float)
                 solver.eval_score = eval_scores.mean()
                 print(f'Solver {solver.id}, eval_score: {solver.eval_score}')
@@ -77,6 +79,9 @@ class AMTEA(AbstractModel):
         self.eval_budget = eval_budget
         gen = 0
         while self.check_terminate_condition() == False:
+            self.alpha *= 1.02
+            print(f'Alpha: {self.alpha}')
+            
             for task_name in self.population.lst_task_names:
                 pop = [indi.gene for indi in self.population.dict_taskpopulations[task_name].lst_indis]
                 pop_mat = np.vstack([np.asarray(x, dtype=float) for x in pop])               
@@ -84,8 +89,6 @@ class AMTEA(AbstractModel):
                 dct_fitness[task_name].append(self.population.dict_taskpopulations[task_name].get_best_fitness())
 
             gen += 1
-            # if gen % lp <= lp - self.memory_size and gen % tgap == 0:
-            #     print(f'[*] Knowledge transfer')   
 
             self.population.evolve(gen=gen, lp=lp, tgap=tgap, k=k)
             
@@ -97,7 +100,8 @@ class AMTEA(AbstractModel):
             if gen % up == 0:
                 self.update_solvers()
                 gen = 0
-        if delete_after_run:
+
+        if delete_after_run: # Delete all solvers in cached folder after run
             delete_all()
 
         fig, ax = plt.subplots(len(self.lst_tasks), 2)
@@ -114,26 +118,7 @@ class AMTEA(AbstractModel):
             worst_solver_id = mem.get_worst_solver_id()
             good_solvers_history = self.population.dict_taskpopulations[task_name].good_solvers_history
             worst_solvers_history = self.population.dict_taskpopulations[task_name].worst_solvers_history
-            pdi, IR, DIc = self.population.dict_taskpopulations[task_name].compute_pdi()
-            print(f'[*] PDI: {pdi}, IR: {IR}, DIc: {DIc}')
-            # if pdi < 0.4:
-            #     mode = "explore"
-            # elif pdi > 0.6:
-            #     mode = "exploit"
-            # else:
-            #     mode = "balanced"
             
-            if IR > 0.7 and DIc > 0.7:
-                mode = "explore"
-            elif IR > 0.7 and DIc < 0.3:
-                mode = "exploit"
-            elif IR < 0.6 and DIc > 0.7:
-                mode = "exploit"
-            elif IR < 0.6 and DIc < 0.3:
-                mode = "explore"
-            else:
-                mode = "balanced"
-            print(f'[*][*][*][*][*][*][*][*][*][*][*][*][*][*][*][*][*][*] Update mode: {mode}')
             good_solver = next((solver for solver in lst_solvers if solver.id == best_solver_id), None)
             if (good_solver.id not in [s.id for s in good_solvers_history]):
                 good_solvers_history.append(good_solver)
@@ -142,35 +127,36 @@ class AMTEA(AbstractModel):
             if (worst_solver.id not in [s.id for s in worst_solvers_history]):
                 worst_solvers_history.append(worst_solver)
             
-            lst_solvers = [solver for solver in lst_solvers if solver != worst_solver]
+            lst_solvers = [solver for solver in lst_solvers if solver.id != worst_solver_id]
             
             # Create new solver
             lst_indis = self.population.dict_taskpopulations[task_name].lst_indis
-            eval_check_score = worst_solver.evaluate_task(lst_indis, mode)
+            eval_check_score = worst_solver.evaluate_task(lst_indis, self.alpha)
             print(f'[*] Evaluation score threshold for new solver: {eval_check_score}')
             eval_check_count = 0
             
             for solver in lst_solvers:
-                solver.mode = mode
-                solver.eval_score = solver.evaluate_task(lst_indis, mode)
+                solver.eval_score = solver.evaluate_task(lst_indis, self.alpha)
                 if solver.eval_score >= (eval_check_score * 0.99):
                     eval_check_count += 1
-                print(f'EVAL CHECK COUNT: {eval_check_count}')
+                print(f'EVAL CHECK COUNT 1: {eval_check_count}')
                 print(f'Solver {solver.id}, eval_score: {solver.eval_score}')
                 
             num_llm_solvers = 5
             while not (eval_check_count >= self.num_solvers and (len(lst_solvers) >= num_llm_solvers + self.num_solvers - 1)):
                 try:
-                    [id, alg] = self.llm.update_solver(good_solvers_history, worst_solvers_history, mode)
-                    solver = Solver(id, alg, mode)
-                    solver.eval_score = solver.evaluate_task(lst_indis, mode) 
+                    [id, alg] = self.llm.update_solver(good_solvers_history, worst_solvers_history, self.alpha)
+                    solver = Solver(id, alg)
+                    solver.eval_score = solver.evaluate_task(lst_indis, self.alpha) 
                     print(f'LLM Solver {len(lst_solvers) - self.num_solvers + 2}: {solver.id}, eval_score: {solver.eval_score}')
                     lst_solvers.append(solver)
                     if solver.eval_score >= (eval_check_score * 0.99):
                         eval_check_count += 1
                     print(f'EVAL CHECK COUNT 2: {eval_check_count}')
-                except:
+                except Exception as e:
                     print('[ERROR] Create new solver failed!')
+                    print(e)
+
             lst_solvers = sorted(lst_solvers, key=lambda s: s.eval_score, reverse=True)[:self.num_solvers]
             self.population.dict_taskpopulations[task_name].lst_solvers = lst_solvers
             mem.restart([solver.id for solver in lst_solvers])

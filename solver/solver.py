@@ -4,12 +4,13 @@ from typing import List
 import numpy as np
 import subprocess
 import time
+import math
 
 class Solver:
-	def __init__(self, id: str, algorithm: str, mode: str = "balanced", eval_score=None):
+	def __init__(self, id: str, algorithm: str, alpha: float = 0.4, eval_score=None):
 		self.id = id
 		self.algorithm = algorithm
-		self.mode = mode
+		self.alpha = alpha
 		if eval_score is None:
 			self.eval_score = 0.0
 		else:
@@ -50,15 +51,43 @@ class Solver:
 		all_genes = np.vstack([np.asarray(ind.gene) for ind in population])
 		all_fitness = np.array([ind.fitness for ind in population])
 
-		best_idx = np.argmin(all_fitness)
-		worst_idx = np.argmax(all_fitness)
-		pbest_global = all_genes[best_idx]
-		pworst_global = all_genes[worst_idx]
-
+		assert(len(population) >= 10)
+		top_idx = np.argsort(all_fitness)[10:]
+		top_genes = all_genes[top_idx]
+		
 		parent_genes = [np.asarray(ind.gene) for ind in population]
-		offspring_genes = self(parent_genes)  
+		num_test = 3
+		score = 0
 
-        
+		for _ in range(num_test):
+			offspring_genes = self(parent_genes)
+
+			assert(len(offspring_genes.shape) == 2)
+			n, d = offspring_genes.shape
+
+			distance_to_top_genes = offspring_genes[:, None, :] - top_genes[None, :, :]
+			distance_to_top_genes = np.linalg.norm(distance_to_top_genes, axis=2)
+			nearist_distance_to_top_genese = np.min(distance_to_top_genes, axis=1)
+
+			exploit_score = np.sum(nearist_distance_to_top_genese) / offspring_genes.shape[0] / math.sqrt(d)
+			
+			all_distances = offspring_genes[:, None, :] - offspring_genes[None, :, :]
+			all_distances = np.linalg.norm(all_distances, axis=2)
+			assert(all_distances.shape[0] == all_distances.shape[1]) # The distance matrix must be a square
+			total_distance = np.triu(all_distances, k=1).sum()
+
+			explore_score = total_distance / (n * (n - 1) / 2) / math.sqrt(d)
+			
+			assert(alpha >= 0.0 and alpha <= 1.0)
+			score += exploit_score * alpha + explore_score * (1.0 - alpha)
+
+		score /= num_test
+
+		return score
+
+
+			
+
 
 
 

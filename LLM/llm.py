@@ -15,8 +15,8 @@ class LLM():
         print(f'Solver initialized with id: {id}')
         return [id, algorithm]
     
-    def update_solver(self, good_solver_history, bad_solver_history, mode):
-        prompt_content = UpdatePrompt(good_solver_history, bad_solver_history, mode).get_prompt()
+    def update_solver(self, good_solver_history, bad_solver_history, alpha):
+        prompt_content = UpdatePrompt(good_solver_history, bad_solver_history, alpha).get_prompt() # TODO : Fix this function to use alpha
         [id, algorithm] = self._get_alg(prompt_content)
         print(algorithm)
         print(f'New solver updated with id: {id}')
