@@ -69,7 +69,7 @@ class Solver:
 			distance_to_top_genes = np.linalg.norm(distance_to_top_genes, axis=2)
 			nearist_distance_to_top_genese = np.min(distance_to_top_genes, axis=1)
 
-			exploit_score = np.sum(nearist_distance_to_top_genese) / offspring_genes.shape[0] / math.sqrt(d)
+			exploit_score = 1.0 - np.sum(nearist_distance_to_top_genese) / offspring_genes.shape[0] / math.sqrt(d)
 			
 			all_distances = offspring_genes[:, None, :] - offspring_genes[None, :, :]
 			all_distances = np.linalg.norm(all_distances, axis=2)
@@ -79,6 +79,7 @@ class Solver:
 			explore_score = total_distance / (n * (n - 1) / 2) / math.sqrt(d)
 			
 			assert(alpha >= 0.0 and alpha <= 1.0)
+			print(f'Solver\'s id: {self.id}, exploit score: {exploit_score}, explore score: {explore_score}')
 			score += exploit_score * alpha + explore_score * (1.0 - alpha) # TODO: Check these values
 
 		score /= num_test # Get average score

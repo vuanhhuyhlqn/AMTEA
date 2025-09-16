@@ -122,6 +122,7 @@ def generation(population: np.ndarray, F: float = 0.5, CR: float = 0.9, mu_m: fl
     return offspring
 
 Important requirement: 
+- The new solver should follow the examples's structures but not necessary their ideas.
 - Implement the new solver in Python in a single code block suitable for a file named `solver.py`.
 - It is allowed and recommended to define multiple helper functions (for example custom crossover, mutation, parameter adaptation…) inside the same code block.
 - The main entry point must be a function named `generation(population: np.ndarray)` which returns an array of shape (N,d) with offspring values in [0,1].

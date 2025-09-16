@@ -10,13 +10,13 @@ from matplotlib import pyplot as plt
 import numpy as np
 
 class AMTEA(AbstractModel):
-    def __init__(self, pop_size: int, memory_size : int, lst_tasks : List[AbstractTask], model_name = "gpt", num_solvers=2):
+    def __init__(self, pop_size: int, memory_size : int, lst_tasks : List[AbstractTask], model_name = "gpt", num_solvers=2, alpha = 0.2):
         self.pop_size = pop_size
         self.lst_tasks = lst_tasks
         self.memory_size = memory_size
         self.num_solvers = num_solvers
         self.population = Population(self.lst_tasks, size=pop_size, memory_size=self.memory_size)
-        self.alpha = 0.4
+        self.alpha = alpha
 
         load_dotenv()
         print(f'Initializing LLM model: {model_name}')
@@ -79,7 +79,7 @@ class AMTEA(AbstractModel):
         self.eval_budget = eval_budget
         gen = 0
         while self.check_terminate_condition() == False:
-            self.alpha *= 1.01
+            self.alpha *= 1.02
             self.alpha = min(self.alpha, 1.0)
 
             print(f'Alpha: {self.alpha}')
