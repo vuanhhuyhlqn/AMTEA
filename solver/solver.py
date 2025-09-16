@@ -79,7 +79,7 @@ class Solver:
 			explore_score = total_distance / (n * (n - 1) / 2) / math.sqrt(d)
 			
 			assert(alpha >= 0.0 and alpha <= 1.0)
-			score += exploit_score * alpha + explore_score * (1.0 - alpha)
+			score += exploit_score * alpha + explore_score * (1.0 - alpha) # TODO: Check these values
 
 		score /= num_test # Get average score
 
