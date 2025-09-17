@@ -121,6 +121,12 @@ def generation(population: np.ndarray, F: float = 0.5, CR: float = 0.9, mu_m: fl
 
     return offspring
 
+I will give you a parameter alpha ∈ [0,1].
+- If alpha = 0 → the solver must behave as pure exploration (maximize diversity, disruptive crossover, strong mutation, random injections).
+- If alpha = 1 → the solver must behave as pure exploitation (focus on elites, mild mutation, local refinement).
+- Values between 0 and 1 represent a blend, the solver must lean toward the nearest extreme. Do not invert this interpretation!
+Here's the value: alpha = 0.2
+
 Important requirement: 
 - The new solver should follow the examples's structures but not necessary their ideas.
 - Implement the new solver in Python in a single code block suitable for a file named `solver.py`.

@@ -70,11 +70,11 @@ class AMTEA(AbstractModel):
         k : Number of individuals from each task's population to be added to the transfer pool
         up: Update period
         """
-        dct_fitness : Dict[str, List[float]] = {}
-        dct_diversity : Dict[str, List[float]] = {}
+        self.dct_fitness : Dict[str, List[float]] = {}
+        self.dct_diversity : Dict[str, List[float]] = {}
         for task_name in self.population.lst_task_names:
-            dct_diversity[task_name] = []
-            dct_fitness[task_name] = []
+            self.dct_diversity[task_name] = []
+            self.dct_fitness[task_name] = []
 
         self.eval_budget = eval_budget
         gen = 0
@@ -87,8 +87,8 @@ class AMTEA(AbstractModel):
             for task_name in self.population.lst_task_names:
                 pop = [indi.gene for indi in self.population.dict_taskpopulations[task_name].lst_indis]
                 pop_mat = np.vstack([np.asarray(x, dtype=float) for x in pop])               
-                dct_diversity[task_name].append(get_diversity(pop_mat))
-                dct_fitness[task_name].append(self.population.dict_taskpopulations[task_name].get_best_fitness())
+                self.dct_diversity[task_name].append(get_diversity(pop_mat))
+                self.dct_fitness[task_name].append(self.population.dict_taskpopulations[task_name].get_best_fitness())
 
             gen += 1
 
@@ -100,17 +100,21 @@ class AMTEA(AbstractModel):
 
             # Update solvers
             if gen % up == 0:
+                self.alpha *= 0.95
                 self.update_solvers()
                 gen = 0
 
         if delete_after_run: # Delete all solvers in cached folder after run
             delete_all()
 
+    def render_history(self):
         fig, ax = plt.subplots(len(self.lst_tasks), 2)
         for i, task_name in enumerate(self.population.lst_task_names):
-            ax[i, 0].plot(np.arange(len(dct_diversity[task_name])), dct_diversity[task_name])
-            ax[i, 1].plot(np.arange(len(dct_fitness[task_name])), dct_fitness[task_name])
-                    
+            ax[i, 0].plot(np.arange(len(self.dct_diversity[task_name])), np.log(self.dct_diversity[task_name]))
+            ax[i, 1].plot(np.arange(len(self.dct_fitness[task_name])), self.dct_fitness[task_name])
+
+        fig.tight_layout()
+
     def update_solvers(self):
         for task_name in self.population.lst_task_names:
             print(f'Updating solvers for task {task_name} ... ')

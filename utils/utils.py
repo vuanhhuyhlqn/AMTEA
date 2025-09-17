@@ -9,6 +9,7 @@ import inspect
 import hydra
 import random
 import string
+import math
 from indi import Individual
 from LLM.llm_models import *
 
@@ -79,13 +80,11 @@ def delete_all(folder_path='cache/solvers'):
 def get_diversity(X: np.ndarray) -> float:
     # Khoảng cách Euclidean trung bình theo từng cặp
     N, d = X.shape
-    if N < 2:
-        return 0.0
+
     diffs = X[:, None, :] - X[None, :, :]
-    dists = np.sqrt(np.sum(diffs**2, axis=2))
-    iu = np.triu_indices(N, k=1)
+    dists = np.linalg.norm(diffs, axis=2)
+    total_distance = np.triu(dists, k=1).sum()
 
-    baseline_diversity = np.sqrt(d) / 3.0 + 1e-12
+    diversity = total_distance / (N * (N - 1) / 2) / math.sqrt(d)
 
-
-    return float(dists[iu].mean()) / baseline_diversity
+    return diversity
