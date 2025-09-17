@@ -7,6 +7,7 @@ from utils.utils import *
 from LLM.llm import LLM
 from dotenv import load_dotenv
 from matplotlib import pyplot as plt
+import matplotlib.ticker as ticker
 import numpy as np
 
 class AMTEA(AbstractModel):
@@ -24,7 +25,7 @@ class AMTEA(AbstractModel):
         model = init_llm_model(model_name)
         self.llm = LLM(model)
         
-        num_llm_solvers = 5
+        num_llm_solvers = 0
         lst_solvers = []
         ga_solver = Solver('ga', 'Simulated Binary Crossover (SBX) combined with Polynomial Mutation: This operator generates an offspring population by pairing parents from the given population, performing SBX crossover on each pair, and then applying polynomial mutation to introduce additional diversity.', alpha = self.alpha)
         de_solver = Solver('de', 'Differential Evolution (DE) Crossover: This operator generates an offspring population by applying DE/rand/1 mutation and binomial crossover to each individual in the given population.', alpha=self.alpha)    
@@ -111,8 +112,9 @@ class AMTEA(AbstractModel):
         fig, ax = plt.subplots(len(self.lst_tasks), 2)
         for i, task_name in enumerate(self.population.lst_task_names):
             ax[i, 0].plot(np.arange(len(self.dct_diversity[task_name])), np.log(self.dct_diversity[task_name]))
+            ax[i, 0].yaxis.set_major_locator(ticker.MultipleLocator(0.1))  # cách 0.1 một tick
+            
             ax[i, 1].plot(np.arange(len(self.dct_fitness[task_name])), self.dct_fitness[task_name])
-
         fig.tight_layout()
 
     def update_solvers(self):

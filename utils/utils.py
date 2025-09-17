@@ -88,3 +88,4 @@ def get_diversity(X: np.ndarray) -> float:
     diversity = total_distance / (N * (N - 1) / 2) / math.sqrt(d)
 
     return diversity
+
