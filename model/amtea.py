@@ -17,6 +17,8 @@ class AMTEA(AbstractModel):
         self.memory_size = memory_size
         self.num_solvers = num_solvers
         self.population = Population(self.lst_tasks, size=pop_size, memory_size=self.memory_size)
+
+        self.alpha_start = alpha
         self.alpha = alpha
 
         load_dotenv()
@@ -80,9 +82,7 @@ class AMTEA(AbstractModel):
         self.eval_budget = eval_budget
         gen = 0
         while self.check_terminate_condition() == False:
-            self.alpha *= 1.01
-            self.alpha = min(self.alpha, 1.0)
-
+            self.alpha = self.alpha_start + (1 - self.alpha_start) * ((self.get_evaluation_count() / eval_budget) ** 2)
             print(f'Alpha: {self.alpha}')
 
             for task_name in self.population.lst_task_names:
@@ -101,7 +101,6 @@ class AMTEA(AbstractModel):
 
             # Update solvers
             if gen % up == 0:
-                self.alpha *= 0.99
                 self.update_solvers()
                 gen = 0
 
@@ -173,3 +172,9 @@ class AMTEA(AbstractModel):
             eval_cnt += task.eval_cnt
         print(f'Evaluation count: {eval_cnt}/{self.eval_budget}')
         return eval_cnt >= self.eval_budget
+
+    def get_evaluation_count(self) -> int:
+        eval_cnt = 0
+        for task in self.lst_tasks:
+            eval_cnt += task.eval_cnt
+        return eval_cnt
