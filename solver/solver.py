@@ -67,9 +67,9 @@ class Solver:
 
 			distance_to_top_genes = offspring_genes[:, None, :] - top_genes[None, :, :]
 			distance_to_top_genes = np.linalg.norm(distance_to_top_genes, axis=2)
-			nearist_distance_to_top_genese = np.min(distance_to_top_genes, axis=1)
+			nearist_distance_to_top_genes = np.min(distance_to_top_genes, axis=1)
 
-			exploit_score = 1.0 - np.sum(nearist_distance_to_top_genese) / offspring_genes.shape[0] / math.sqrt(d)
+			exploit_score = 1.0 - np.sum(nearist_distance_to_top_genes) / offspring_genes.shape[0] / math.sqrt(d)
 			
 			all_distances = offspring_genes[:, None, :] - offspring_genes[None, :, :]
 			all_distances = np.linalg.norm(all_distances, axis=2)
