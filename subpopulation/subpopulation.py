@@ -4,6 +4,7 @@ from selection import AbstractSelection
 from solver import Solver
 from indi import Individual
 from task import AbstractTask
+from selection import AbstractSelection
 import numpy as np
 
 class SubPopulation:
@@ -11,7 +12,7 @@ class SubPopulation:
         self.task = task
         self.solver = solver
         self.lst_indis : List[Individual] = []
-        self.selection = None
+        self.selection : AbstractSelection = None
 
     def add_individual(self, indi : Individual):
         self.lst_indis.append(indi)

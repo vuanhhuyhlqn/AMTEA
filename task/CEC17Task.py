@@ -14,10 +14,13 @@ class CEC17Task(AbstractTask):
         self.func = func
         self.bound = bound
 
+    def decode(self, gene):
+        return self.func.rotation_matrix @ ((super().decode(gene) - self.func.shift.flatten()))
+
     def eval(self, gene):
         # print(self.decode(gene))
         self.eval_cnt += 1
-        return self.func(self.decode(self.decode(gene)))    
+        return self.func(self.decode(gene))
     
     def batch_eval(self, genes):
         # self.eval_cnt += len(genes)

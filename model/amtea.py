@@ -112,8 +112,6 @@ class AMTEA(AbstractModel):
         fig, ax = plt.subplots(len(self.lst_tasks), 2)
         for i, task_name in enumerate(self.population.lst_task_names):
             ax[i, 0].plot(np.arange(len(self.dct_diversity[task_name])), np.log(self.dct_diversity[task_name]))
-            ax[i, 0].yaxis.set_major_locator(ticker.MultipleLocator(0.1))  # cách 0.1 một tick
-            
             ax[i, 1].plot(np.arange(len(self.dct_fitness[task_name])), self.dct_fitness[task_name])
         fig.tight_layout()
 
