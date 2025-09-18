@@ -69,16 +69,24 @@ class Solver:
 			distance_to_top_genes = np.linalg.norm(distance_to_top_genes, axis=2)
 			nearist_distance_to_top_genes = np.min(distance_to_top_genes, axis=1)
 
-			exploit_score = 1.0 - np.sum(nearist_distance_to_top_genes) / offspring_genes.shape[0] / math.sqrt(d)
+			exploit_score = 1.0 - np.sum(nearist_distance_to_top_genes) / n / math.sqrt(d)
 			
 			all_distances = offspring_genes[:, None, :] - offspring_genes[None, :, :]
 			all_distances = np.linalg.norm(all_distances, axis=2)
 			assert(all_distances.shape[0] == all_distances.shape[1]) # The distance matrix must be a square
-			total_distance = np.triu(all_distances, k=1).sum()
-
-			explore_score = total_distance / (n * (n - 1) / 2) / math.sqrt(d)
 			
+			max_distance = np.max(all_distances)
+			# centroid = offspring_genes.mean(axis=0)
+			centroid = np.median(offspring_genes, axis=0) # ! Median point, not centroid
+
+			distance_to_centroid = np.linalg.norm(offspring_genes - centroid, axis=1)
+			avg_distance_to_centroid = np.mean(distance_to_centroid)
+
+			explore_score = avg_distance_to_centroid / max_distance
+
+			assert(0.0 <= explore_score and explore_score <= 1.0)
 			assert(alpha >= 0.0 and alpha <= 1.0)
+
 			print(f'Solver\'s id: {self.id}, exploit score: {exploit_score}, explore score: {explore_score}')
 			score += exploit_score * alpha + explore_score * (1.0 - alpha) # TODO: Check these values
 

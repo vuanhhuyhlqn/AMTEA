@@ -12,6 +12,9 @@ class Memory():
 		# Probability of success
 		self.p_data = pd.DataFrame(columns=["solver_id", "p"])
 
+		# Diversity score
+		# self.d_data = pd.DataFrame(columns=["generation", "d"])
+
 		self.lst_solver_ids = []
 
 	def restart(self, lst_solver_ids: List[str]):
