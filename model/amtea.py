@@ -137,20 +137,20 @@ class AMTEA(AbstractModel):
             if (worst_solver.id not in [s.id for s in worst_solvers_history]):
                 worst_solvers_history.append(worst_solver)
             
-            lst_solvers = [solver for solver in lst_solvers if solver.id != worst_solver_id]
+            # lst_solvers = [solver for solver in lst_solvers if solver.id != worst_solver_id]
             
             # Create new solver
             lst_indis = self.population.dict_taskpopulations[task_name].lst_indis
             eval_check_score = worst_solver.evaluate_task(lst_indis, self.alpha)
-            print(f'[*] Evaluation score threshold for new solver: {eval_check_score * 0.6}')
+            print(f'[*] Evaluation score threshold for new solver: {eval_check_score * 0.7:.5f}')
             eval_check_count = 0
             
             for solver in lst_solvers:
                 solver.eval_score = solver.evaluate_task(lst_indis, self.alpha)
-                if solver.eval_score >= (eval_check_score * 0.6):
+                if solver.eval_score >= (eval_check_score * 0.7):
                     eval_check_count += 1
                 print(f'EVAL CHECK COUNT 1: {eval_check_count}')
-                print(f'Solver {solver.id}, eval_score: {solver.eval_score}')
+                print(f'Solver {solver.id}, eval_score: {solver.eval_score:.5f}')
                 
             num_llm_solvers = 5
             num_try = 0
@@ -158,14 +158,14 @@ class AMTEA(AbstractModel):
                 num_try += 1
                 if num_try > 10:
                     break
-                
+
                 try:
                     [id, alg] = self.llm.update_solver(good_solvers_history, worst_solvers_history, self.alpha)
                     solver = Solver(id, alg)
                     solver.eval_score = solver.evaluate_task(lst_indis, self.alpha) 
-                    print(f'LLM Solver {len(lst_solvers) - self.num_solvers + 2}: {solver.id}, eval_score: {solver.eval_score}')
+                    print(f'LLM Solver {len(lst_solvers) - self.num_solvers + 2}: {solver.id}, eval_score: {solver.eval_score:.5f}')
                     lst_solvers.append(solver)
-                    if solver.eval_score >= (eval_check_score * 0.6):
+                    if solver.eval_score >= (eval_check_score * 0.7):
                         eval_check_count += 1
                     print(f'EVAL CHECK COUNT 2: {eval_check_count}')
                 except Exception as e:
