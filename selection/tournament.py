@@ -4,7 +4,7 @@ from indi import Individual
 import numpy as np
 
 class TournamentSelection(AbstractSelection):
-    def __init__(self, size, k):
+    def __init__(self, size, k = 2):
         self.size = size
         self.k = k
     

@@ -9,6 +9,7 @@ from solver import Solver
 from memory import Memory
 from selection import *
 import numpy as np
+import math
 
 class TaskPopulation:
     def __init__(self, task : AbstractTask, size : int, memory_size : int, dim : int):
@@ -44,25 +45,40 @@ class TaskPopulation:
             lst_p_values.append(self.mem.get_p_value(solver_id=solver.id))
 
         print(f'[*] lst_p_values: {lst_p_values}')
-
-        for indi in parents:
-            chosen_solver_id = random.choices(solver_ids, weights=lst_p_values, k=1)[0]
-            dict_subpopulations[chosen_solver_id].add_individual(indi)
+        solver1_p_value = lst_p_values[0]
+        n1 = round(solver1_p_value * self.size)        
+        indices = list(range(self.size))          
+        random.shuffle(indices)           
+        idx_list1 = indices[:n1]         
         
-        for i, solver in enumerate(self.lst_solvers):
-            if i == 0:   
-                dict_subpopulations[solver.id].selection = ElitismSelection(len(dict_subpopulations[solver.id].lst_indis))
-            else:    
-                dict_subpopulations[solver.id].selection = TournamentSelection(len(dict_subpopulations[solver.id].lst_indis))
+        for i in range(self.size):
+            if i in idx_list1:
+                dict_subpopulations[self.lst_solvers[0].id].add_individual(self.lst_indis[i])
+            else:
+                dict_subpopulations[self.lst_solvers[1].id].add_individual(self.lst_indis[i])
+        
+        dict_subpopulations[self.lst_solvers[0].id].selection = TournamentSelection(n1)   
+        dict_subpopulations[self.lst_solvers[1].id].selection = ElitismSelection(self.size - n1)
         
         cur_median_fitness : float = self.get_median_fitness()
 
         new_lst_indis : List[Individual] = []
+        
+        parents1: List[Individual] = []
+        parents2: List[Individual] = []
+        
+        for i in range(self.size):
+            if i in idx_list1:
+                parents1.append(parents[i])
+            else:
+                parents2.append(parents[i])
+        
+        new_lst_indis.extend(dict_subpopulations[self.lst_solvers[0].id].evolve(parents1))
+        new_lst_indis.extend(dict_subpopulations[self.lst_solvers[1].id].evolve(parents2))
 
         for solver_id in solver_ids:
-            new_lst_indis.extend(dict_subpopulations[solver_id].evolve())
 
-            success, failure = dict_subpopulations[solver.id].cal_succ_fail(cur_median_fitness)
+            success, failure = dict_subpopulations[solver_id].cal_succ_fail(cur_median_fitness)
             
             self.mem.set_value(solver_id=solver_id, 
                                generation=gen, 

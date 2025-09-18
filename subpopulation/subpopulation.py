@@ -20,9 +20,9 @@ class SubPopulation:
         random_idx = np.random.randint(low=0, high=size)
         return self.lst_indis[random_idx]
 
-    def evolve(self) -> List[Individual]:
+    def evolve(self, parents: List[Individual]) -> List[Individual]:
         try:
-            off_genes = self.solver(np.vstack([indi.gene for indi in self.lst_indis]))
+            off_genes = self.solver(np.vstack([indi.gene for indi in parents]))
             off_fitnesses = self.task.batch_eval(off_genes)
             for off_fitness in off_fitnesses:
                 if off_fitness == np.inf:
@@ -33,10 +33,6 @@ class SubPopulation:
             self.lst_indis = self.selection(self.lst_indis)
             return self.lst_indis
         except:
-            for indi in self.lst_indis:
-                if indi.task_name != self.task.task_name:
-                    indi.fitness = np.inf
-            self.lst_indis = self.selection(self.lst_indis)
             return self.lst_indis
         
     def cal_succ_fail(self, cur_median_fitness: float):

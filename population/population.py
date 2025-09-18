@@ -33,7 +33,7 @@ class Population:
 																 memory_size=self.memory_size,
 																 dim = self.indi_dim)
 
-	def evolve(self, gen : int, lp : int = 10, tgap : int = 10, k : int = 5):
+	def evolve(self, gen : int, lp : int = 10, tgap : int = 10, k : int = 10):
 		for task_name in self.lst_task_names:
 
 			parents = [indi for indi in self.dict_taskpopulations[task_name].lst_indis]
