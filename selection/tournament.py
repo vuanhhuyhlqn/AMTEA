@@ -9,8 +9,12 @@ class TournamentSelection(AbstractSelection):
         self.k = k
     
     def __call__(self, lst_indis: List[Individual]) -> List[Individual]:
+        lst_indis = sorted(lst_indis, key=lambda indi : indi.fitness)
+
         ret = []
-        for _ in range(self.size):
+        ret.append(lst_indis[0])
+        
+        while len(ret) < self.size:
             idxs = np.random.choice(len(lst_indis), self.k, replace=False)
             pool = [lst_indis[i] for i in idxs]
             best = min(pool, key=lambda x: x.fitness)  

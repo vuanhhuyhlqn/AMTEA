@@ -80,7 +80,7 @@ class AMTEA(AbstractModel):
         self.eval_budget = eval_budget
         gen = 0
         while self.check_terminate_condition() == False:
-            self.alpha *= 1.02
+            self.alpha *= 1.01
             self.alpha = min(self.alpha, 1.0)
 
             print(f'Alpha: {self.alpha}')
@@ -101,7 +101,7 @@ class AMTEA(AbstractModel):
 
             # Update solvers
             if gen % up == 0:
-                self.alpha *= 0.95
+                self.alpha *= 0.99
                 self.update_solvers()
                 gen = 0
 
