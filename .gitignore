@@ -6,7 +6,7 @@ main.ipynb
 solver/temp/output.npy
 solver/temp/temp_parents.npy
 LLM/prompts/texts/update.txt
-test_llm.ipynb
+test_copy.ipynb
 test.ipynb
 cache/solvers/*
 .env

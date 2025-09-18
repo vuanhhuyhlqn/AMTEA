@@ -49,35 +49,28 @@ class TaskPopulation:
             chosen_solver_id = random.choices(solver_ids, weights=lst_p_values, k=1)[0]
             dict_subpopulations[chosen_solver_id].add_individual(indi)
         
+        for i, solver in enumerate(self.lst_solvers):
+            if i == 0:   
+                dict_subpopulations[solver.id].selection = ElitismSelection(len(dict_subpopulations[solver.id].lst_indis))
+            else:    
+                dict_subpopulations[solver.id].selection = TournamentSelection(len(dict_subpopulations[solver.id].lst_indis))
+        
         cur_median_fitness : float = self.get_median_fitness()
 
-        lst_offs : List[Individual] = []
+        new_lst_indis : List[Individual] = []
 
         for solver_id in solver_ids:
-            lst_offs_subpop = dict_subpopulations[solver_id].evolve() # Offsprings from subpopulation's evolution
-            lst_offs.extend(lst_offs_subpop)
+            new_lst_indis.extend(dict_subpopulations[solver_id].evolve())
 
-            success, failure = 0, 0
-            for off in lst_offs_subpop:
-                if off.fitness < cur_median_fitness:
-                    success += 1
-                else:
-                    failure += 1
+            success, failure = dict_subpopulations[solver.id].cal_succ_fail(cur_median_fitness)
             
             self.mem.set_value(solver_id=solver_id, 
                                generation=gen, 
                                num_success=success, 
                                num_failure=failure)
-
-        # Selection
-        self.lst_indis.extend(lst_offs)
-    
-        selection = ElitismSelection(self.size)
-        self.lst_indis = selection(self.lst_indis)
-
-        # self.lst_indis = sorted(self.lst_indis, key=lambda ind : ind.fitness)
-        # self.lst_indis = self.lst_indis[:self.size]
-        random.shuffle(self.lst_indis)
+        
+        self.lst_indis = new_lst_indis
+        assert(len(self.lst_indis) == self.size)
 
         for indi in self.lst_indis:
             try:
@@ -89,7 +82,8 @@ class TaskPopulation:
 
     def get_median_fitness(self) -> float:
         fitness_values = [indi.fitness for indi in self.lst_indis]
-        return np.quantile(fitness_values, 1/4)
+        # return np.quantile(fitness_values, 1/4)
+        return np.median(fitness_values)
 
     def get_best_fitness(self) -> float:
         best_fitness = np.inf
