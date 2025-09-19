@@ -23,7 +23,6 @@ class CEC17Task(AbstractTask):
         return self.func(self.decode(gene))
     
     def batch_eval(self, genes):
-        # self.eval_cnt += len(genes)
         return [self.eval(g) for g in genes]
 
 def get_10_tasks() -> List[AbstractTask]:

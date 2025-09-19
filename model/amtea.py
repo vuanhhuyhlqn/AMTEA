@@ -17,6 +17,8 @@ class AMTEA(AbstractModel):
         self.memory_size = memory_size
         self.num_solvers = num_solvers
         self.population = Population(self.lst_tasks, size=pop_size, memory_size=self.memory_size)
+
+        self.alpha_start = alpha
         self.alpha = alpha
 
         load_dotenv()
@@ -80,9 +82,8 @@ class AMTEA(AbstractModel):
         self.eval_budget = eval_budget
         gen = 0
         while self.check_terminate_condition() == False:
-            self.alpha *= 1.02
-            self.alpha = min(self.alpha, 1.0)
-
+            u = self.get_evaluation_count() / eval_budget
+            self.alpha = self.alpha_start + (1.0 - self.alpha_start) * (1.0 - math.cos(math.pi * u)) / 2
             print(f'Alpha: {self.alpha}')
 
             for task_name in self.population.lst_task_names:
@@ -90,6 +91,10 @@ class AMTEA(AbstractModel):
                 pop_mat = np.vstack([np.asarray(x, dtype=float) for x in pop])               
                 self.dct_diversity[task_name].append(get_diversity(pop_mat))
                 self.dct_fitness[task_name].append(self.population.dict_taskpopulations[task_name].get_best_fitness())
+
+                if len(self.dct_fitness[task_name]) > 2:
+                    if self.dct_fitness[task_name][-1] > self.dct_fitness[task_name][-2]:
+                        raise ValueError("Fitness raise back!")
 
             gen += 1
 
@@ -101,7 +106,6 @@ class AMTEA(AbstractModel):
 
             # Update solvers
             if gen % up == 0:
-                self.alpha *= 0.95
                 self.update_solvers()
                 gen = 0
 
@@ -133,30 +137,35 @@ class AMTEA(AbstractModel):
             if (worst_solver.id not in [s.id for s in worst_solvers_history]):
                 worst_solvers_history.append(worst_solver)
             
-            lst_solvers = [solver for solver in lst_solvers if solver.id != worst_solver_id]
+            # lst_solvers = [solver for solver in lst_solvers if solver.id != worst_solver_id]
             
             # Create new solver
             lst_indis = self.population.dict_taskpopulations[task_name].lst_indis
             eval_check_score = worst_solver.evaluate_task(lst_indis, self.alpha)
-            print(f'[*] Evaluation score threshold for new solver: {eval_check_score}')
+            print(f'[*] Evaluation score threshold for new solver: {eval_check_score * 0.7:.5f}')
             eval_check_count = 0
             
             for solver in lst_solvers:
                 solver.eval_score = solver.evaluate_task(lst_indis, self.alpha)
-                if solver.eval_score >= (eval_check_score * 0.99):
+                if solver.eval_score >= (eval_check_score * 0.7):
                     eval_check_count += 1
                 print(f'EVAL CHECK COUNT 1: {eval_check_count}')
-                print(f'Solver {solver.id}, eval_score: {solver.eval_score}')
+                print(f'Solver {solver.id}, eval_score: {solver.eval_score:.5f}')
                 
             num_llm_solvers = 5
+            num_try = 0
             while not (eval_check_count >= self.num_solvers and (len(lst_solvers) >= num_llm_solvers + self.num_solvers - 1)):
+                num_try += 1
+                if num_try > 10:
+                    break
+
                 try:
                     [id, alg] = self.llm.update_solver(good_solvers_history, worst_solvers_history, self.alpha)
                     solver = Solver(id, alg)
                     solver.eval_score = solver.evaluate_task(lst_indis, self.alpha) 
-                    print(f'LLM Solver {len(lst_solvers) - self.num_solvers + 2}: {solver.id}, eval_score: {solver.eval_score}')
+                    print(f'LLM Solver {len(lst_solvers) - self.num_solvers + 2}: {solver.id}, eval_score: {solver.eval_score:.5f}')
                     lst_solvers.append(solver)
-                    if solver.eval_score >= (eval_check_score * 0.99):
+                    if solver.eval_score >= (eval_check_score * 0.7):
                         eval_check_count += 1
                     print(f'EVAL CHECK COUNT 2: {eval_check_count}')
                 except Exception as e:
@@ -173,3 +182,9 @@ class AMTEA(AbstractModel):
             eval_cnt += task.eval_cnt
         print(f'Evaluation count: {eval_cnt}/{self.eval_budget}')
         return eval_cnt >= self.eval_budget
+
+    def get_evaluation_count(self) -> int:
+        eval_cnt = 0
+        for task in self.lst_tasks:
+            eval_cnt += task.eval_cnt
+        return eval_cnt
