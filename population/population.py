@@ -32,16 +32,9 @@ class Population:
 
 	def evolve(self, gen : int, lp : int = 10, tgap : int = 10, k : int = 10):
 		for task_name in self.lst_task_names:
-<<<<<<< HEAD
 			# print(f'Evolving task: {task_name} at generation {gen}')
 			parents = self.dict_taskpopulations[task_name].lst_indis.copy()
 			if ((gen - 1) % lp + 1) < (lp - self.memory_size) and (gen % tgap == 0):
-=======
-
-			parents = [indi for indi in self.dict_taskpopulations[task_name].lst_indis]
-			if gen % lp <= lp - self.memory_size and gen % tgap == 0:
-				print('[*] KNOWLEDGE TRANSFER')
->>>>>>> parent of 2c1e113 (razer)
 				replace_idx = np.random.randint(0, len(parents), size=k)
 				transfer_pool = self.get_transfer_pool(task_name, k)
 				for i, replace_id in enumerate(replace_idx):

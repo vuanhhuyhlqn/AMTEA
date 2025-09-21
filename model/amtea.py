@@ -97,7 +97,6 @@ class AMTEA(AbstractModel):
                     if self.dct_fitness[task_name][-1] > self.dct_fitness[task_name][-2]:
                         raise ValueError("Fitness raise back!")
 
-<<<<<<< HEAD
                 if len(self.dct_fitness[task_name]) > 10:
                     ga_de_check = True
                     lst_solver_ids = [solver.id for solver in self.population.dict_taskpopulations[task_name].lst_solvers]
@@ -115,8 +114,6 @@ class AMTEA(AbstractModel):
                         random.shuffle(self.population.dict_taskpopulations[task_name].lst_indis)
                         gen = 0
 
-=======
->>>>>>> parent of 2c1e113 (razer)
             gen += 1
 
             self.population.evolve(gen=gen, lp=lp, tgap=tgap, k=k)
@@ -130,7 +127,6 @@ class AMTEA(AbstractModel):
                 self.update_solvers()
                 gen = 0
 
-<<<<<<< HEAD
         lst_record_dfs : List[pd.DataFrame] = []
         for task_name in self.population.lst_task_names:
             lst_record_dfs.append(self.population.dict_taskpopulations[task_name].record.data)
@@ -147,8 +143,6 @@ class AMTEA(AbstractModel):
         final_result_df.rename(columns={'solver_group': 'solver_group', 'evaluation_count': 'total_eval_count'}, inplace=True)
         print(final_result_df)
 
-=======
->>>>>>> parent of 2c1e113 (razer)
         if delete_after_run: # Delete all solvers in cached folder after run
             delete_all()
 
