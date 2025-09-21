@@ -104,7 +104,11 @@ class AMTEA(AbstractModel):
                         raise ValueError("Fitness raise back!")
 
                 if len(self.dct_fitness[task_name]) > 10:
-                    if math.isclose(self.dct_fitness[task_name][-1], self.dct_fitness[task_name][-10], abs_tol=1e-9): # No improvement
+                    ga_de_check = True
+                    lst_solver_ids = [solver.id for solver in self.population.dict_taskpopulations[task_name].lst_solvers]
+                    if lst_solver_ids == ['ga', 'de'] or lst_solver_ids == ['de', 'ga']:
+                        ga_de_check = False
+                    if math.isclose(self.dct_fitness[task_name][-1], self.dct_fitness[task_name][-10], abs_tol=1e-9) and ga_de_check: # No improvement
                         ga_solver = Solver('ga', 'Simulated Binary Crossover (SBX) combined with Polynomial Mutation: This operator generates an offspring population by pairing parents from the given population, performing SBX crossover on each pair, and then applying polynomial mutation to introduce additional diversity.', alpha = self.alpha)
                         de_solver = Solver('de', 'Differential Evolution (DE) Crossover: This operator generates an offspring population by applying DE/rand/1 mutation and binomial crossover to each individual in the given population.', alpha=self.alpha)
 
@@ -113,6 +117,7 @@ class AMTEA(AbstractModel):
                         self.population.dict_taskpopulations[task_name].num_solvers = len(lst_solvers)
                         self.population.dict_taskpopulations[task_name].lst_solvers = lst_solvers
                         self.population.dict_taskpopulations[task_name].mem.restart(lst_solver_ids)
+                        random.shuffle(self.population.dict_taskpopulations[task_name].lst_indis)
                         gen = 0
 
             gen += 1
@@ -148,7 +153,7 @@ class AMTEA(AbstractModel):
         
         merged_record_df = pd.concat(lst_record_dfs).groupby("solver_id", as_index=False)["evaluation_count"].sum()
         print(merged_record_df)
-        print('Final result by solver groups:')
+        print('------------------------------------')
         merged_record_df['solver_group'] = np.where(
             merged_record_df['solver_id'].isin(['de', 'ga']),
             'DE_GA',
@@ -195,6 +200,7 @@ class AMTEA(AbstractModel):
             eval_check_count = 0
             
             for solver in lst_solvers:
+                solver.alpha = self.alpha
                 solver.eval_score = solver.evaluate_task(lst_indis, self.alpha)
                 if solver.eval_score >= (eval_check_score * 0.9):
                     eval_check_count += 1
@@ -209,7 +215,7 @@ class AMTEA(AbstractModel):
                     break
                 try:
                     [id, alg] = self.llm.update_solver(good_solvers_history, worst_solvers_history, self.alpha)
-                    solver = Solver(id, alg)
+                    solver = Solver(id, alg, self.alpha)
                     solver.eval_score = solver.evaluate_task(lst_indis, self.alpha) 
                     # print(f'LLM Solver {len(lst_solvers) - self.num_solvers + 2}: {solver.id}, eval_score: {solver.eval_score:.5f}')
                     lst_solvers.append(solver)

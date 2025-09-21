@@ -82,7 +82,10 @@ class Solver:
 			distance_to_centroid = np.linalg.norm(offspring_genes - centroid, axis=1)
 			avg_distance_to_centroid = np.mean(distance_to_centroid)
 
-			explore_score = avg_distance_to_centroid / max_distance
+			if max_distance == 0:
+				explore_score = 0.0
+			else:
+				explore_score = avg_distance_to_centroid / max_distance
 			explore_score = np.clip(explore_score, 0.0, 1.0)
 
 			assert(0.0 <= explore_score and explore_score <= 1.0)
