@@ -68,6 +68,7 @@ class AMTEA(AbstractModel):
             self.population.dict_taskpopulations[task_name].num_solvers = len(lst_solvers)
             self.population.dict_taskpopulations[task_name].lst_solvers = lst_solvers
             self.population.dict_taskpopulations[task_name].mem.restart(lst_solver_ids)
+            self.population.dict_taskpopulations[task_name].solver1_subpop_size = round(0.5 * int(self.pop_size / len(self.lst_tasks)))
 
     def run(self, eval_budget=100, lp=5, tgap=2, k=5, up=10, monitor=True, monitor_rate=1, delete_after_run=True):
         """
@@ -108,7 +109,7 @@ class AMTEA(AbstractModel):
                         de_solver = Solver('de', 'Differential Evolution (DE) Crossover: This operator generates an offspring population by applying DE/rand/1 mutation and binomial crossover to each individual in the given population.', alpha=self.alpha)
 
                         lst_solvers = [ga_solver, de_solver]
-                        lst_solver_ids = [solver.id for solver in lst_solvers]
+                        lst_solver_ids = ['ga', 'de']
                         self.population.dict_taskpopulations[task_name].num_solvers = len(lst_solvers)
                         self.population.dict_taskpopulations[task_name].lst_solvers = lst_solvers
                         self.population.dict_taskpopulations[task_name].mem.restart(lst_solver_ids)
@@ -147,6 +148,15 @@ class AMTEA(AbstractModel):
         
         merged_record_df = pd.concat(lst_record_dfs).groupby("solver_id", as_index=False)["evaluation_count"].sum()
         print(merged_record_df)
+        print('Final result by solver groups:')
+        merged_record_df['solver_group'] = np.where(
+            merged_record_df['solver_id'].isin(['de', 'ga']),
+            'DE_GA',
+            'Others'
+        )
+        final_result_df = merged_record_df.groupby('solver_group')['evaluation_count'].sum().reset_index()
+        final_result_df.rename(columns={'solver_group': 'solver_group', 'evaluation_count': 'total_eval_count'}, inplace=True)
+        print(final_result_df)
 
         if delete_after_run: # Delete all solvers in cached folder after run
             delete_all()
@@ -214,6 +224,7 @@ class AMTEA(AbstractModel):
             lst_solvers = sorted(lst_solvers, key=lambda s: s.eval_score, reverse=True)[:self.num_solvers]
             self.population.dict_taskpopulations[task_name].lst_solvers = lst_solvers
             mem.restart([solver.id for solver in lst_solvers])
+            random.shuffle(lst_indis)
     
     def check_terminate_condition(self) -> bool:
         eval_cnt = 0

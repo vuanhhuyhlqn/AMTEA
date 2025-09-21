@@ -1,4 +1,4 @@
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Tuple
 import random
 import time
 import statistics
@@ -6,7 +6,7 @@ from task import AbstractTask
 from subpopulation import SubPopulation
 from indi import Individual
 from solver import Solver
-from memory import Memory, Record
+from new_memory import Memory, Record
 from selection import *
 import numpy as np
 import math
@@ -31,6 +31,7 @@ class TaskPopulation:
         self.good_solvers_history = []
         self.worst_solvers_history = []
         self.best_fitness_hitory = []
+        self.solver1_subpop_size = 0
 
     def evolve(self, gen : int, parents : List[Individual]):
         # print(f'Task name: {self.task.task_name}')
@@ -38,45 +39,43 @@ class TaskPopulation:
         random.shuffle(self.lst_indis)
 
         dict_subpopulations : Dict[str, SubPopulation] = {}
-        lst_p_values : List[float] = []
         solver_ids : List[str] = [solver.id for solver in self.lst_solvers]
 
         for solver in self.lst_solvers:
             dict_subpopulations[solver.id] = SubPopulation(self.task, solver, self.record)
-            lst_p_values.append(self.mem.get_p_value(solver_id=solver.id))
-
-        # print(f'[*] lst_p_values: {lst_p_values}')
-        solver1_p_value = lst_p_values[0]
         
-        n1 = round(solver1_p_value * self.size)          
-        
-        dict_subpopulations[self.lst_solvers[0].id].lst_indis = [indi for indi in self.lst_indis[:n1]]
-        dict_subpopulations[self.lst_solvers[1].id].lst_indis = [indi for indi in self.lst_indis[n1:]]
+        # print(f'[*] Solver 1 subpopulation size: {self.solver1_subpop_size}')
+        dict_subpopulations[self.lst_solvers[0].id].lst_indis = [indi for indi in self.lst_indis[:self.solver1_subpop_size]]
+        dict_subpopulations[self.lst_solvers[1].id].lst_indis = [indi for indi in self.lst_indis[self.solver1_subpop_size:]]
         
         if self.lst_solvers[0].id == 'de':
-            dict_subpopulations[self.lst_solvers[0].id].selection = TournamentSelection(n1, 3)   
-            dict_subpopulations[self.lst_solvers[1].id].selection = ElitismSelection(self.size - n1)
+            dict_subpopulations[self.lst_solvers[0].id].selection = TournamentSelection(self.solver1_subpop_size, 2)   
+            dict_subpopulations[self.lst_solvers[1].id].selection = ElitismSelection(self.size - self.solver1_subpop_size)
         else:
-            dict_subpopulations[self.lst_solvers[1].id].selection = TournamentSelection(n1, 3)   
-            dict_subpopulations[self.lst_solvers[0].id].selection = ElitismSelection(self.size - n1)       
+            dict_subpopulations[self.lst_solvers[1].id].selection = TournamentSelection(self.solver1_subpop_size, 2)   
+            dict_subpopulations[self.lst_solvers[0].id].selection = ElitismSelection(self.size - self.solver1_subpop_size)       
         
         cur_median_fitness : float = self.get_median_fitness()
 
         new_lst_indis : List[Individual] = []
         
-        new_lst_indis.extend(dict_subpopulations[self.lst_solvers[0].id].evolve(parents[:n1]))
-        new_lst_indis.extend(dict_subpopulations[self.lst_solvers[1].id].evolve(parents[n1:]))
+        new_lst_indis.extend(dict_subpopulations[self.lst_solvers[0].id].evolve(parents[:self.solver1_subpop_size]))
+        new_lst_indis.extend(dict_subpopulations[self.lst_solvers[1].id].evolve(parents[self.solver1_subpop_size:]))
 
+        succ = []
+        fail = []
         for solver_id in solver_ids:
 
             success, failure = dict_subpopulations[solver_id].cal_succ_fail(cur_median_fitness)
+            succ.append(success)
+            fail.append(failure)
+        
+        self.mem.add_succ((succ[0], succ[1]))
+        self.mem.add_fail((fail[0], fail[1]))
+        # print(f'Length of success memory: {len(self.mem.succ)}')
+        # print(f'Length of failure memory: {len(self.mem.fail)}')
+        self.mem.cal_succ_p()
             
-            self.mem.set_value(solver_id=solver_id, 
-                               generation=gen, 
-                               num_success=success, 
-                               num_failure=failure)
-            
-        self.mem.keep_memory_size()
         self.lst_indis = new_lst_indis
         assert(len(self.lst_indis) == self.size)
 

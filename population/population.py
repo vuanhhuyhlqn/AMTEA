@@ -2,9 +2,6 @@ from typing import List, Dict
 from task import AbstractTask
 from indi import Individual
 from taskpopulation import TaskPopulation
-from subpopulation import SubPopulation
-from solver import Solver
-from memory import Memory
 import random
 import numpy as np
 
@@ -35,8 +32,8 @@ class Population:
 
 	def evolve(self, gen : int, lp : int = 10, tgap : int = 10, k : int = 10):
 		for task_name in self.lst_task_names:
-
-			parents = [indi for indi in self.dict_taskpopulations[task_name].lst_indis]
+			# print(f'Evolving task: {task_name} at generation {gen}')
+			parents = self.dict_taskpopulations[task_name].lst_indis.copy()
 			if ((gen - 1) % lp + 1) < (lp - self.memory_size) and (gen % tgap == 0):
 				replace_idx = np.random.randint(0, len(parents), size=k)
 				transfer_pool = self.get_transfer_pool(task_name, k)
@@ -47,8 +44,10 @@ class Population:
 			self.dict_best_fitness[task_name] = self.dict_taskpopulations[task_name].get_best_fitness()
 
 			if gen % lp == 0:
-				for solver in self.dict_taskpopulations[task_name].lst_solvers:
-					self.dict_taskpopulations[task_name].mem.update_p_value(solver_id=solver.id, generation=gen)
+				N = round(self.dict_taskpopulations[task_name].mem.succ_p[0] *
+							self.dict_taskpopulations[task_name].size)
+				self.dict_taskpopulations[task_name].solver1_subpop_size = N
+				random.shuffle(self.dict_taskpopulations[task_name].lst_indis)
 
 	def get_transfer_pool(self, task_name, k : int):
 		transfer_pool : List[Individual] = []
