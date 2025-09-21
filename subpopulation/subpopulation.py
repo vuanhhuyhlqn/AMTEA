@@ -1,5 +1,6 @@
 from typing import List
 import time
+from memory import Record
 from selection import AbstractSelection
 from solver import Solver
 from indi import Individual
@@ -8,11 +9,12 @@ from selection import AbstractSelection
 import numpy as np
 
 class SubPopulation:
-    def __init__(self, task: AbstractTask, solver: Solver):
+    def __init__(self, task: AbstractTask, solver: Solver, record: Record):
         self.task = task
         self.solver = solver
         self.lst_indis : List[Individual] = []
         self.selection : AbstractSelection = None
+        self.record = record
 
     def add_individual(self, indi : Individual):
         self.lst_indis.append(indi)
@@ -25,6 +27,7 @@ class SubPopulation:
         try:
             off_genes = self.solver(np.vstack([indi.gene for indi in parents]))
             off_fitnesses = self.task.batch_eval(off_genes)
+            self.record.add(self.solver.id, len(off_fitnesses))
             if np.isinf(off_fitnesses).any():
                 raise Exception('[ERROR] Off fitness inf!')
 
@@ -32,7 +35,8 @@ class SubPopulation:
             self.lst_indis.extend(lst_offs)
             self.lst_indis = self.selection(self.lst_indis)
             return self.lst_indis
-        except:
+        except Exception as e:
+            # print(e)
             return self.lst_indis
         
     def cal_succ_fail(self, cur_median_fitness: float):

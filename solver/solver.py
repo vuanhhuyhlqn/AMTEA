@@ -34,7 +34,7 @@ class Solver:
 				check=True
 			)
 		except subprocess.CalledProcessError as e:
-			print(f'Error running run.py: {e.stderr.decode()}')
+			# print(f'Error running run.py: {e.stderr.decode()}')
 			return None
 
 		try:
@@ -44,7 +44,7 @@ class Solver:
 			assert(len(result_array) == len(operands))
 			return result_array
 		except Exception as e:
-			print(f'Error loading result from output.npy: {e}')
+			# print(f'Error loading result from output.npy: {e}')
 			return None
 	
 	def evaluate_task(self, population, alpha : float):
@@ -83,11 +83,12 @@ class Solver:
 			avg_distance_to_centroid = np.mean(distance_to_centroid)
 
 			explore_score = avg_distance_to_centroid / max_distance
+			explore_score = np.clip(explore_score, 0.0, 1.0)
 
 			assert(0.0 <= explore_score and explore_score <= 1.0)
 			assert(alpha >= 0.0 and alpha <= 1.0)
 
-			print(f'Solver\'s id: {self.id}, exploit score: {exploit_score}, explore score: {explore_score}')
+			# print(f'Solver\'s id: {self.id}, exploit score: {exploit_score}, explore score: {explore_score}')
 			score += exploit_score * alpha + explore_score * (1.0 - alpha) # TODO: Check these values
 
 		score /= num_test # Get average score

@@ -38,7 +38,6 @@ class Population:
 
 			parents = [indi for indi in self.dict_taskpopulations[task_name].lst_indis]
 			if gen % lp <= lp - self.memory_size and gen % tgap == 0:
-				print('[*] KNOWLEDGE TRANSFER')
 				replace_idx = np.random.randint(0, len(parents), size=k)
 				transfer_pool = self.get_transfer_pool(task_name, k)
 				for i, replace_id in enumerate(replace_idx):

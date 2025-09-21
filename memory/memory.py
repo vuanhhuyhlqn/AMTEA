@@ -12,9 +12,6 @@ class Memory():
 		# Probability of success
 		self.p_data = pd.DataFrame(columns=["solver_id", "p"])
 
-		# Diversity score
-		# self.d_data = pd.DataFrame(columns=["generation", "d"])
-
 		self.lst_solver_ids = []
 
 	def restart(self, lst_solver_ids: List[str]):
@@ -90,7 +87,7 @@ class Memory():
 			print(f'[ERROR] Solver {solver_id}, generation {generation} does not exists')
 	
 	def get_best_solver_id(self) -> str:
-		print("[*] Getting best solver id ...")
+		# print("[*] Getting best solver id ...")
 		best_solver_id = self.lst_solver_ids[0]
 		best_p_value = self.get_p_value(best_solver_id)
 
@@ -98,11 +95,11 @@ class Memory():
 			p_value = self.get_p_value(solver_id)
 			if p_value > best_p_value:
 				best_solver_id, best_p_value = solver_id, p_value
-		print(f'[*] Best solver id: {best_solver_id} with p value: {best_p_value}')
+		# print(f'[*] Best solver id: {best_solver_id} with p value: {best_p_value}')
 		return best_solver_id
 
 	def get_worst_solver_id(self) -> str:
-		print("[*] Getting worst solver id ...")
+		# print("[*] Getting worst solver id ...")
 		worst_solver_id = self.lst_solver_ids[0]
 		worst_p_value = self.get_p_value(worst_solver_id)
 
@@ -110,7 +107,7 @@ class Memory():
 			p_value = self.get_p_value(solver_id)
 			if p_value < worst_p_value:
 				worst_solver_id, worst_p_value = solver_id, p_value
-		print(f'[*] Worst solver id: {worst_solver_id} with p value: {worst_p_value}')
+		# print(f'[*] Worst solver id: {worst_solver_id} with p value: {worst_p_value}')
 		return worst_solver_id
 
 	def get_success_rate(self, solver_id, generation, eps=1e-3):

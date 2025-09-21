@@ -6,7 +6,7 @@ from task import AbstractTask
 from subpopulation import SubPopulation
 from indi import Individual
 from solver import Solver
-from memory import Memory
+from memory import Memory, Record
 from selection import *
 import numpy as np
 import math
@@ -19,21 +19,22 @@ class TaskPopulation:
         self.lst_solvers : List[Solver] = []
         self.num_solvers = None
         self.mem = Memory(memory_size=memory_size)
+        self.record = Record()
+
         self.dim = dim # Individual dimension
         self.lst_indis : List[Individual] = []
         while not self.is_full():
             i = Individual(dim=self.dim, task_name=self.task.task_name)
             i.fitness = self.task.eval(i.gene)
             self.lst_indis.append(i)
-            
+        
         self.good_solvers_history = []
         self.worst_solvers_history = []
         self.best_fitness_hitory = []
 
     def evolve(self, gen : int, parents : List[Individual]):
-        print(f'Task name: {self.task.task_name}')
-        print(f'List solvers: {[solver.id for solver in self.lst_solvers]}')
-
+        # print(f'Task name: {self.task.task_name}')
+        # print(f'List solvers: {[solver.id for solver in self.lst_solvers]}')
         random.shuffle(self.lst_indis)
 
         dict_subpopulations : Dict[str, SubPopulation] = {}
@@ -41,12 +42,15 @@ class TaskPopulation:
         solver_ids : List[str] = [solver.id for solver in self.lst_solvers]
 
         for solver in self.lst_solvers:
-            dict_subpopulations[solver.id] = SubPopulation(self.task, solver)
+            dict_subpopulations[solver.id] = SubPopulation(self.task, solver, self.record)
             lst_p_values.append(self.mem.get_p_value(solver_id=solver.id))
 
-        print(f'[*] lst_p_values: {lst_p_values}')
+        # print(f'[*] lst_p_values: {lst_p_values}')
         solver1_p_value = lst_p_values[0]
-        n1 = round(solver1_p_value * self.size)        
+        
+        n1 = round(solver1_p_value * self.size)   
+        n2 = self.size - n1
+
         indices = list(range(self.size))          
         random.shuffle(indices)           
         idx_list1 = indices[:n1]         
@@ -148,47 +152,6 @@ class TaskPopulation:
         dists = np.sqrt(np.sum(diffs**2, axis=2))
         iu = np.triu_indices(N, k=1)
         return float(dists[iu].mean())
-    
-    def compute_pdi(self, window: int = 5,
-                    k_sigmoid: float = 1.0,
-                    alpha: float = 0.6,
-                    gamma: float = 1.5,
-                    eps: float = 1e-12):
-        
-        pop = [indi.gene for indi in self.lst_indis]
-        pop_mat = np.vstack([np.asarray(x, dtype=float) for x in pop])
-        N, d = pop_mat.shape 
-        avg_dist = self.pairwise_avg_distance(pop_mat)
-        baseline_diversity = np.sqrt(d) / 3.0 + eps
-        
-        # Diversity Index: Mức đa dạng -> Đo khả năng explore
-        DI = avg_dist / (baseline_diversity + eps)
-
-        DIc = float(np.clip(DI / gamma, 0.0, 1.0))
-        
-        # Improvement Rate: Mức độ cải thiện fitness
-        IR = 0.5
-        if self.best_fitness_hitory is not None and len(self.best_fitness_hitory) >= 2:
-            print(f'Best fitness history: {self.best_fitness_hitory}')
-            L = len(self.best_fitness_hitory)
-            w = int(min(window, max(1, L//2)))
-            if L >= 2 * w:
-                recent = float(np.mean(self.best_fitness_hitory[-w:]))
-                past = float(np.mean(self.best_fitness_hitory[-2 * w:-w]))
-                raw_improve = past - recent
-                print(f'Raw improve: {raw_improve}')
-            else:  
-                raw_improve = self.best_fitness_hitory[0] - self.best_fitness_hitory[1]
-            IR = 1.0 / (1.0 + np.exp(-k_sigmoid * raw_improve))
-            print(f'IR before clip: {IR}')
-            IR = float(np.clip(IR, 0.0, 1.0))
-            print(f'IR after clip: {IR}')
-
-        pdi = alpha * IR + (1.0 - alpha) * DIc
-        pdi = float(np.clip(pdi, 0.0, 1.0))
-        
-        return pdi, IR, DIc
-
     
 
         
