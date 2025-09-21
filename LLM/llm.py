@@ -11,15 +11,15 @@ class LLM():
     def init_solver(self):
         prompt_content = InitPrompt().get_prompt()
         [id, algorithm] = self._get_alg(prompt_content)
-        # print(algorithm)
-        # print(f'Solver initialized with id: {id}')
+        print(algorithm)
+        print(f'Solver initialized with id: {id}')
         return [id, algorithm]
     
     def update_solver(self, good_solver_history, bad_solver_history, alpha):
         prompt_content = UpdatePrompt(good_solver_history, bad_solver_history, alpha).get_prompt()
         [id, algorithm] = self._get_alg(prompt_content)
-        # print(algorithm)
-        # print(f'New solver updated with id: {id}')
+        print(algorithm)
+        print(f'New solver updated with id: {id}')
         return [id, algorithm]
     
     def _get_alg(self, prompt_content):
