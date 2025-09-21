@@ -96,7 +96,7 @@ class UpdatePrompt(AbstractPrompt):
             "- If alpha = 0 → the solver must behave as pure exploration (maximize diversity, disruptive crossover, strong mutation, random injections).\n"
             "- If alpha = 1 → the solver must behave as pure exploitation (focus on elites, mild mutation, local refinement).\n"
             "- Values between 0 and 1 represent a blend, the solver must lean toward the nearest extreme. Do not invert this interpretation!\n"
-            f"Here's the value: alpha = {alpha:.4f}\n"
+            f"Here's the value: alpha = {alpha:.3f}\n"
         )
 
         prompt_parts.append(
