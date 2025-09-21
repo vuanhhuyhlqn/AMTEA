@@ -22,7 +22,7 @@ class Memory():
 
 		for solver_id in lst_solver_ids:
 			self.set_value(solver_id, 0, 0, 0)
-			self.set_p_value(solver_id, 1.0 / len(self.lst_solver_ids)) # Every solver get an equal chance at the beginning
+			self.set_p_value(solver_id, 1.0 / len(self.lst_solver_ids)) 
 
 	def set_p_value(self, solver_id: str, p: float):
 		mask = ((self.p_data["solver_id"] == solver_id))
@@ -51,6 +51,12 @@ class Memory():
 			}
 			self.data = pd.concat([self.data, pd.DataFrame([new_row])], ignore_index=True)
 
+	def keep_memory_size(self):
+		if len(self.data) > self.memory_size * len(self.lst_solver_ids):
+			self.data.sort_values(by="generation", ascending=False, inplace=True)
+			trimmed_df = self.data.groupby('solver_id').head(self.memory_size)
+			self.data = trimmed_df 
+     
 	def get_p_value(self, solver_id):
 		row = self.p_data[(self.p_data["solver_id"] == solver_id)]
 		if row.empty:

@@ -19,6 +19,7 @@ class UpdatePrompt(AbstractPrompt):
         for idx, solver in enumerate(good_solver_history[:3], 1):
             prompt_parts.append(
                 f"No.{idx} solver’s description, alpha and its code:\n"
+                f"# alpha: {solver.alpha}\n"
                 f"# Its Description\n{{{solver.algorithm}}}\n"
                 "# Its Python Code Implementation of a Function\n"
                 f"{get_code(solver.id)}\n"
@@ -62,6 +63,5 @@ class UpdatePrompt(AbstractPrompt):
             f.write(prompt_content)
         
     def get_prompt(self):
-        # print(super().get_prompt())
         return super().get_prompt()
         

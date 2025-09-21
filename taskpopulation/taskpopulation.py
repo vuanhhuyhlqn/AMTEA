@@ -48,41 +48,24 @@ class TaskPopulation:
         # print(f'[*] lst_p_values: {lst_p_values}')
         solver1_p_value = lst_p_values[0]
         
-        n1 = round(solver1_p_value * self.size)   
-        n2 = self.size - n1
-
-        indices = list(range(self.size))          
-        random.shuffle(indices)           
-        idx_list1 = indices[:n1]         
+        n1 = round(solver1_p_value * self.size)          
         
-        for i in range(self.size):
-            if i in idx_list1:
-                dict_subpopulations[self.lst_solvers[0].id].add_individual(self.lst_indis[i])
-            else:
-                dict_subpopulations[self.lst_solvers[1].id].add_individual(self.lst_indis[i])
+        dict_subpopulations[self.lst_solvers[0].id].lst_indis = [indi for indi in self.lst_indis[:n1]]
+        dict_subpopulations[self.lst_solvers[1].id].lst_indis = [indi for indi in self.lst_indis[n1:]]
         
         if self.lst_solvers[0].id == 'de':
-            dict_subpopulations[self.lst_solvers[0].id].selection = TournamentSelection(n1, 2)   
+            dict_subpopulations[self.lst_solvers[0].id].selection = TournamentSelection(n1, 3)   
             dict_subpopulations[self.lst_solvers[1].id].selection = ElitismSelection(self.size - n1)
         else:
-            dict_subpopulations[self.lst_solvers[1].id].selection = TournamentSelection(n1, 2)   
+            dict_subpopulations[self.lst_solvers[1].id].selection = TournamentSelection(n1, 3)   
             dict_subpopulations[self.lst_solvers[0].id].selection = ElitismSelection(self.size - n1)       
         
         cur_median_fitness : float = self.get_median_fitness()
 
         new_lst_indis : List[Individual] = []
         
-        parents1: List[Individual] = []
-        parents2: List[Individual] = []
-        
-        for i in range(self.size):
-            if i in idx_list1:
-                parents1.append(parents[i])
-            else:
-                parents2.append(parents[i])
-        
-        new_lst_indis.extend(dict_subpopulations[self.lst_solvers[0].id].evolve(parents1))
-        new_lst_indis.extend(dict_subpopulations[self.lst_solvers[1].id].evolve(parents2))
+        new_lst_indis.extend(dict_subpopulations[self.lst_solvers[0].id].evolve(parents[:n1]))
+        new_lst_indis.extend(dict_subpopulations[self.lst_solvers[1].id].evolve(parents[n1:]))
 
         for solver_id in solver_ids:
 
@@ -92,7 +75,8 @@ class TaskPopulation:
                                generation=gen, 
                                num_success=success, 
                                num_failure=failure)
-        
+            
+        self.mem.keep_memory_size()
         self.lst_indis = new_lst_indis
         assert(len(self.lst_indis) == self.size)
 

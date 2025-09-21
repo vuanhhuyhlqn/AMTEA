@@ -37,7 +37,7 @@ class Population:
 		for task_name in self.lst_task_names:
 
 			parents = [indi for indi in self.dict_taskpopulations[task_name].lst_indis]
-			if gen % lp <= lp - self.memory_size and gen % tgap == 0:
+			if ((gen - 1) % lp + 1) < (lp - self.memory_size) and (gen % tgap == 0):
 				replace_idx = np.random.randint(0, len(parents), size=k)
 				transfer_pool = self.get_transfer_pool(task_name, k)
 				for i, replace_id in enumerate(replace_idx):
@@ -52,8 +52,9 @@ class Population:
 
 	def get_transfer_pool(self, task_name, k : int):
 		transfer_pool : List[Individual] = []
+		new_lst_task_names = [tn for tn in self.lst_task_names if tn != task_name]
 		for _ in range(k):
-			tmp_task_name = random.choice([tn for tn in self.lst_task_names if tn != task_name])
+			tmp_task_name = random.choice(new_lst_task_names)
 			indi = self.dict_taskpopulations[tmp_task_name].get_random_individuals(1)[0]
 			transfer_pool.append(indi)
 		return transfer_pool
