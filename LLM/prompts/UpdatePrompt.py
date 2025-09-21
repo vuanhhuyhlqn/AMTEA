@@ -44,6 +44,10 @@ class UpdatePrompt(AbstractPrompt):
         )
 
         prompt_parts.append(
+            "The solver should guide the population around "
+        )
+
+        prompt_parts.append(
             "First, describe the design idea and main steps of your solver in one sentence.\n"
             "The description must be inside a brace outside the code implementation.\n"
             "Next, implement it in Python as a function named `generation`.\n"
