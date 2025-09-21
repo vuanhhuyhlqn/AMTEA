@@ -49,10 +49,10 @@ class TaskPopulation:
         dict_subpopulations[self.lst_solvers[1].id].lst_indis = [indi for indi in self.lst_indis[self.solver1_subpop_size:]]
         
         if self.lst_solvers[0].id == 'de':
-            dict_subpopulations[self.lst_solvers[0].id].selection = TournamentSelection(self.solver1_subpop_size, 2)   
+            dict_subpopulations[self.lst_solvers[0].id].selection = TournamentSelection(self.solver1_subpop_size, 3)   
             dict_subpopulations[self.lst_solvers[1].id].selection = ElitismSelection(self.size - self.solver1_subpop_size)
         else:
-            dict_subpopulations[self.lst_solvers[1].id].selection = TournamentSelection(self.solver1_subpop_size, 2)   
+            dict_subpopulations[self.lst_solvers[1].id].selection = TournamentSelection(self.solver1_subpop_size, 3)   
             dict_subpopulations[self.lst_solvers[0].id].selection = ElitismSelection(self.size - self.solver1_subpop_size)       
         
         cur_median_fitness : float = self.get_median_fitness()
