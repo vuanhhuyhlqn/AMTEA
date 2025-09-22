@@ -110,7 +110,7 @@ class AMTEA(AbstractModel):
                         lst_solvers = [ga_solver, de_solver]
                         lst_solver_ids = [solver.id for solver in lst_solvers]
                         self.population.dict_taskpopulations[task_name].num_solvers = len(lst_solvers)
-                        self.population.dict_taskpopulations[task_name].lst_solvers = lst_solvers
+                        self.population.dict_taskpopulations[task_name].lst_solvers = [solver for solver in lst_solvers]
                         self.population.dict_taskpopulations[task_name].mem.restart(lst_solver_ids)
                         gen = 0
 
