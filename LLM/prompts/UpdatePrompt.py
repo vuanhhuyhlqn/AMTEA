@@ -25,11 +25,10 @@ class UpdatePrompt(AbstractPrompt):
             )
             
         if bad_solver_history:
-            prompt_parts.append("\nPoor solvers to avoid with their alphas:\n")
+            prompt_parts.append("\nPoor solvers to avoid:\n")
             for idx, solver in enumerate(bad_solver_history[:3], 1):
                 prompt_parts.append(
                     f"No.{idx} poor solver’s description, alpha and its code:\n"
-                    f"# alpha: {solver.alpha}\n"
                     f"# Its Description\n{{{solver.algorithm}}}\n"
                     "# Its Python Code Implementation of a Function\n"
                     f"{get_code(solver.id)}\n"
