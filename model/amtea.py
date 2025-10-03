@@ -33,9 +33,12 @@ class AMTEA(AbstractModel):
 
         num_llm_solvers = 0
         lst_solvers = []
-        ga_solver = Solver('ga', 'Simulated Binary Crossover (SBX) combined with Polynomial Mutation: This operator generates an offspring population by pairing parents from the given population, performing SBX crossover on each pair, and then applying polynomial mutation to introduce additional diversity.', alpha = self.alpha)
-        de_solver = Solver('de', 'Differential Evolution (DE) Crossover: This operator generates an offspring population by applying DE/rand/1 mutation and binomial crossover to each individual in the given population.', alpha=self.alpha)    
         
+        ga_solver = Solver('ga', 'Simulated Binary Crossover (SBX) combined with Polynomial Mutation: This operator generates an offspring population by pairing parents from the given population, performing SBX crossover on each pair, and then applying polynomial mutation to introduce additional diversity.', alpha = self.alpha)
+
+        de_solver = Solver('de', 'Differential Evolution (DE) Crossover: This operator generates an offspring population by applying DE/rand/1 mutation and binomial crossover to each individual in the given population.', alpha=self.alpha)    
+    
+
         print(f'Initializing {num_llm_solvers} LLM-based solvers to choose top {num_solvers} solvers.')
         while len(lst_solvers) < num_llm_solvers + 2:
             try:
@@ -46,7 +49,7 @@ class AMTEA(AbstractModel):
                 else:
                     [id, alg] = self.llm.init_solver()
                     solver = Solver(id, alg)
-                    
+
                 eval_scores = []
                 for task_name in self.population.lst_task_names:
                     lst_indis = self.population.dict_taskpopulations[task_name].lst_indis
@@ -87,6 +90,7 @@ class AMTEA(AbstractModel):
 
         self.eval_budget = eval_budget
         gen = 0
+        
         while self.check_terminate_condition() == False:
             u = self.get_evaluation_count() / eval_budget
             self.alpha = self.alpha_start + (1.0 - self.alpha_start) * (1.0 - math.cos(math.pi * u)) / 2
@@ -102,8 +106,8 @@ class AMTEA(AbstractModel):
                     if self.dct_fitness[task_name][-1] > self.dct_fitness[task_name][-2]:
                         raise ValueError("Fitness raise back!")
 
-                if len(self.dct_fitness[task_name]) > 10:
-                    if math.isclose(self.dct_fitness[task_name][-1], self.dct_fitness[task_name][-10], abs_tol=1e-9): # No improvement
+                if len(self.dct_fitness[task_name]) > 20:
+                    if math.isclose(self.dct_fitness[task_name][-1], self.dct_fitness[task_name][-20], abs_tol=1e-9): # No improvement
                         ga_solver = Solver('ga', 'Simulated Binary Crossover (SBX) combined with Polynomial Mutation: This operator generates an offspring population by pairing parents from the given population, performing SBX crossover on each pair, and then applying polynomial mutation to introduce additional diversity.', alpha = self.alpha)
                         de_solver = Solver('de', 'Differential Evolution (DE) Crossover: This operator generates an offspring population by applying DE/rand/1 mutation and binomial crossover to each individual in the given population.', alpha=self.alpha)
 
@@ -219,6 +223,7 @@ class AMTEA(AbstractModel):
         eval_cnt = 0
         for task in self.lst_tasks:
             eval_cnt += task.eval_cnt
+
         # print(f'Evaluation count: {eval_cnt}/{self.eval_budget}')
         return eval_cnt >= self.eval_budget
 
